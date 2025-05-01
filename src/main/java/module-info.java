@@ -1,4 +1,9 @@
-module org.openjfx {
+module it.petrinet {
     requires javafx.controls;
-    exports org.openjfx;
+    requires javafx.fxml;
+
+    requires org.controlsfx.controls;
+
+    opens it.petrinet to javafx.fxml;
+    exports it.petrinet;
 }
