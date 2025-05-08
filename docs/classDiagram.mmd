@@ -1,0 +1,120 @@
+classDiagram
+class Persona {
+    +ID: UUID
+    +subscribe(pn: PetriNet)
+    +fireTransition(t: Transition)
+}
+
+class Administrator {
+  +adminID: UUID
+  +createPetriNet() : PetriNet
+  +deleteComputation(c: Computation)
+}
+
+class EndUser {
+  +userID: UUID
+  +startComputation(): Computation
+}
+
+class PetriNet {
+  +netID: UUID
+  +name: String
+  +initialPlace: Place
+  +finalPlace: Place
+  +dateCreated: DateTime
+}
+
+class Place {
+  +tokenCount: int
+}
+
+class Transition {
++type: TwransitionType
+}
+
+class TransitionType {
+  <<enumeration>>
+  ADMIN
+  USER
+}
+
+class Arc {
+  +arcID: UUID
+  +source: String  // Place or Transition
+  +target: String  // Transition or Place
+}
+
+class Computation {
+  +compID: UUID
+  +status: ComputationStatus
+  +startTime: DateTime
+  +endTime: DateTime
+}
+
+class ComputationStatus {
+  <<enumeration>>
+  ACTIVE
+  COMPLETED
+}
+
+class ComputationStep {
+  +stepID: UUID
+  +timestamp: DateTime
+  +fromTransition: transitionID
+  +toPlace: placeID
+}
+
+class Model{
+    +getAviableNets() : List~PetriNet~
+    +
+}
+
+class Marking{
+    +markingID: UUID
+    +placeID: UUID
+    +tokenCount: int
+}
+
+class Catalog {
+    +nets: List~PetriNet~
+    +addNet(net: PetriNet)
+    +removeNet(net: PetriNet)
+    +getNets(): List<PetriNet
+}
+
+class SubscribedCatalog {
+    +subscribedNets: List~PetriNet~
+    +computations: List~Computation~
+    +addSubscribedNet(net: PetriNet)
+    +removeSubscribedNet(net: PetriNet)
+    +getSubscribedNets(): List~PetriNet~
+    +addComputation(comp: Computation)
+    +removeComputation(comp: Computation)
+    +getComputations(): List~Computation~
+}
+
+class Node {
+    <<interface>>
+    +nodeID: UUID
+    +name: String
+}
+
+Persona "1" -- "1" SubscribedCatalog : manages
+Catalog "1" -- "*" PetriNet : contains
+
+Node <|.. Place
+Node <|.. Transition
+
+Persona --> Administrator
+Persona --> EndUser
+Administrator "1" -- "*" PetriNet : creates
+PetriNet "1" o-- "*" Place
+PetriNet "1" o-- "*" Transition
+Place "*" <--> "*" Arc : connects
+Transition "*" <--> "*" Arc : connects
+PetriNet "1" -- "*" Computation
+EndUser "1" -- "*" Computation : initiates
+Computation "1" -- "*" ComputationStep
+Computation "1" o-- "*" Marking
+Transition ..> TransitionType : use
+ComputationStep ..> ComputationStatus : use
