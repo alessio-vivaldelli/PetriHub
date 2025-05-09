@@ -23,4 +23,8 @@
 hs_err_pid*
 replay_pid*
 
-.idea
+.idea/
+.settings/
+
+# target folder with bytecodes
+target/
