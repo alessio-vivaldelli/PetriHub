@@ -8,14 +8,21 @@ classDiagram
 
     HomeFrame ..|> HomeListener : |use|
 
-    HomeListener --|> ShowAllFrame
-    HomeListener --|> x
+    HomeListener --> ShowAllFrame
+    HomeListener --> PetriNetFrame
 
 
     ShowAllFrame ..|> ShowAllListener : |use|
 
 
 
-    NotificationFrame ..|> NotificationListener : |use|
+    NotificationPopUp ..|> NotificationPopUpListener : |use|
     TopbarFrame ..|> TopBarListener : |use|
-    TopBarListener --|> NotificationFrame
+    TopBarListener --|> NotificationPopUp
+
+    NotificationPopUpListener --> NotificationFrame
+    NotificationFrame ..|> NotificationListener : |use|
+
+    ShowAllListener --> PetriNetFrame
+    NotificationListener --> PetriNetFrame
+    NotificationPopUpListener --> PetriNetFrame
