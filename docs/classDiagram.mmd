@@ -104,6 +104,7 @@ Node <|.. Transition
 Persona --|> Administrator
 Persona --|> EndUser
 Administrator "1" -- "*" PetriNet : creates
+TransitionType ..> Computation : use
 PetriNet "1" o-- "*" Place
 PetriNet "1" o-- "1..*" Transition
 PetriNet "1" -- "*" Computation
