@@ -1,0 +1,21 @@
+classDiagram
+
+
+    LoginFrame ..|> LoginListener : |use|
+    LoginListener --> HomeFrame
+
+
+
+    HomeFrame ..|> HomeListener : |use|
+
+    HomeListener --|> ShowAllFrame
+    HomeListener --|> x
+
+
+    ShowAllFrame ..|> ShowAllListener : |use|
+
+
+
+    NotificationFrame ..|> NotificationListener : |use|
+    TopbarFrame ..|> TopBarListener : |use|
+    TopBarListener --|> NotificationFrame
