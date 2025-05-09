@@ -20,24 +20,6 @@ public class HelloApplication extends Application {
     // Create the graph
     Graph<String, String> g = new GraphEdgeList<>();
     // ... see Examples below
-
-    SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
-    SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, initialPlacement);
-    Scene scene = new Scene(graphView, 1024, 768);
-
-    stage = new Stage(StageStyle.DECORATED);
-    stage.setTitle("JavaFXGraph Visualization");
-    stage.setScene(scene);
-    stage.show();
-
-    graphView.setVertexSingleClickAction(vertex -> {
-      System.out.println("Click: " + vertex.getStylableLabel());
-    });
-
-    // IMPORTANT! - Called after scene is displayed, so we can initialize the graph
-    // visualization
-    graphView.init();
-
     g.insertVertex("A");
     g.insertVertex("B");
     g.insertVertex("C");
@@ -70,8 +52,33 @@ public class HelloApplication extends Application {
 
     g.insertEdge("A", "H", "0");
 
+    SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
+    SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, initialPlacement);
+    Scene scene = new Scene(graphView, 1024, 768);
+
+    stage = new Stage(StageStyle.DECORATED);
+    stage.setTitle("JavaFXGraph Visualization");
+    stage.setScene(scene);
+    stage.show();
+
+    graphView.setVertexSingleClickAction(vertex -> {
+      System.out.println("Click: " + vertex.getStylableLabel());
+      System.out.println("------" +
+          graphView.getStylableVertex("A"));
+      vertex.setStyleClass("myVertex");
+
+    });
+
+    // IMPORTANT! - Called after scene is displayed, so we can initialize the graph
+    // visualization
+
+    graphView.init();
+
     graphView.setAutomaticLayout(true);
     graphView.update();
+
+    System.out.println("------" +
+        graphView.getStylableVertex("A"));
   }
 
   public static void main(String[] args) {
