@@ -38,11 +38,6 @@ class TransitionType {
   USER
 }
 
-class Arc {
-  +arcID: UUID
-  +source: String  // Place or Transition
-  +target: String  // Transition or Place
-}
 
 class Computation {
   +compID: UUID
@@ -99,22 +94,20 @@ class Node {
     +name: String
 }
 
-Persona "1" -- "1" SubscribedCatalog : manages
-Catalog "1" -- "*" PetriNet : contains
+Persona "1" -- "1" SubscribedCatalog
+Catalog "1" o-- "*" PetriNet : contains
 
 Node <|.. Place
 Node <|.. Transition
 
-Persona --> Administrator
-Persona --> EndUser
+Persona --|> Administrator
+Persona --|> EndUser
 Administrator "1" -- "*" PetriNet : creates
 PetriNet "1" o-- "*" Place
-PetriNet "1" o-- "*" Transition
-Place "*" <--> "*" Arc : connects
-Transition "*" <--> "*" Arc : connects
+PetriNet "1" o-- "1..*" Transition
 PetriNet "1" -- "*" Computation
 EndUser "1" -- "*" Computation : initiates
-Computation "1" -- "*" ComputationStep
+Computation "1" *-- "*" ComputationStep
 Computation "1" o-- "*" Marking
 Transition ..> TransitionType : use
 ComputationStep ..> ComputationStatus : use
