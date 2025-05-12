@@ -135,6 +135,15 @@ public class HelloApplication extends Application {
 
       return "circle";
     }
+
+    @SmartRadiusSource
+    public Double modelRadius() {
+      if(this.type.equals("transition")) {
+        return 20.0;
+      }
+
+      return 10.0;
+    }
   }
 
   public static void main(String[] args) {
