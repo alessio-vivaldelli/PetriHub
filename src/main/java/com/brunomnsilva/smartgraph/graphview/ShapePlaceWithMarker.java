@@ -25,51 +25,61 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 import javafx.beans.property.DoubleProperty;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import org.w3c.dom.css.Rect;
 
 /**
  * This class represents a circle shape with a specified radius.
  *
  * @author brunomnsilva
  */
-public class ShapeCircle implements ShapeWithRadius<Circle> {
+public class ShapePlaceWithMarker implements ShapeWithRadius<Shape> {
 
   private final Circle surrogate;
-
+  private final Circle innerCircle;
+  private Shape total;
   /**
    * Creates a circle shape.
-   * 
+   *
    * @param x      the x-center coordinate
    * @param y      the y-center coordinate
    * @param radius the radius of the circle
    */
-  public ShapeCircle(double x, double y, double radius) {
+  public ShapePlaceWithMarker(double x, double y, double radius) {
     Args.requireNonNegative(x, "x");
     Args.requireNonNegative(y, "y");
     Args.requireNonNegative(radius, "radius");
 
+    this.innerCircle = new Circle(x, y, radius*0.2);
+    this.innerCircle.setFill(Color.BLACK);
     this.surrogate = new Circle(x, y, radius);
+    this.surrogate.setFill(Color.YELLOW);
+
+    this.total = Shape.subtract(surrogate, innerCircle);
   }
 
   @Override
   public Shape getShape() {
-    return surrogate;
+    return total;
   }
 
   @Override
   public DoubleProperty centerXProperty() {
-    return surrogate.centerXProperty();
+      return total.translateXProperty();
   }
 
   @Override
   public DoubleProperty centerYProperty() {
-    return surrogate.centerYProperty();
+      return total.translateYProperty();
   }
 
   @Override
   public DoubleProperty radiusProperty() {
-    return surrogate.radiusProperty();
+      return surrogate.radiusProperty();
   }
 
   @Override
@@ -84,6 +94,8 @@ public class ShapeCircle implements ShapeWithRadius<Circle> {
     // Only update if different
     if (Double.compare(this.getRadius(), radius) != 0) {
       surrogate.setRadius(radius);
+      innerCircle.setRadius(radius*0.2);
+      total = Shape.union(surrogate, innerCircle);
     }
   }
 }

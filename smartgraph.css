@@ -14,7 +14,7 @@
   /* pseudo-classes also work */
   /*-fx-cursor: default; */
   /* You can use this style to override the hand/move cursors while hovering. */
-  -fx-stroke-width: 4;
+  -fx-stroke-width: 3;
 }
 
 .vertex-label {
@@ -50,4 +50,11 @@
   -fx-stroke-type: inside;
   /* you should keep this if using arrows */
   -fx-fill: yellowgreen;
+}
+
+.marker {
+  /*-fx-stroke-width: 5;*/
+  /*-fx-stroke: green;*/
+  /*-fx-stroke-type: inside;*/
+  /* you should keep this if using arrows */
 }
