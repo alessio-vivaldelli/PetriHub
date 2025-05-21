@@ -13,7 +13,7 @@ public class User {
         this.username = username;
         this.password = password;
         this.isAdmin = isAdmin;
-    } //puzzo
+    }
 
     public static User create(String username, String password, boolean isAdmin) {
         return new User(username, password, isAdmin);
