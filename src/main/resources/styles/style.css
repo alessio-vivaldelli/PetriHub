@@ -1,0 +1,124 @@
+/* ================================
+   Catppuccin Mocha + Peach Accent
+   ================================ */
+
+/* -------------------------------
+   ROOT & COLOURS
+   ------------------------------- */
+.root {
+    -fx-background-color: #1e1e2e; /* base */
+    -fx-font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+    -fx-text-fill: #cdd6f4;        /* main text */
+}
+
+/* -------------------------------
+   LABELS & TEXT
+   ------------------------------- */
+.label {
+    -fx-text-fill: #cdd6f4;
+    -fx-font-size: 14px;
+}
+.label#error, .label#errorLabel {
+    -fx-text-fill: #f38ba8; /* rosewater for errors */
+}
+
+/* -------------------------------
+   BUTTONS
+   ------------------------------- */
+.button {
+    -fx-background-color: #fab387; /* peach accent */
+    -fx-text-fill: #1e1e2e;         /* base bg for contrast */
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 8 16 8 16;
+}
+.button:hover {
+    -fx-background-color: #f2a97f; /* slightly darker peach */
+}
+
+/* -------------------------------
+   TEXT FIELDS & CONTROLS
+   ------------------------------- */
+.text-field,
+.password-field,
+.text-area,
+.combo-box {
+    -fx-background-color: #313244; /* surface0 */
+    -fx-text-fill: #cdd6f4;
+    -fx-prompt-text-fill: #9399b2;
+    -fx-border-color: transparent;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-padding: 6px 8px 6px 8px;
+}
+.text-field:focused,
+.password-field:focused,
+.text-area:focused,
+.combo-box:focused {
+    -fx-border-color: #fab387; /* peach border on focus */
+    -fx-border-width: 1.5px;
+}
+
+/* -------------------------------
+   HYPERLINKS & CHECKBOXES
+   ------------------------------- */
+.hyperlink {
+    -fx-text-fill: #fab387;
+    -fx-underline: false;
+}
+.hyperlink:hover {
+    -fx-underline: true;
+}
+
+.check-box .box,
+.radio-button .radio {
+    -fx-mark-color: #fab387;
+}
+.check-box,
+.radio-button {
+    -fx-text-fill: #cdd6f4;
+}
+
+/* -------------------------------
+   PANES & CONTAINERS
+   ------------------------------- */
+.vbox, .hbox, .stack-pane, .anchor-pane, .border-pane {
+    -fx-background-color: transparent;
+}
+
+/* -------------------------------
+   TABLEVIEW (se usi tabelle)
+   ------------------------------- */
+.table-view {
+    -fx-background-color: #313244;
+    -fx-table-cell-border-color: transparent;
+    -fx-control-inner-background: #313244;
+    -fx-text-background-color: #cdd6f4;
+}
+.table-column-header {
+    -fx-background-color: #45475a; /* surface1 */
+    -fx-text-fill: #cdd6f4;
+}
+
+/* -------------------------------
+   UTILITY CLASSES
+   ------------------------------- */
+/* Card style */
+.card {
+    -fx-background-color: #313244;
+    -fx-border-color: #45475a;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8, 0.2, 0, 2);
+}
+
+/* Centering helper */
+.text-center {
+    -fx-alignment: center;
+}
+
+/* Spacing helpers */
+.mt-1 { -fx-padding: 8 0 0 0; }
+.mb-1 { -fx-padding: 0 0 8 0; }
+.p-1  { -fx-padding: 8; }

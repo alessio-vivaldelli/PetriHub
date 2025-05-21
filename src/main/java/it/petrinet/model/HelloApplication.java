@@ -1,15 +1,12 @@
-package it.petrinet;
+package it.petrinet.model;
 
-import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graphview.*;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList;

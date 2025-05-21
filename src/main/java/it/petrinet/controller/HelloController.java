@@ -1,4 +1,4 @@
-package it.petrinet;
+package it.petrinet.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

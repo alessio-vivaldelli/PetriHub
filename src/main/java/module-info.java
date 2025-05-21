@@ -8,5 +8,11 @@ module it.petrinet {
     requires java.logging;
     requires jdk.xml.dom;
     opens it.petrinet to javafx.fxml;
+    exports it.petrinet.model;
+    opens it.petrinet.model to javafx.fxml;
+    exports it.petrinet.controller;
+    opens it.petrinet.controller to javafx.fxml;
+    exports it.petrinet.view;
+    opens it.petrinet.view to javafx.fxml;
     exports it.petrinet;
 }
