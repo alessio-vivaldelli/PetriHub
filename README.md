@@ -34,3 +34,8 @@ gitGraph
    checkout main
    merge develop id: "Release v1.0"
 ```
+__________
+
+## Project description
+
+This project is a Petri-Net simulator and editor. It allows users to create, edit, and simulate Petri-Nets using a graphical user interface (GUI). The project is built using Python and includes features for XML export and schema validation.
