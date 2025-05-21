@@ -7,6 +7,13 @@ module it.petrinet {
     requires jdk.xml.dom;
     requires atlantafx.base;
     requires java.sql;
+
     opens it.petrinet to javafx.fxml;
     exports it.petrinet;
+    exports it.petrinet.view;
+    exports it.petrinet.controller;
+    exports it.petrinet.model;
+    opens it.petrinet.view;
+    opens it.petrinet.controller;
+    opens it.petrinet.model;
 }
