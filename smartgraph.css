@@ -52,6 +52,14 @@
   -fx-fill: yellowgreen;
 }
 
+.svg_elem {
+  -fx-stroke-width: 1;
+  -fx-stroke: green;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: yellowgreen;
+}
+
 .marker {
   /*-fx-stroke-width: 5;*/
   /*-fx-stroke: green;*/
