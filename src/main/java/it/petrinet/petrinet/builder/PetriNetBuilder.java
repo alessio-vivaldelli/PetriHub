@@ -1,4 +1,4 @@
-package it.petrinet.petrinet;
+package it.petrinet.petrinet.builder;
 
 public class PetriNetBuilder {
 }
