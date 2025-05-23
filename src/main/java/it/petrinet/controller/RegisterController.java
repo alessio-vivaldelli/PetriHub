@@ -1,9 +1,6 @@
 package it.petrinet.controller;
 
-import static it.petrinet.Main.isValidInput;
-import it.petrinet.controller.LoginController;
 
-import it.petrinet.Main;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 import javafx.fxml.FXML;
@@ -12,6 +9,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
+import static it.petrinet.utils.Validation.isValidInput;
 
 public class RegisterController {
     @FXML

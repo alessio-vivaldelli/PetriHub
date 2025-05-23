@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import it.petrinet.view.components.NavBar?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="it.petrinet.controller.HomeController"
+            maxHeight="Infinity" maxWidth="Infinity">
+
+    <top>
+        <NavBar />
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="20.0">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Benvenuto nella Home Page"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Seleziona un'opzione dalla barra di navigazione per iniziare"
+                   style="-fx-font-size: 16px;"/>
+        </VBox>
+    </center>
+</BorderPane>

@@ -3,113 +3,155 @@ package it.petrinet.view;
 import it.petrinet.Main;
 import it.petrinet.controller.MainController;
 import it.petrinet.model.User;
-
+import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.io.IOException;
 import java.net.URL;
-
-// Casino totale qua, dobbiamo vederi per sistemare !!!!
+import java.util.Objects;
 
 /**
- * This class handles navigation between different views in the application.
- * It works as a bridge between controllers and views, allowing for simplified navigation.
+ * Simple navigation utility for managing views and user authentication.
  */
-public class ViewNavigator {
-    // Reference to the main controller
+public final class ViewNavigator {
+
     private static MainController mainController;
+    private static User authenticatedUser;
 
-    // Current authenticated username
-    private static User authenticatedUser = null;  // not null if logged in
+    private ViewNavigator() {}
 
-  /*  public static void setSelectedProject(Project project) {
-        selectedProject = project;
-    }
-    magari può servire per le petri net
-
-    public static Project getSelectedProject() {
-        return selectedProject;
-    }
-    anche quest
-  */
-
-
-    /**
-     * Set the main controller reference
-     * @param controller The MainController instance
-     */
-    public static void setMainController(MainController controller) {
-        mainController = controller;
+    public static void init(MainController controller) {
+        mainController = Objects.requireNonNull(controller, "MainController cannot be null");
     }
 
-    /**
-     * Load and switch to a view
-     * @param fxml The name of the FXML file to load
-     */
-    public static void loadView(String fxml) {
-        try {
-            URL fxmlUrl = Main.class.getResource("/fxml/" + fxml);
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Node view = loader.load();
-            mainController.setContent(view);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Error loading view: " + fxml);
-        }
-    }
-
-
-
-    /**
-     * Navigate to the home view
-     */
-//    public static void navigateToHome() {
-//        loadView("HomeView.fxml");
-//    }
-
-    /**
-     * Navigate to the login view
-     */
-    public static void navigateToLogin() {
+    // Navigation methods
+    public static void LoginScene() {
+        resizeStage(500, 400, "PH - Login");
         loadView("LoginView.fxml");
-
     }
 
-    /**
-     * Navigate to the register view
-     */
+    public static void HomeScene() {
+        resizeStage(0, 0, "Home");
+        loadView("HomeView.fxml");
+    }
+
+    public static void navigateToLogin() {
+        Main.getPrimaryStage().setTitle("PH - Login");
+        loadView("LoginView.fxml");
+    }
+
     public static void navigateToRegister() {
+        Main.getPrimaryStage().setTitle("PH - Registration");
         loadView("RegisterView.fxml");
     }
 
-    /**
-     * Set the authenticated user
-     * @param username The username of the authenticated user
-     */
+    public static void navigateToHome() {
+        loadView("HomeView.fxml");
+    }
+
+    // User authentication
     public static void setAuthenticatedUser(User user) {
         authenticatedUser = user;
     }
 
-    /**
-     * Get the authenticated user
-     * @return The username of the authenticated user, or null if not authenticated
-     */
     public static User getAuthenticatedUser() {
         return authenticatedUser;
     }
 
-    /**
-     * Check if a user is authenticated
-     * @return true if a user is authenticated, false otherwise
-     */
     public static boolean isAuthenticated() {
         return authenticatedUser != null;
     }
 
-    /**
-     * Logout the current user
-     */
     public static void logout() {
-        System.out.println("Logout fatto, ho appena fatto la caccona nel puzzone, spero non si veda nella cronologia di git <3");
+        authenticatedUser = null;
+        navigateToLogin();
+    }
+
+    // Load FXML view
+    private static void loadView(String fxmlName) {
+        if (mainController == null) {
+            throw new IllegalStateException("ViewNavigator not initialized. Call ViewNavigator.init() first.");
+        }
+
+        String path = "/fxml/" + fxmlName;
+        URL resource = Main.class.getResource(path);
+        if (resource == null) {
+            throw new IllegalStateException("FXML resource not found: " + path);
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(resource);
+            Pane view = loader.load();
+            mainController.setContent(view);
+        } catch (IOException e) {
+            System.err.println("Error loading view '" + fxmlName + "': " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Resize window with animation
+    private static void resizeStage(double width, double height, String title) {
+        Stage stage = Main.getPrimaryStage();
+        if (stage == null) {
+            throw new IllegalStateException("Primary stage is null");
+        }
+
+        // Calculate target size
+        boolean maximize = (width == 0 && height == 0);
+        if (maximize) {
+            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+            width = bounds.getWidth();
+            height = bounds.getHeight();
+        }
+
+        final double targetWidth = width;
+        final double targetHeight = height;
+        final boolean shouldMaximize = maximize;
+
+        // Fade out
+        Timeline fadeOut = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(stage.opacityProperty(), 1.0)),
+                new KeyFrame(Duration.millis(250), new KeyValue(stage.opacityProperty(), 0.0))
+        );
+
+        // Pause
+        PauseTransition pause = new PauseTransition(Duration.millis(100));
+
+        // Fade in
+        Timeline fadeIn = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(stage.opacityProperty(), 0.0)),
+                new KeyFrame(Duration.millis(350), new KeyValue(stage.opacityProperty(), 1.0))
+        );
+
+        // Apply changes during pause
+        pause.setOnFinished(e -> {
+            stage.setTitle(title);
+            stage.setWidth(targetWidth);
+            stage.setHeight(targetHeight);
+
+            if (shouldMaximize) {
+                Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+                stage.setX(bounds.getMinX());
+                stage.setY(bounds.getMinY());
+            } else {
+                // Center the window after resize
+                Platform.runLater(() -> {
+                    Rectangle2D screen = Screen.getPrimary().getVisualBounds();
+                    double centerX = screen.getMinX() + (screen.getWidth() - stage.getWidth()) / 2;
+                    double centerY = screen.getMinY() + (screen.getHeight() - stage.getHeight()) / 2;
+                    stage.setX(centerX);
+                    stage.setY(centerY);
+                });
+            }
+        });
+
+        // Play animation sequence
+        new SequentialTransition(fadeOut, pause, fadeIn).play();
     }
 }

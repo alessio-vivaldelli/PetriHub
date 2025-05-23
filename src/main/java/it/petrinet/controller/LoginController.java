@@ -1,49 +1,56 @@
 package it.petrinet.controller;
 
-
-import static it.petrinet.Main.isValidInput;
-
 import it.petrinet.Main;
-import it.petrinet.Main.*;
+import it.petrinet.model.User;
+import it.petrinet.view.ViewNavigator;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import it.petrinet.model.User;
-import it.petrinet.view.ViewNavigator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.Optional;
+
+import static it.petrinet.utils.Validation.isValidInput;
 
 public class LoginController {
-    @FXML
-    private TextField usernameField;
+    private static final String LOGO_PATH      = "/assets/images/logo.png";
+    private static final String FXML_HOME_PATH = "/fxml/Home.fxml";
+    private static final String CSS_PATH       = "/styles/style.css";
+
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private Label statusLabel;
+    @FXML private ImageView logoView;
+    @FXML private Button loginButton;
+
+    private final DB database = new DB(); // TODO: replace with DI
 
     @FXML
-    private PasswordField passwordField;
-
-    @FXML
-    private Label statusLabel;
-
-    @FXML
-    private ImageView logoView;
-
-    private DB newDB = new DB(); // Da cancellare dopo aver fatto db
-
-    @FXML
-    // inizializza lo statuslabel (il messaggio di errore in caso di login fallito) e l'immagine del logo
     public void initialize() {
+        // Hide error message initially
         statusLabel.setVisible(false);
-        Image img = new Image(getClass().getResourceAsStream("/assets/images/logo.png"));
-        logoView.setImage(img);
+
+        // Load logo
+        loadLogoImage();
+
+        // Enable Enter key to trigger login
+        loginButton.setDefaultButton(true);
     }
 
     @FXML
-    private void handleLogin() { //pulsante che accetta il login nel caso andasse bene (passa al model che poi rigira al view la schemrata giusta (credo)
+    private void handleLogin(ActionEvent event) {
+        clearError();
+
         String username = usernameField.getText();
         String password = passwordField.getText();
 
@@ -52,29 +59,53 @@ public class LoginController {
             return;
         }
 
-        User user = newDB.getUsers().stream()
-                .filter(u -> u.getUsername().equals(username))  //Sto provandoooooo!!!!
-                .findFirst()
-                .orElse(null);
+        Optional<User> userOpt = database.getUsers().stream()
+                .filter(u -> u.getUsername().equals(username))
+                .findFirst();
 
-
-        if (user != null && user.checkPassword(password)) {
-            // Login successful
-            ViewNavigator.setAuthenticatedUser(user);
-            System.out.println("Login successful for user: " + user.getUsername());
+        if (userOpt.isPresent() && userOpt.get().checkPassword(password)) {
+            proceedToMainView(event, userOpt.get());
         } else {
             showError("Invalid username or password");
         }
+
     }
 
     @FXML
-    private void handleRegister() { //easy peasy switch di scena
+    private void handleRegister() {
         ViewNavigator.navigateToRegister();
     }
 
-    private void showError(String message) { //errore di login
+    private void loadLogoImage() {
+        try {
+            Image img = new Image(getClass().getResourceAsStream(LOGO_PATH));
+            logoView.setImage(img);
+        } catch (Exception e) {
+            System.err.println("Unable to load logo: " + LOGO_PATH);
+        }
+    }
+
+    private void proceedToMainView(ActionEvent event, User user) {
+        ViewNavigator.setAuthenticatedUser(user);
+        ViewNavigator.HomeScene();
+    }
+
+    private void applyStyles(Scene scene, String cssPath) {
+        URL cssUrl = getClass().getResource(cssPath);
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("Unable to find stylesheet: " + cssPath);
+        }
+    }
+
+    private void showError(String message) {
         statusLabel.setText(message);
         statusLabel.setStyle("-fx-text-fill: red;");
         statusLabel.setVisible(true);
+    }
+
+    private void clearError() {
+        statusLabel.setVisible(false);
     }
 }

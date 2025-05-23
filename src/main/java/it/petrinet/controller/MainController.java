@@ -7,6 +7,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import it.petrinet.model.User;
 
+import java.awt.event.ActionEvent;
+
 //Easy controller che fa il girno di saluti iniziali
 
 public class MainController {
@@ -17,7 +19,7 @@ public class MainController {
     public void initialize() {
 
         // Register this controller with the ViewNavigator
-        ViewNavigator.setMainController(this);
+        ViewNavigator.init(this);
 
         // Load the home view by default
         ViewNavigator.navigateToLogin();
