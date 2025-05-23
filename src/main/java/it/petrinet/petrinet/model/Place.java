@@ -11,7 +11,7 @@ import javafx.geometry.Point2D;
 public class Place extends Node {
   public static String PLACE_SHAPE = "place";
 
-  private PLACE_TYPE type;
+  private PLACE_TYPE type = PLACE_TYPE.NORMAL;
   private int tokens;
 
   /**
@@ -49,7 +49,18 @@ public class Place extends Node {
    * @param position the position of the place in 2D space
    */
   public Place(String name, Point2D position) {
-    this(name, position, null, 0);
+    this(name, position, PLACE_TYPE.NORMAL, 0);
+  }
+
+  /**
+   * Constructs a Place with the specified name.
+   * The position is set to (0, 0), the type is set to normal, and the initial
+   * number of tokens is set to 0.
+   *
+   * @param name the name of the place
+   */
+  public Place(String name) {
+    this(name, new Point2D(0, 0), PLACE_TYPE.NORMAL, 0);
   }
 
   @Override
@@ -59,20 +70,34 @@ public class Place extends Node {
 
   /**
    * Returns the current number of tokens in this place.
-   *
-   * @return the number of tokens
    */
   public int getPlaceTokens() {
     return tokens;
   }
 
   /**
-   * Checks if this place is a start place.
+   * Sets the number of tokens in this place.
    *
-   * @return true if this place is of type START, false otherwise
+   * @param tokens the new number of tokens
    */
-  public boolean isStartPlace() {
-    return type == PLACE_TYPE.START;
+  public void setPlaceTokens(int tokens) {
+    this.tokens = tokens;
+  }
+
+  /**
+   * Sets whether this place is a start place.
+   */
+  public void setIsStart() {
+    this.type = PLACE_TYPE.START;
+  }
+
+  /*
+   * Set place type
+   * 
+   * @param type the new type of the ce
+   */
+  public void setType(PLACE_TYPE type) {
+    this.type = type;
   }
 
   /**
@@ -83,4 +108,5 @@ public class Place extends Node {
   public boolean isEndPlace() {
     return type == PLACE_TYPE.END;
   }
+
 }

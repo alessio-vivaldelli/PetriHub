@@ -53,6 +53,17 @@ public class Transition extends Node {
   }
 
   /**
+   * Constructs a Transition with the specified name.
+   * The position is set to (0, 0), the type is set to USER, and the firable
+   * state is set to false.
+   *
+   * @param name the name of the transition
+   */
+  public Transition(String name) {
+    this(name, new Point2D(0, 0), TRANSITION_TYPE.USER, false);
+  }
+
+  /**
    * Returns a string representing the model shape of this transition.
    *
    * @return a string representing the model shape
@@ -69,6 +80,15 @@ public class Transition extends Node {
    */
   public TRANSITION_TYPE getType() {
     return type;
+  }
+
+  /**
+   * Sets the type of this transition.
+   *
+   * @param type the new transition type
+   */
+  public void setType(TRANSITION_TYPE type) {
+    this.type = type;
   }
 
   /**
