@@ -1,4 +1,4 @@
-package it.petrinet.petrinet;
+package it.petrinet.petrinet.model;
 
 import javafx.geometry.Point2D;
 

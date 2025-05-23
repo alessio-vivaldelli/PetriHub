@@ -1,4 +1,4 @@
-package it.petrinet.petrinet;
+package it.petrinet.petrinet.model;
 
 import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
 import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;

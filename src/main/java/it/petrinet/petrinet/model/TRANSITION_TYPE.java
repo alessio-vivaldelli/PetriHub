@@ -1,4 +1,4 @@
-package it.petrinet.petrinet;
+package it.petrinet.petrinet.model;
 
 public enum TRANSITION_TYPE {
   USER("user"),
