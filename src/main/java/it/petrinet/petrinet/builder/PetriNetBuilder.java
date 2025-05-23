@@ -13,10 +13,15 @@ public class PetriNetBuilder {
   private List<Transition> transitions;
   private List<Arc> arcs;
 
+  private Place startNode;
+  private Place finishNode;
+  private String petriName;
+
   public PetriNetBuilder(String petriNetName) {
     this.places = new ArrayList<>();
     this.transitions = new ArrayList<>();
     this.arcs = new ArrayList<>();
+    this.petriName = petriNetName;
   }
 
   public PlaceBuilder newPlace(String name) {
@@ -33,8 +38,51 @@ public class PetriNetBuilder {
     return this;
   }
 
+  public PetriNetBuilder setFinishNode(String name) {
+    Node d = getNodeByName(name);
+    if (d instanceof Place p) {
+      p.setType(PLACE_TYPE.END);
+      if (finishNode != null) {
+        finishNode.setType(PLACE_TYPE.NORMAL);
+      }
+      finishNode = p;
+    }
+    return this;
+  }
+
+  public PetriNetBuilder setStartNode(String name) {
+    Node d = getNodeByName(name);
+    if (d instanceof Place p) {
+      p.setType(PLACE_TYPE.START);
+      if (startNode != null) {
+        startNode.setType(PLACE_TYPE.NORMAL);
+      }
+      startNode = p;
+    }
+    return this;
+  }
+
   public PetriNetModel build() throws IllegalConnectionException {
-    return new PetriNetModel(places, transitions, arcs);
+    if (startNode == null) {
+      for (Place place : places) {
+        if (place.getType() == PLACE_TYPE.START) {
+          startNode = place;
+          break;
+        }
+      }
+    }
+    if (finishNode == null) {
+      for (Place place : places) {
+        if (place.getType() == PLACE_TYPE.END) {
+          finishNode = place;
+          break;
+        }
+      }
+    }
+    if (places == null || transitions == null || arcs == null || startNode == null || finishNode == null) {
+      throw new IllegalStateException("One or more required fields are null");
+    }
+    return new PetriNetModel(petriName, places, transitions, arcs, startNode, finishNode);
   }
 
   public class PlaceBuilder {

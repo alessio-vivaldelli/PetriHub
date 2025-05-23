@@ -9,6 +9,7 @@ import it.petrinet.petrinet.IllegalConnectionException;
  * Maintains an adjacency list to represent the connections between nodes.
  */
 public class PetriNetModel {
+  private String name;
   private Map<Node, List<Node>> adjacencyList;
 
   /**
@@ -25,12 +26,16 @@ public class PetriNetModel {
    * @param arcs  the list of arcs
    * @throws IllegalConnectionException
    */
-  public PetriNetModel(List<Place> places, List<Transition> transition, List<Arc> arcs)
+  public PetriNetModel(String name, List<Place> places, List<Transition> transition, List<Arc> arcs, Place startNode,
+      Place finishNode)
       throws IllegalConnectionException {
     this();
-    for (Node node : places) {
+    this.name = name;
+
+    for (Place node : places) {
       addNode(node);
     }
+
     for (Node node : transition) {
       addNode(node);
     }
@@ -38,6 +43,11 @@ public class PetriNetModel {
     for (Arc arc : arcs) {
       addArc(arc.getFrom(), arc.getTo());
     }
+
+  }
+
+  public String getName() {
+    return this.name;
   }
 
   /**
@@ -98,6 +108,15 @@ public class PetriNetModel {
   }
 
   /**
+   * Returns the adjacencyList.
+   * 
+   * @return adjacencyList
+   */
+  public Map<Node, List<Node>> getConnections() {
+    return adjacencyList;
+  }
+
+  /**
    * Retrieves a node by its name.
    * 
    * @param name the name of the node
@@ -120,5 +139,4 @@ public class PetriNetModel {
   }
 
   // TODO: add setters for finish and start
-
 }

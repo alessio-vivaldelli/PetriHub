@@ -101,6 +101,15 @@ public class Place extends Node {
   }
 
   /**
+   * Returns the type of this place.
+   *
+   * @return the type of this place
+   */
+  public PLACE_TYPE getType() {
+    return type;
+  }
+
+  /**
    * Checks if this place is an end place.
    *
    * @return true if this place is of type END, false otherwise
@@ -109,4 +118,12 @@ public class Place extends Node {
     return type == PLACE_TYPE.END;
   }
 
+  /**
+   * Checks if this place is an end place.
+   *
+   * @return true if this place is of type END, false otherwise
+   */
+  public boolean isStartPlace() {
+    return type == PLACE_TYPE.START;
+  }
 }
