@@ -79,7 +79,15 @@ public class PetriNetBuilder {
         }
       }
     }
-    if (places == null || transitions == null || arcs == null || startNode == null || finishNode == null) {
+    // Print build information
+    System.out.println("Building Petri Net: " + petriName);
+    System.out.println("Places: " + places.size());
+    System.out.println("Transitions: " + transitions.size());
+    System.out.println("Arcs: " + arcs.size());
+    System.out.println("Start Node: " + (startNode != null ? startNode.getName() : "None"));
+    System.out.println("Finish Node: " + (finishNode != null ? finishNode.getName() : "None"));
+
+    if (places == null || transitions == null) {
       throw new IllegalStateException("One or more required fields are null");
     }
     return new PetriNetModel(petriName, places, transitions, arcs, startNode, finishNode);

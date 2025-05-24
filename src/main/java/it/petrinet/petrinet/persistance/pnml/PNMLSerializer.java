@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -19,6 +20,7 @@ import it.petrinet.petrinet.model.PetriNetModel;
 import it.petrinet.petrinet.model.Place;
 import it.petrinet.petrinet.model.Transition;
 import it.petrinet.petrinet.persistance.NetSerializer;
+import it.petrinet.petrinet.persistance.metadata.PNMLUtils;
 
 /**
  * Serializer for PetriNetModel objects to PNML (Petri Net Markup Language)
@@ -27,7 +29,6 @@ import it.petrinet.petrinet.persistance.NetSerializer;
  * for saving Petri nets in a standardized XML format.
  */
 public class PNMLSerializer implements NetSerializer {
-  private String PNML_NS = "http://www.pnml.org/version-2009/grammar/ptnet";
 
   /**
    * Serializes the given PetriNetModel to a PNML file.
@@ -44,23 +45,23 @@ public class PNMLSerializer implements NetSerializer {
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.newDocument();
 
-      Element pnmlEl = doc.createElementNS(PNML_NS, "pnml");
+      Element pnmlEl = doc.createElementNS(PNMLUtils.PNML_NS, "pnml");
       doc.appendChild(pnmlEl);
 
-      Element netEl = doc.createElementNS(PNML_NS, "net");
+      Element netEl = doc.createElementNS(PNMLUtils.PNML_NS, "net");
       netEl.setAttribute("id", net.getName());
-      netEl.setAttribute("type", PNML_NS);
+      netEl.setAttribute("type", PNMLUtils.PNML_NS);
       pnmlEl.appendChild(netEl);
 
       if (net.getName() != null) {
-        Element nameEl = doc.createElementNS(PNML_NS, "name");
-        Element textEl = doc.createElementNS(PNML_NS, "text");
+        Element nameEl = doc.createElementNS(PNMLUtils.PNML_NS, "name");
+        Element textEl = doc.createElementNS(PNMLUtils.PNML_NS, "text");
         textEl.setTextContent(net.getName());
         nameEl.appendChild(textEl);
         netEl.appendChild(nameEl);
       }
 
-      Element pageEl = doc.createElementNS(PNML_NS, "page");
+      Element pageEl = doc.createElementNS(PNMLUtils.PNML_NS, "page");
       pageEl.setAttribute("id", "page1");
 
       for (Node n : net.getNodes()) {
@@ -74,7 +75,7 @@ public class PNMLSerializer implements NetSerializer {
       for (Map.Entry<Node, List<Node>> entry : net.getConnections().entrySet()) {
         Node fromNode = entry.getKey();
         for (Node toNode : entry.getValue()) {
-          Element arcEl = doc.createElementNS(PNML_NS, "arc");
+          Element arcEl = doc.createElementNS(PNMLUtils.PNML_NS, "arc");
           arcEl.setAttribute("id", fromNode.getName() + "_" + toNode.getName());
           arcEl.setAttribute("source", fromNode.getName());
           arcEl.setAttribute("target", toNode.getName());
@@ -87,6 +88,10 @@ public class PNMLSerializer implements NetSerializer {
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
       Transformer transformer = transformerFactory.newTransformer();
       DOMSource source = new DOMSource(doc);
+
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+      transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 
       // Specify your local file path
 
@@ -109,25 +114,27 @@ public class PNMLSerializer implements NetSerializer {
    * @return the XML Element representing the Place
    */
   private Element serializePlace(Document doc, Place p) {
-    Element place = doc.createElementNS(PNML_NS, "place");
-    Element placeName = doc.createElementNS(PNML_NS, "name");
+    Element place = doc.createElementNS(PNMLUtils.PNML_NS, "place");
+    Element placeName = doc.createElementNS(PNMLUtils.PNML_NS, "name");
     place.setAttribute("id", p.getName());
     place.setAttribute("type", p.getType().toString());
     placeName.setTextContent(p.getName());
     place.appendChild(placeName);
     if (p.getPlaceTokens() > 0) {
-      Element initialMarking = doc.createElementNS(PNML_NS, "initialMarking");
-      Element text = doc.createElementNS(PNML_NS, "text");
+      Element initialMarking = doc.createElementNS(PNMLUtils.PNML_NS, "initialMarking");
+      Element text = doc.createElementNS(PNMLUtils.PNML_NS, "text");
       text.setTextContent(String.valueOf(p.getPlaceTokens()));
       initialMarking.appendChild(text);
       place.appendChild(initialMarking);
     }
-    Element graphic = doc.createElementNS(PNML_NS, "graphics");
-    Element offset = doc.createElementNS(PNML_NS, "offset");
-    offset.setAttribute("x", String.valueOf(p.getPosition().getX()));
-    offset.setAttribute("y", String.valueOf(p.getPosition().getY()));
-    graphic.appendChild(offset);
-    place.appendChild(graphic);
+    if (p.getPosition() != null) {
+      Element graphic = doc.createElementNS(PNMLUtils.PNML_NS, "graphics");
+      Element offset = doc.createElementNS(PNMLUtils.PNML_NS, "offset");
+      offset.setAttribute("x", String.valueOf(p.getPosition().getX()));
+      offset.setAttribute("y", String.valueOf(p.getPosition().getY()));
+      graphic.appendChild(offset);
+      place.appendChild(graphic);
+    }
 
     return place;
   }
@@ -140,8 +147,8 @@ public class PNMLSerializer implements NetSerializer {
    * @return the XML Element representing the Transition
    */
   private Element serializeTransition(Document doc, Transition t) {
-    Element transition = doc.createElementNS(PNML_NS, "transition");
-    Element transitionName = doc.createElementNS(PNML_NS, "name");
+    Element transition = doc.createElementNS(PNMLUtils.PNML_NS, "transition");
+    Element transitionName = doc.createElementNS(PNMLUtils.PNML_NS, "name");
     transition.setAttribute("id", t.getName());
     transition.setAttribute("type", t.getType().toString());
     transitionName.setTextContent(t.getName());

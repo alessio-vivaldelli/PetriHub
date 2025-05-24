@@ -29,6 +29,12 @@ public class Place extends Node {
     this.tokens = tokens;
   }
 
+  @Override
+  public String toString() {
+    return "Place " + getName() + " at " + getPosition() + " of type " + type
+        + " with tokens: " + tokens;
+  }
+
   /**
    * Constructs a Place with the specified name, position, and type.
    * The initial number of tokens is set to 0.
@@ -60,7 +66,7 @@ public class Place extends Node {
    * @param name the name of the place
    */
   public Place(String name) {
-    this(name, new Point2D(0, 0), PLACE_TYPE.NORMAL, 0);
+    this(name, new Point2D(-1, -1), PLACE_TYPE.NORMAL, 0);
   }
 
   @Override

@@ -6,5 +6,5 @@ import java.io.InputStream;
 import it.petrinet.petrinet.model.PetriNetModel;
 
 public interface NetParser {
-  PetriNetModel parse(InputStream in) throws IOException;
+  PetriNetModel parse(String path) throws IOException;
 }

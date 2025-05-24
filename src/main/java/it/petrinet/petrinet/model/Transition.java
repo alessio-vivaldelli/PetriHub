@@ -91,6 +91,12 @@ public class Transition extends Node {
     this.type = type;
   }
 
+  @Override
+  public String toString() {
+    return "Transition [name=" + getName() + ", position=" + getPosition() + ", type=" + type
+        + ", isFirable=" + isFirable + "]";
+  }
+
   /**
    * Returns whether this transition is firable.
    *

@@ -31,6 +31,10 @@ public class PetriNetModel {
       throws IllegalConnectionException {
     this();
     this.name = name;
+    // generate warning if startNode or finishNode are null
+    if (startNode == null || finishNode == null) {
+      System.err.println("Warning: Start or Finish node is null. Please ensure both are set.");
+    }
 
     for (Place node : places) {
       addNode(node);
@@ -105,6 +109,28 @@ public class PetriNetModel {
    */
   public Set<Node> getNodes() {
     return adjacencyList.keySet();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    getNodes().forEach(node -> {
+      sb.append(node.toString()).append("\n");
+    });
+    // Print the connections
+    sb.append("Connections:\n");
+    for (Map.Entry<Node, List<Node>> entry : adjacencyList.entrySet()) {
+      Node fromNode = entry.getKey();
+      List<Node> toNodes = entry.getValue();
+      sb.append(fromNode.getName()).append(" -> ");
+      for (Node toNode : toNodes) {
+        sb.append(toNode.getName()).append(", ");
+      }
+      sb.setLength(sb.length() - 2); // Remove the last comma and space
+      sb.append("\n");
+    }
+
+    return sb.toString();
   }
 
   /**

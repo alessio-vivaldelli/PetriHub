@@ -8,21 +8,21 @@
       <place id="p2" type="start">
         <name>p2</name>
         <graphics>
-          <offset x="0.0" y="0.0" />
+          <offset x="-1.0" y="-1.0" />
         </graphics>
       </place>
+      <transition id="t1" type="admin">
+        <name>t1</name>
+      </transition>
       <place id="p1" type="end">
         <name>p1</name>
         <initialMarking>
           <text>10</text>
         </initialMarking>
         <graphics>
-          <offset x="0.0" y="0.0" />
+          <offset x="-1.0" y="-1.0" />
         </graphics>
       </place>
-      <transition id="t1" type="admin">
-        <name>t1</name>
-      </transition>
       <arc id="p1_t1" source="p1" target="t1" />
     </page>
   </net>

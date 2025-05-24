@@ -1,10 +1,10 @@
 package it.petrinet.petrinet.builder;
 
+import java.io.File;
 import java.io.IOException;
 
 import it.petrinet.petrinet.model.*;
-import it.petrinet.petrinet.persistance.NetSerializer;
-import it.petrinet.petrinet.persistance.pnml.PNMLSerializer;
+import it.petrinet.petrinet.persistance.pnml.*;
 
 public class BuilderTest {
   public static void main(String[] args) {
@@ -30,12 +30,26 @@ public class BuilderTest {
       System.out.println(e);
     }
 
-    NetSerializer netSerializer = new PNMLSerializer();
+    // PNMLSerializer serializer = new PNMLSerializer();
+    // try {
+    // serializer.serialize(petriNetModel);
+    // } catch (IOException e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+    String path = System.getProperty("user.dir") +
+        "/src/main/resources/data/pnml/unreachable.pnml";
+    if (!(new File(path)).exists()) {
+      System.out.println("FILE NOT EXIST");
+    }
+    PNMLParser parser = new PNMLParser();
     try {
-      netSerializer.serialize(petriNetModel);
+      PetriNetModel parsedModel = parser.parse(path);
+      System.out.println("PETRI NET PARSED: " + parsedModel);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
+    System.out.println("PETRI NET BUILDER: " + petriNetModel);
   }
 }

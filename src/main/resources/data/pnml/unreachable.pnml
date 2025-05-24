@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/ptnet">
+    <net id="27b58468-d31e-430f-b6b4-b5b0ce925f94" type="http://www.pnml.org/version-2009/grammar/ptnet">
+        <name>
+            <text>undefined</text>
+        </name>
+        <page id="e7e7decb-4edf-4f7c-a531-5fd06e191b83">
+            <place id="p1">
+                <name>
+                    <text>P1</text>
+                </name>
+                <graphics>
+                    <position x="145" y="145"/>
+                </graphics>
+                <initialMarking>
+                    <text>10</text>
+                </initialMarking>
+            </place>
+            <place id="p2">
+                <name>
+                    <text>P2</text>
+                </name>
+                <graphics>
+                    <position x="235" y="145"/>
+                </graphics>
+            </place>
+            <transition id="t1">
+                <name>
+                    <text>T1</text>
+                    <graphics>
+                        <offset x="0" y="35"/>
+                    </graphics>
+                </name>
+                <graphics>
+                    <position x="150" y="280"/>
+                </graphics>
+            </transition>
+            <arc id="p1_t1" source="p1" target="t1"/>
+        </page>
+    </net>
+</pnml>
