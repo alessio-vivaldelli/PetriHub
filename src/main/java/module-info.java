@@ -1,13 +1,14 @@
 module it.petrinet {
     requires javafx.fxml;
 
-    requires org.controlsfx.controls;
-//    requires smartgraph;
-//    requires javafx.fxml;
-    requires jdk.xml.dom;
-    requires atlantafx.base;
-    requires java.sql;
-    requires java.desktop;
+  requires org.controlsfx.controls;
+  // requires smartgraph;
+  // requires javafx.fxml;
+  requires jdk.xml.dom;
+  requires atlantafx.base;
+  requires java.sql;
+  requires javafx.graphics;
+  requires java.xml;
 
     opens it.petrinet to javafx.fxml;
     exports it.petrinet;
