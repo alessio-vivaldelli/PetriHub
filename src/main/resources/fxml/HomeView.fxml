@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.geometry.Insets?>
-
 <?import javafx.scene.layout.HBox?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -12,10 +11,32 @@
             maxHeight="Infinity" maxWidth="Infinity">
 
     <center>
-        <VBox fx:id="homeContainer" alignment="CENTER" spacing="20.0">
-            <Label fx:id="myNets" visible="false" text="Creations"/>
-            <Label fx:id="subNets" visible="false" text="Subscribed"/>
-            <Label fx:id="discorver" visible="true" text="Discover"/>
+        <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 50 0 0 0;">
+            <Label fx:id="userNameLabel" alignment="TOP_CENTER"
+                   style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <VBox fx:id="homeContainer" alignment="TOP_LEFT" spacing="30" style="-fx-padding: 0 0 0 20;">
+                <VBox fx:id="subNetsSection" spacing="10">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label fx:id="subNets" text="Subscription"
+                               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox fx:id="subNetsList" spacing="10"/>
+                </VBox>
+                <VBox fx:id="myNetsSection" spacing="10">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label fx:id="myNets" text="Creations"
+                               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox fx:id="myNetsList" spacing="10"/>
+                </VBox>
+                <VBox fx:id="discoverSection" spacing="10">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label fx:id="discover" text="Discover"
+                               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox fx:id="discoverList" spacing="10"/>
+                </VBox>
+            </VBox>
         </VBox>
     </center>
 </BorderPane>
