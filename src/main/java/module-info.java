@@ -8,6 +8,7 @@ module it.petrinet {
   requires atlantafx.base;
   requires java.sql;
   requires javafx.graphics;
+  requires java.xml;
 
   opens it.petrinet to javafx.fxml;
 

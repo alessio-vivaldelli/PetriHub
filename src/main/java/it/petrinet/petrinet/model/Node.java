@@ -8,7 +8,7 @@ import javafx.geometry.Point2D;
 // This class is a placeholder for the Node class in the Petri net model. s
 public abstract class Node {
 
-  private final String name;
+  private String name;
   private Point2D position;
 
   /**
@@ -29,6 +29,13 @@ public abstract class Node {
   }
 
   /**
+   * Sets the name of this place.
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /**
    * @return
    */
   public Point2D getPosition() {
@@ -41,6 +48,15 @@ public abstract class Node {
    * @param position
    */
   public void updatePosition(Point2D position) {
+    this.position = position;
+  }
+
+  /**
+   * Update the position of the Node
+   *
+   * @param position
+   */
+  public void setPosition(Point2D position) {
     this.position = position;
   }
 
