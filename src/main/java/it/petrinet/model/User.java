@@ -31,4 +31,10 @@ public class User {
     public String getUsername() { return username; }
     public String getPassword() { return password; }
     public boolean isAdmin() { return isAdmin; }
+
+    public boolean hasCreation(){return isAdmin;}
+
+    public boolean hasSubs() {return true;}
+
+    public boolean hasDiscovery(){return true;}
 }

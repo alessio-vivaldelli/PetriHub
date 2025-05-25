@@ -1,9 +1,12 @@
 package it.petrinet.controller;
 
 import it.petrinet.view.ViewNavigator;
+import it.petrinet.view.components.NavBar;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import it.petrinet.model.User;
 
@@ -16,11 +19,12 @@ public class MainController {
     private BorderPane mainContainer;
 
     @FXML
-    public void initialize() {
+    private HBox navBarContainer;
 
+    @FXML
+    public void initialize() {
         // Register this controller with the ViewNavigator
         ViewNavigator.init(this);
-
         // Load the home view by default
         ViewNavigator.navigateToLogin();
     }
@@ -32,8 +36,16 @@ public class MainController {
         mainContainer.setCenter(content);
     }
 
+    public void setNavBar(NavBar navBar) {
+        if(navBar != null)
+            navBarContainer.getChildren().add(navBar);
 
-   // public void updateNavBar(boolean isAuthenticated) {  se mai volessimo mettere la navBar è già fatto
-   //     navBar.updateAuthStatus(isAuthenticated);
-   // }
+        else
+            navBarContainer.getChildren().clear();
+
+        navBarContainer.setVisible(navBar != null);
+        navBarContainer.setManaged(navBar != null);
+        mainContainer.setTop(navBarContainer);
+
+    }
 }

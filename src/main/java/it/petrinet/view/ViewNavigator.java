@@ -3,6 +3,7 @@ package it.petrinet.view;
 import it.petrinet.Main;
 import it.petrinet.controller.MainController;
 import it.petrinet.model.User;
+import it.petrinet.view.components.NavBar;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -32,11 +33,13 @@ public final class ViewNavigator {
 
     // Navigation methods
     public static void LoginScene() {
+        mainController.setNavBar(null);
         resizeStage(500, 400, "PH - Login");
         loadView("LoginView.fxml");
     }
 
     public static void HomeScene() {
+        mainController.setNavBar(new NavBar());
         resizeStage(0, 0, "Home");
         loadView("HomeView.fxml");
     }
@@ -64,8 +67,8 @@ public final class ViewNavigator {
         return authenticatedUser;
     }
 
-    public static boolean isAuthenticated() {
-        return authenticatedUser != null;
+    public static boolean userIsAdmin() {
+        return authenticatedUser.isAdmin();
     }
 
     public static void logout() {

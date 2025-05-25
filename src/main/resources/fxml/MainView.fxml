@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-
-<?import it.petrinet.view.components.NavBar?>
+<?import javafx.scene.layout.HBox?>
 <BorderPane fx:id="mainContainer" prefHeight="600.0" prefWidth="800.0"
             xmlns="http://javafx.com/javafx/16"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="it.petrinet.controller.MainController">
+
+    <top>
+        <!-- Placeholder for navbar -->
+        <HBox fx:id="navBarContainer" visible="false" managed="false" styleClass="navBarContainer"/>
+    </top>
+
 </BorderPane>

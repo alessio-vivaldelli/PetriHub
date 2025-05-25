@@ -1,25 +1,84 @@
 package it.petrinet.controller;
 
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.layout.BorderPane;
-import it.petrinet.Main;
+import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
-import it.petrinet.view.components.NavBar;
+import it.petrinet.model.DB;
+import javafx.scene.control.Label;
+import javafx.fxml.FXML;
 import javafx.scene.layout.HBox;
-
+import javafx.scene.layout.VBox;
 
 public class HomeController {
 
+    private User user;
+
     @FXML
-    private HBox navBarContainer;
+    private VBox homeContainer;
 
-    private NavBar navBar;
+    @FXML
+    private Label myNets;
+    @FXML
+    private Label subNets;
+    @FXML
+    private Label discorver;
 
+    @FXML
+    private HBox myNetsList;
+    @FXML
+    private HBox subNetsList;
+    @FXML
+    private HBox discoverList;
 
     private void initialize() {
-        navBar = new NavBar();
+        this.user = ViewNavigator.getAuthenticatedUser();
+
+        // Clear current contents and repopulate
+        homeContainer.getChildren().clear();
+        setAdminHome(); // or setUserHome(), depending on your logic
+
+        // Add the components (labels and lists)
+        homeContainer.getChildren().addAll(
+                myNets, myNetsList,
+                subNets, subNetsList,
+                discorver, discoverList
+        );
     }
+
+    private void setAdminHome() {
+        populateMyNetList();
+        populateSubNetList();
+        populateDiscoverList();
+    }
+
+    private void setUserHome() {
+        populateSubNetList();
+        populateDiscoverList();
+    }
+
+    private void populateMyNetList() {
+        if(user.hasCreation()){
+           myNets.setVisible(true);
+           myNetsList.setVisible(true);
+
+           myNetsList.getChildren().clear();
+
+
+        }
+    }
+
+    private void populateSubNetList() {
+        if(user.hasSubs()){
+            subNets.setVisible(true);
+            subNetsList.setVisible(true);
+        }
+    }
+
+    private void populateDiscoverList() {
+        if(user.hasDiscovery()){
+            discorver.setVisible(true);
+            discoverList.setVisible(true);
+        }
+    }
+
 
 }

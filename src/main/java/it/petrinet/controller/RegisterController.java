@@ -1,6 +1,7 @@
 package it.petrinet.controller;
 
 
+import it.petrinet.model.DB;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 import javafx.fxml.FXML;
@@ -62,7 +63,7 @@ public class RegisterController {
         // Create and save new user
         User newUser = User.create(username, password);
 
-        newDB.addUser(newUser);
+//        newDB.addUser(newUser);
 
         // Show success message
         showSuccess("Registration successful! Please log in.");

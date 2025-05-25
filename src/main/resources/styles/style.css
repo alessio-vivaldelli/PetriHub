@@ -59,9 +59,6 @@
     -fx-border-width: 1.5px;
 }
 
-/* -------------------------------
-   HYPERLINKS & CHECKBOXES
-   ------------------------------- */
 .hyperlink {
     -fx-text-fill: #fab387;
     -fx-underline: false;
@@ -70,55 +67,93 @@
     -fx-underline: true;
 }
 
-.check-box .box,
-.radio-button .radio {
-    -fx-mark-color: #fab387;
-}
-.check-box,
-.radio-button {
-    -fx-text-fill: #cdd6f4;
-}
-
-/* -------------------------------
-   PANES & CONTAINERS
-   ------------------------------- */
 .vbox, .hbox, .stack-pane, .anchor-pane, .border-pane {
     -fx-background-color: transparent;
 }
 
-/* -------------------------------
-   TABLEVIEW (se usi tabelle)
-   ------------------------------- */
-.table-view {
-    -fx-background-color: #313244;
-    -fx-table-cell-border-color: transparent;
-    -fx-control-inner-background: #313244;
-    -fx-text-background-color: #cdd6f4;
-}
-.table-column-header {
-    -fx-background-color: #45475a; /* surface1 */
-    -fx-text-fill: #cdd6f4;
+/* Navigation bar styles - Enhanced Fixed Top Bar */
+
+.navBarContainer {
+    -fx-background-color: #1e1e2e; /* Solid background to prevent transparency issues */
+    -fx-max-width: Infinity;
+    -fx-min-width: 100%;
+    -fx-pref-width: Infinity;
+    /* Position fixed at top */
+    -fx-translate-y: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 2);
+    /* Add subtle shadow for depth */
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    /* Ensure it stays above other content */
+    -fx-view-order: -1000;
+    /* Force full width */
+    -fx-anchor-left: 0;
+    -fx-anchor-right: 0;
+    -fx-anchor-top: 0;
 }
 
-/* -------------------------------
-   UTILITY CLASSES
-   ------------------------------- */
-/* Card style */
-.card {
-    -fx-background-color: #313244;
-    -fx-border-color: #45475a;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-    -fx-padding: 16px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8, 0.2, 0, 2);
+.navBar-home,
+.navBar-myNets,
+.navBar-subNets,
+.navBar-logout{
+    -fx-background-color: transparent;
+    -fx-text-fill: #cdd6f4; /* main text */
+    -fx-padding: 20px 30px 22px 30px; /* Increased padding for bigger navbar */
+    -fx-font-size: 16px; /* Slightly larger text */
+    -fx-font-weight: 500; /* Medium weight for better visibility */
+    -fx-cursor: hand; /* Hand cursor on hover */
+    -fx-alignment: center; /* Center align content */
+    -fx-min-height: 60px; /* Minimum height for bigger navbar */
+    -fx-pref-height: 60px; /* Preferred height */
 }
 
-/* Centering helper */
-.text-center {
-    -fx-alignment: center;
+
+
+/* Hover effect for navigation bar */
+.navBar-home:hover,
+.navBar-myNets:hover,
+.navBar-subNets:hover,
+.navBar-logout:hover{
+    -fx-background-color: transparent; /* Subtle peach background on hover */
+    -fx-border-color: transparent transparent #fab387 transparent;
+    -fx-border-width: 0 0px 3px 0px; /* Slightly thicker underline */
+    -fx-text-fill: #fab387; /* Peach text on hover */
 }
 
-/* Spacing helpers */
-.mt-1 { -fx-padding: 8 0 0 0; }
-.mb-1 { -fx-padding: 0 0 8 0; }
-.p-1  { -fx-padding: 8; }
+/* Active/Selected state for navigation items */
+.navBar-home:armed,
+.navBar-myNets:armed,
+.navBar-subNets:armed,
+.navBar-logout:armed {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #fab387 transparent;
+    -fx-border-width: 0 0px 3px 0px;
+}
+
+/* Content wrapper to account for fixed navbar */
+.content-wrapper {
+    -fx-padding: 80px 20px 20px 20px; /* Top padding to prevent content from hiding behind navbar */
+}
+
+/* Additional styles for proper layout */
+.root {
+    -fx-background-color: #1e1e2e; /* base */
+    -fx-font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+    -fx-text-fill: #cdd6f4;        /* main text */
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+/* Ensure full-width layout */
+.scene-root {
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+/* For HBox/VBox containing navbar items */
+.navbar-items {
+    -fx-padding: 0 20px 0 40px;
+    -fx-spacing: 20px;
+    -fx-alignment: center-left;
+    -fx-fill-height: true;
+}
