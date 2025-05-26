@@ -30,13 +30,13 @@ public class BuilderTest {
       System.out.println(e);
     }
 
-    // PNMLSerializer serializer = new PNMLSerializer();
-    // try {
-    // serializer.serialize(petriNetModel);
-    // } catch (IOException e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
+    PNMLSerializer serializer = new PNMLSerializer();
+    try {
+      serializer.serialize(petriNetModel);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     String path = System.getProperty("user.dir") +
         "/src/main/resources/data/pnml/unreachable.pnml";
     if (!(new File(path)).exists()) {

@@ -1,5 +1,5 @@
 module it.petrinet {
-    requires javafx.fxml;
+  requires javafx.fxml;
 
   requires org.controlsfx.controls;
   // requires smartgraph;
@@ -9,18 +9,21 @@ module it.petrinet {
   requires java.sql;
   requires javafx.graphics;
   requires java.xml;
+  requires java.desktop;
 
-    opens it.petrinet to javafx.fxml;
-    exports it.petrinet;
-    exports it.petrinet.view;
-    exports it.petrinet.controller;
-    exports it.petrinet.model;
-    exports it.petrinet.view.components;
-    exports it.petrinet.utils;
-    opens it.petrinet.view;
-    opens it.petrinet.controller;
-    opens it.petrinet.model;
-    opens it.petrinet.view.components;
-    opens it.petrinet.utils;
+  opens it.petrinet to javafx.fxml;
+
+  exports it.petrinet;
+  exports it.petrinet.view;
+  exports it.petrinet.controller;
+  exports it.petrinet.model;
+  exports it.petrinet.view.components;
+  exports it.petrinet.utils;
+
+  opens it.petrinet.view;
+  opens it.petrinet.controller;
+  opens it.petrinet.model;
+  opens it.petrinet.view.components;
+  opens it.petrinet.utils;
 
 }
