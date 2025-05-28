@@ -1,53 +1,131 @@
 package it.petrinet.view.components;
 
-import javafx.geometry.Pos; // Used for alignment within the StackPane if needed
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle; // <--- Import Rectangle for clipping
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 
-public class PetriNetCard extends StackPane {
+public class PetriNetCard extends VBox {
 
-    // The constructor now takes the parameters expected by HomeController
-    // but we'll adapt it to display "Test Card" on a white background.
+    private static final String DEFAULT_CARD_IMAGE_PATH = "/assets/background/dummy.png";
+    private static final String DEFAULT_BUTTON_ICON_PATH = "/assets/icons/menu.png";
+
+    private StackPane imageContainer;
+    private ImageView backgroundImageView;
+    private Label titleLabel;
+    private Label descriptionLabel;
+    private StackPane greenButtonOverlay;
+
     public PetriNetCard(String title, String description, String imagePath) {
-        // Create the background rectangle with YOUR dimensions (100, 150)
-        Rectangle background = new Rectangle(100, 150);
-        background.setFill(Color.WHITE); // Set background to white
-        background.setArcWidth(15);
-        background.setArcHeight(15);
-        // Add a subtle border to define the card
-        background.setStyle("-fx-stroke: #ddd; -fx-stroke-width: 1;");
+        this.getStyleClass().add("petri-net-card");
+        this.setAlignment(Pos.TOP_LEFT);
+        this.setSpacing(5);
+        this.setPadding(new Insets(10));
 
-        // Create the Label for the text "Test Card"
-        Label testLabel = new Label("Test Card");
-        // Set text color to black for visibility on white background
-        testLabel.setStyle("-fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;");
+        // --- 1. Image Container (StackPane for image + overlay button) ---
+        imageContainer = new StackPane();
+        imageContainer.getStyleClass().add("card-image-container");
+        imageContainer.setPrefSize(240, 179);
+        imageContainer.setMaxSize(240, 179);
 
-        // Add the background rectangle and the label to the StackPane
-        this.getChildren().addAll(background, testLabel);
+        backgroundImageView = new ImageView();
+        try {
+            String actualImagePath = (imagePath != null && !imagePath.isEmpty()) ? imagePath : DEFAULT_CARD_IMAGE_PATH;
+            Image cardImage = new Image(getClass().getResourceAsStream(actualImagePath));
+            backgroundImageView.setImage(cardImage);
+            backgroundImageView.setFitWidth(240);
+            backgroundImageView.setFitHeight(179);
+            backgroundImageView.setPreserveRatio(false); // This ensures it fills and crops
 
-        // Apply StackPane styling from your example
-        // (Note: -fx-alignment: top-center aligns children within the stackpane)
-        this.setStyle("-fx-padding: 10; -fx-alignment: center;"); // Changed to center for test label
+            // --- ADD THIS CLIP CODE FOR ROUNDED IMAGE CORNERS ---
+            Rectangle clip = new Rectangle(
+                    backgroundImageView.getFitWidth(),
+                    backgroundImageView.getFitHeight()
+            );
+            // Match the radius used in your CSS for .card-image-container or adjust as needed
+            clip.setArcWidth(12); // Arc width for horizontal rounding (2 * border-radius)
+            clip.setArcHeight(12); // Arc height for vertical rounding (2 * border-radius)
+            backgroundImageView.setClip(clip);
+            // -----------------------------------------------------
 
-        // Optional: Add hover effect for better UX
+            backgroundImageView.getStyleClass().add("card-image-view");
+        } catch (Exception e) {
+            System.err.println("Error loading card image: " + e.getMessage());
+            imageContainer.setStyle("-fx-background-color: #313244; -fx-background-radius: 8px;");
+        }
+        imageContainer.getChildren().add(backgroundImageView);
+        StackPane.setAlignment(backgroundImageView, Pos.CENTER);
+
+        // ... (rest of your PetriNetCard code, including green button overlay and text labels) ...
+
+        // --- 2. Green Button Overlay (initially hidden) ---
+        greenButtonOverlay = new StackPane();
+        greenButtonOverlay.getStyleClass().add("green-button-overlay");
+        greenButtonOverlay.setPrefSize(28, 28);
+        greenButtonOverlay.setMaxSize(28, 28);
+        greenButtonOverlay.setVisible(false);
+        greenButtonOverlay.setManaged(false);
+
+        Circle buttonCircle = new Circle(14);
+        buttonCircle.getStyleClass().add("green-button-circle");
+        greenButtonOverlay.getChildren().add(buttonCircle);
+
+        Label buttonIcon = new Label(">");
+        buttonIcon.getStyleClass().add("green-button-icon");
+        greenButtonOverlay.getChildren().add(buttonIcon);
+        StackPane.setAlignment(buttonIcon, Pos.CENTER);
+
+        StackPane.setAlignment(greenButtonOverlay, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(greenButtonOverlay, new Insets(0, 5, 5, 0));
+
+        imageContainer.getChildren().add(greenButtonOverlay);
+
+
+        // --- 3. Text Labels ---
+        titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("card-title-label");
+        titleLabel.setWrapText(true);
+        VBox.setMargin(titleLabel, new Insets(5, 0, 0, 0));
+
+        descriptionLabel = new Label(description);
+        descriptionLabel.getStyleClass().add("description-label");
+        descriptionLabel.setWrapText(true);
+
+
+        this.getChildren().addAll(imageContainer, titleLabel, descriptionLabel);
+
+        // --- Interaction: Hover and Click ---
         this.setOnMouseEntered(e -> {
-            background.setStyle("-fx-stroke: #bbb; -fx-stroke-width: 2; -fx-cursor: hand;"); // Darker border on hover
-            this.setScaleX(1.05); // Slightly larger scale for a more noticeable effect
-            this.setScaleY(1.05);
+            this.setScaleX(1.02);
+            this.setScaleY(1.02);
+            greenButtonOverlay.setVisible(true);
+            greenButtonOverlay.setManaged(true);
         });
         this.setOnMouseExited(e -> {
-            background.setStyle("-fx-stroke: #ddd; -fx-stroke-width: 1;"); // Original border on exit
             this.setScaleX(1.0);
             this.setScaleY(1.0);
+            greenButtonOverlay.setVisible(false);
+            greenButtonOverlay.setManaged(false);
         });
 
-        // Add click action
         this.setOnMouseClicked(event -> {
-            System.out.println("Test Card clicked!");
-            // You can use the 'title' parameter here if you re-enable it for display
-            // System.out.println("Card clicked: " + title);
+            System.out.println("PetriNet Card clicked: " + title);
+        });
+
+        greenButtonOverlay.setOnMouseClicked(event -> {
+            System.out.println("Green button clicked for: " + title);
+            event.consume();
         });
     }
+
+
+
 }

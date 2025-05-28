@@ -1,144 +1,451 @@
-/* ================================
-   Catppuccin Mocha + Peach Accent
-   ================================ */
+/* ============================================================================
+   Project: PetriNet App - Catppuccin Mocha Theme (Peach Accent)
+   ============================================================================ */
 
-/* -------------------------------
-   ROOT & COLOURS
-   ------------------------------- */
+/*
+   Catppuccin Mocha Color Palette (with Peach Accent):
+   - base: #1e1e2e (Main background)
+   - mantle: #181825 (Darker background, e.g., Navbar)
+   - surface0: #313244 (Card/Input background)
+   - surface1: #45475a (Subtle borders, hover states)
+   - surface2: #585b70 (Lighter hover states, scrollbar thumb hover)
+   - text: #cdd6f4 (Default text color)
+   - subtext0: #a6adc8 (Lighter text for descriptions)
+   - subtext1: #9399b2 (Placeholder text)
+   - peach: #fab387 (Main accent color)
+   - rosewater: #f38ba8 (Error messages)
+*/
+
+/* ----------------------------------------------------------------------------
+   1. Root & Base Application Styles
+   ---------------------------------------------------------------------------- */
+
+/* Applies to the primary scene root */
 .root {
-    -fx-background-color: #1e1e2e; /* base */
-    -fx-font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-    -fx-text-fill: #cdd6f4;        /* main text */
+    -fx-background-color: #1e1e2e; /* base: Main application background */
+    -fx-font-family: "Segoe UI", "Helvetica Neue", sans-serif; /* Preferred font stack */
+    -fx-text-fill: #cdd6f4;        /* text: Default text color for all nodes */
+    -fx-padding: 0;                /* Ensures no default padding on the root container */
+    -fx-spacing: 0;                /* Ensures no default spacing on the root container */
 }
 
-/* -------------------------------
-   LABELS & TEXT
-   ------------------------------- */
+/* Style for the main BorderPane (e.g., if used as the root container in your FXML) */
+.root-container {
+    -fx-background-color: #1e1e2e; /* base: Explicitly set background for the main layout pane */
+}
+
+/* Common transparent background for frequently used layout panes */
+.vbox,
+.hbox,
+.stack-pane,
+.anchor-pane,
+.border-pane {
+    -fx-background-color: transparent;
+}
+
+/* ----------------------------------------------------------------------------
+   2. Labels and Text Elements
+   ---------------------------------------------------------------------------- */
+
+/* Default style for all Label nodes */
 .label {
-    -fx-text-fill: #cdd6f4;
+    -fx-text-fill: #cdd6f4; /* text: Standard label color */
     -fx-font-size: 14px;
 }
-.label#error, .label#errorLabel {
-    -fx-text-fill: #f38ba8; /* rosewater for errors */
+
+/* Specific styling for error messages */
+.label#error,
+.label#errorLabel {
+    -fx-text-fill: #f38ba8; /* rosewater: Distinct color for error feedback */
 }
 
-/* -------------------------------
-   BUTTONS
-   ------------------------------- */
-.button {
-    -fx-background-color: #fab387; /* peach accent */
-    -fx-text-fill: #1e1e2e;         /* base bg for contrast */
+/* Style for the main welcome message (e.g., "Welcome, [Username]!") */
+.welcome-label {
+    -fx-text-fill: #cdd6f4;    /* text: Prominent text color */
+    -fx-font-size: 32px;       /* Larger font size for emphasis */
     -fx-font-weight: bold;
-    -fx-background-radius: 6px;
-    -fx-padding: 8 16 8 16;
-}
-.button:hover {
-    -fx-background-color: #f2a97f; /* slightly darker peach */
+    -fx-padding: 0 0 20px 0;   /* Adds space below the welcome text */
 }
 
-/* -------------------------------
-   TEXT FIELDS & CONTROLS
-   ------------------------------- */
+/* Style for section titles (e.g., "Subscriptions", "Creations", "Discover") */
+.section-title {
+    -fx-text-fill: #fab387;    /* peach: Accent color for section headings */
+    -fx-font-size: 22px;       /* Appropriate font size for section titles */
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 5px 0;    /* Adds slight space below the title */
+}
+
+/* ----------------------------------------------------------------------------
+   3. General Button Styles
+   ---------------------------------------------------------------------------- */
+
+/* Base style for all Button nodes */
+.button {
+    -fx-background-color: #fab387; /* peach: Primary button background color */
+    -fx-text-fill: #1e1e2e;         /* base: Text color for high contrast */
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;     /* Rounded corners for buttons */
+    -fx-padding: 8 16 8 16;         /* Padding around button content */
+    -fx-cursor: hand;               /* Indicates interactivity on hover */
+    /* Smooth transition for hover effects */
+    -fx-transition: -fx-background-color 0.2s ease;
+}
+
+/* Hover effect for general buttons */
+.button:hover {
+    -fx-background-color: #f2a97f; /* Slightly darker peach on hover */
+}
+
+/* ----------------------------------------------------------------------------
+   4. Text Fields, Password Fields, and Input Controls
+   ---------------------------------------------------------------------------- */
+
+/* Unified styling for common input controls */
 .text-field,
 .password-field,
 .text-area,
 .combo-box {
-    -fx-background-color: #313244; /* surface0 */
-    -fx-text-fill: #cdd6f4;
-    -fx-prompt-text-fill: #9399b2;
-    -fx-border-color: transparent;
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
-    -fx-padding: 6px 8px 6px 8px;
+    -fx-background-color: #313244; /* surface0: Background for input fields */
+    -fx-text-fill: #cdd6f4;        /* text: Color for user input text */
+    -fx-prompt-text-fill: #9399b2; /* subtext1: Color for placeholder text */
+    -fx-border-color: transparent; /* No default border visible */
+    -fx-background-radius: 6px;    /* Rounded corners */
+    -fx-border-radius: 6px;        /* Rounded border if active */
+    -fx-padding: 6px 8px 6px 8px;  /* Internal padding for text */
 }
+
+/* Focus state for input fields, adding an accent border */
 .text-field:focused,
 .password-field:focused,
 .text-area:focused,
 .combo-box:focused {
-    -fx-border-color: #fab387; /* peach border on focus */
-    -fx-border-width: 1.5px;
+    -fx-border-color: #fab387; /* peach: Accent border when focused */
+    -fx-border-width: 1.5px;   /* Slightly thicker border for focus */
 }
 
+/* Hyperlink styling */
 .hyperlink {
-    -fx-text-fill: #fab387;
-    -fx-underline: false;
+    -fx-text-fill: #fab387; /* peach: Hyperlink color */
+    -fx-underline: false;   /* No underline by default */
+    -fx-transition: -fx-underline 0.2s ease; /* Smooth transition for underline */
 }
+
+/* Hyperlink hover effect */
 .hyperlink:hover {
-    -fx-underline: true;
+    -fx-underline: true;    /* Underline appears on hover */
 }
 
-.vbox, .hbox, .stack-pane, .anchor-pane, .border-pane {
-    -fx-background-color: transparent;
-}
+/* ----------------------------------------------------------------------------
+   5. Navigation Bar (NavBar.java Component)
+   ---------------------------------------------------------------------------- */
 
-/* Navigation bar styles - Enhanced Fixed Top Bar */
-
+/* Overall style for the navigation bar container */
 .navBar {
-    -fx-background-color: #181825; /* Solid background to prevent transparency issues */
+    -fx-background-color: #181825; /* mantle: Darker background to separate from content */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0.0, 0, 5); /* Soft shadow for depth */
+    -fx-spacing: 10px;             /* Spacing between navigation buttons */
+    -fx-padding: 10px;             /* Internal padding within the navbar */
+    -fx-fill-height: true;         /* Ensures children fill the available height */
+    -fx-pref-height: 60px;         /* Standard preferred height for the bar */
+    -fx-min-height: 60px;          /* Minimum height to maintain consistency */
 }
 
+/* Styles for individual navigation buttons within the NavBar */
 .navBar-home,
 .navBar-myNets,
 .navBar-subNets,
-.navBar-logout{
-    -fx-background-color: transparent;
-    -fx-text-fill: #cdd6f4; /* main text */
-    -fx-padding: 20px 30px 22px 30px; /* Increased padding for bigger navbar */
-    -fx-font-size: 16px; /* Slightly larger text */
-    -fx-font-weight: 500; /* Medium weight for better visibility */
-    -fx-cursor: hand; /* Hand cursor on hover */
-    -fx-alignment: center; /* Center align content */
-    -fx-min-height: 60px; /* Minimum height for bigger navbar */
-    -fx-pref-height: 60px; /* Preferred height */
+.navBar-logout {
+    -fx-background-color: transparent; /* Transparent background */
+    -fx-text-fill: #cdd6f4;             /* text: Default text color */
+    -fx-padding: 0 30px 15px 30px;         /* Horizontal padding around text/icon */
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;               /* Medium font weight for readability */
+    -fx-cursor: hand;                   /* Interactive cursor on hover */
+    -fx-alignment: center;              /* Centers both graphic and text */
+    -fx-graphic-text-gap: 8px;          /* Space between icon and text */
+    /* Smooth transitions for text color and border changes */
+    -fx-transition: -fx-text-fill 0.1s ease, -fx-border-color 0.1s ease, -fx-border-width 0.1s ease, -fx-padding 0.1s ease;
 }
 
-
-
-/* Hover effect for navigation bar */
+/* Hover effect for navigation buttons (underline and text color change) */
 .navBar-home:hover,
 .navBar-myNets:hover,
 .navBar-subNets:hover,
-.navBar-logout:hover{
-    -fx-background-color: transparent; /* Subtle peach background on hover */
-    -fx-border-color: transparent transparent #fab387 transparent;
-    -fx-border-width: 0 0px 3px 0px; /* Slightly thicker underline */
-    -fx-text-fill: #fab387; /* Peach text on hover */
+.navBar-logout:hover {
+    -fx-background-color: transparent; /* Ensures background remains transparent on hover */
+    -fx-border-color: transparent transparent #fab387 transparent; /* peach: Accent underline */
+    -fx-border-width: 0 0 2px 0;     /* Thickness of the underline */
+    -fx-text-fill: #fab387;          /* peach: Text color changes on hover */
 }
 
-/* Active/Selected state for navigation items */
+/* Armed (clicked/active) state for navigation buttons */
 .navBar-home:armed,
 .navBar-myNets:armed,
 .navBar-subNets:armed,
 .navBar-logout:armed {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent transparent #fab387 transparent;
-    -fx-border-width: 0 0px 3px 0px;
+    -fx-background-color: transparent; /* Ensures background remains transparent when active */
+    -fx-border-color: transparent transparent #fab387 transparent; /* peach: Accent underline */
+    -fx-border-width: 0 0 2px 0;     /* Maintains underline thickness */
+    -fx-text-fill: #fab387;          /* peach: Text color remains accented when active */
 }
 
-/* Content wrapper to account for fixed navbar */
-.content-wrapper {
-    -fx-padding: 80px 20px 20px 20px; /* Top padding to prevent content from hiding behind navbar */
-}
-
-/* Additional styles for proper layout */
-.root {
-    -fx-background-color: #1e1e2e; /* base */
-    -fx-font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-    -fx-text-fill: #cdd6f4;        /* main text */
-    -fx-padding: 0;
-    -fx-spacing: 0;
-}
-
-/* Ensure full-width layout */
-.scene-root {
-    -fx-padding: 0;
-    -fx-spacing: 0;
-}
-
-/* For HBox/VBox containing navbar items */
+/* Additional layout styling for HBox/VBox within navbar (if specified in NavBar.java) */
 .navbar-items {
-    -fx-padding: 0 20px 0 40px;
+    -fx-padding: 0 20px 0px 40px; /* Example padding */
     -fx-spacing: 20px;
     -fx-alignment: center-left;
     -fx-fill-height: true;
+}
+
+/* ----------------------------------------------------------------------------
+   6. Main Content Area (e.g., HomeView.fxml)
+   ---------------------------------------------------------------------------- */
+
+/* Padding for the main content VBox inside the ScrollPane.
+   This top padding accounts for the fixed NavBar at the top. */
+.content-area-padding {
+    -fx-padding: 50 20 20 20; /* top right bottom left */
+}
+
+/* Wrapper VBox for all main sections (Subscriptions, Creations, Discover) */
+.sections-wrapper {
+    -fx-padding: 0;           /* No extra padding on this wrapper by default */
+    -fx-spacing: 30px;        /* Vertical spacing between major sections */
+    -fx-alignment: TOP_LEFT;  /* Aligns content to the top-left */
+}
+
+/* Individual section containers (e.g., VBox holding "Subscriptions" title and list) */
+.section-container {
+    -fx-background-color: transparent; /* Ensures no background interferes with main content */
+    -fx-padding: 0 20px 0 20px;        /* Horizontal padding for content within each section */
+    -fx-spacing: 10px;                 /* Vertical spacing between section title and card list */
+}
+
+/* HBox containing lists of cards (e.g., myNetsList, subNetsList) */
+.card-list {
+    -fx-alignment: TOP_LEFT;       /* Aligns cards to the top-left within the list */
+    -fx-padding: 10px 0 10px 30px;    /* Vertical padding for the card list */
+    -fx-spacing: 15px;             /* Horizontal spacing between individual cards */
+    /* Note: If cards should wrap to the next line, consider using FlowPane or TilePane in FXML */
+}
+
+/* ----------------------------------------------------------------------------
+   7. PetriNet Card Components (PetriNetCard.java & createNewNetCard)
+   ---------------------------------------------------------------------------- */
+
+/* General style for all PetriNet cards (excluding the "New Net" card) */
+/* Changed to VBox root, so padding applies to the VBox itself. */
+.petri-net-card {
+    -fx-background-color: transparent; /* surface0: Card background color */
+    -fx-background-radius: 8px;    /* Rounded corners for the card background */
+    -fx-padding: 10px;             /* Internal padding for the whole card content */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.0, 0, 2); /* Soft shadow for depth */
+    -fx-pref-size: 150px 150px;    /* Standard preferred size for consistent card layout */
+    -fx-cursor: hand;              /* Indicates interactivity on hover */
+    /* Smooth transitions for background color and scale changes on hover */
+    -fx-transition: -fx-background-color 0.2s ease, -fx-scale-x 0.2s ease, -fx-scale-y 0.2s ease;
+}
+
+.petri-net-card:hover {
+    -fx-background-color: transparent; /* surface1: Slightly lighter background on hover */
+    -fx-scale-x: 1.02;             /* Slight horizontal scale increase */
+    -fx-scale-y: 1.02;             /* Slight vertical scale increase */
+}
+
+/* Style for the image container within the card (StackPane) */
+.petri-net-card .card-image-container {
+    -fx-background-color: #4c4f69; /* surface1 or a placeholder color if image fails */
+    -fx-background-radius: 6px; /* Slightly less rounded than card, to appear inside */
+    -fx-border-radius: 6px;
+    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.0, 0, 1); /* Subtle shadow for image area */
+    -fx-max-width: 240px; /* Match the preferred size in JavaFX */
+    -fx-max-height: 179px;
+    -fx-min-width: 240px;
+    -fx-min-height: 179px;
+}
+
+/* Style for the ImageView itself (ensures it fills the container and gets rounded if possible) */
+.petri-net-card .card-image-view {
+    -fx-background-radius: 6px; /* Apply radius to image view */
+    -fx-border-radius: 6px;
+    -fx-clip: null; /* Ensure no clipping interferes with rounded corners */
+}
+/* If -fx-background-radius on ImageView doesn't work directly,
+   you'd need a clip node in Java:
+   Rectangle clip = new Rectangle(width, height); clip.setArcWidth(radius); clip.setArcHeight(radius);
+   imageView.setClip(clip);
+*/
+
+/* Style for the green circular button overlay */
+.petri-net-card .green-button-overlay {
+    -fx-background-color: transparent; /* This is the StackPane containing the circle */
+    -fx-background-radius: 50%; /* Make it circular */
+    -fx-alignment: center;
+    -fx-cursor: hand;
+    -fx-transition: -fx-scale-x 0.1s ease, -fx-scale-y 0.1s ease;
+}
+.petri-net-card .green-button-overlay:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+
+/* The actual circle shape inside the overlay */
+.petri-net-card .green-button-circle {
+    -fx-fill: #a6da95; /* green (match image if needed) */
+    -fx-stroke: #8bd59a; /* slightly darker green for border */
+    -fx-stroke-width: 1px;
+}
+
+/* The icon inside the green button */
+.petri-net-card .green-button-icon {
+    -fx-text-fill: #1e1e2e; /* base: Dark text for contrast */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI Symbol", "FontAwesome"; /* Example for icon font */
+}
+
+
+/* Styles for the title label within PetriNet cards */
+.petri-net-card .card-title-label {
+    -fx-text-fill: #cdd6f4; /* text: Title color */
+    -fx-font-size: 16px;    /* Slightly larger font for the title */
+    -fx-font-weight: bold;
+    -fx-padding: 0; /* Managed by VBox spacing */
+}
+
+/* Style for description labels within PetriNet cards */
+.petri-net-card .description-label {
+    -fx-text-fill: #a6adc8; /* subtext0: Lighter text for descriptive content */
+    -fx-font-size: 11px;    /* Smaller font size for descriptions */
+    -fx-padding: 0; /* Managed by VBox spacing */
+}
+
+/* Style for the "New Net" creation card */
+/* This VBox remains largely the same as before, as it's distinct */
+.new-net-card {
+    -fx-background-color: #313244; /* surface0: Card background */
+    -fx-background-radius: 8px;
+    -fx-border-color: #fab387;     /* peach: Prominent accent border */
+    -fx-border-width: 2px;         /* Thicker border for emphasis */
+    -fx-border-radius: 8px;
+    -fx-padding: 10px;             /* Internal padding */
+    -fx-alignment: center;         /* Centers content vertically and horizontally */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.0, 0, 2);
+    -fx-pref-size: 150px 150px;
+    -fx-cursor: hand;
+    -fx-transition: -fx-background-color 0.2s ease, -fx-scale-x 0.2s ease, -fx-scale-y 0.2s ease, -fx-border-color 0.2s ease;
+}
+
+/* Hover effect for the "New Net" card */
+.new-net-card:hover {
+    -fx-background-color: #45475a; /* surface1: Lighter on hover */
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Specific styles for elements within the "New Net" card */
+.new-net-card .plus-symbol {
+    -fx-text-fill: #fab387; /* peach: Plus symbol color */
+    -fx-font-size: 60px;
+    -fx-font-weight: bold;
+}
+
+/* The title label within "New Net" card also uses the general title-label */
+.new-net-card .title-label {
+    -fx-text-fill: #cdd6f4; /* text: Title color */
+    -fx-font-size: 14px;    /* Slightly smaller than general card title */
+    -fx-font-weight: bold;
+}
+
+/* The description label within "New Net" card also uses the general description-label */
+.new-net-card .description-label {
+    -fx-text-fill: #a6adc8; /* subtext0: Description color */
+    -fx-font-size: 10px;    /* Slightly smaller than general card description */
+}
+
+/* ----------------------------------------------------------------------------
+   8. ScrollBar Customization
+   ---------------------------------------------------------------------------- */
+
+/* Styles applied to the ScrollPane itself */
+.transparent-scrollpane {
+    -fx-background-color: transparent; /* Makes the ScrollPane background invisible */
+    -fx-border-color: transparent;     /* Removes any default border */
+    -fx-padding: 0;                    /* Ensures no internal padding */
+}
+
+/* Styles for the ScrollPane's viewport (the visible content area) */
+.transparent-scrollpane > .viewport {
+    -fx-background-color: transparent; /* Ensures content background is transparent */
+}
+
+/* Base styles for both vertical and horizontal scrollbars */
+.transparent-scrollpane .scroll-bar:vertical,
+.transparent-scrollpane .scroll-bar:horizontal {
+    -fx-background-color: transparent; /* Transparent background for the scrollbar strip */
+    -fx-padding: 0;
+}
+
+/* The track (the groove where the thumb slides) of the scrollbar */
+.transparent-scrollpane .scroll-bar:vertical .track,
+.transparent-scrollpane .scroll-bar:horizontal .track {
+    -fx-background-color: #1e1e2e; /* base: Blends seamlessly with the main app background */
+    -fx-background-radius: 0;      /* Sharp corners for the track */
+    -fx-border-color: transparent; /* No border for the track */
+}
+
+/* The background of the scrollbar track (if different from the track itself) */
+.transparent-scrollpane .scroll-bar:vertical .track-background,
+.transparent-scrollpane .scroll-bar:horizontal .track-background {
+    -fx-background-color: transparent; /* Keeps this layer transparent */
+}
+
+/* The thumb (the draggable indicator) of the scrollbar */
+.transparent-scrollpane .scroll-bar:vertical .thumb,
+.transparent-scrollpane .scroll-bar:horizontal .thumb {
+    -fx-background-color: #45475a; /* surface1: Darker, subtle thumb color */
+    -fx-background-insets: 0;      /* Ensures the thumb fits perfectly within the track */
+    -fx-background-radius: 5px;    /* Slightly rounded corners for the thumb */
+}
+
+/* Hover effect for the scrollbar thumb */
+.transparent-scrollpane .scroll-bar:vertical .thumb:hover,
+.transparent-scrollpane .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #585b70; /* surface2: Slightly lighter on hover */
+}
+
+/* Styles for the increment and decrement buttons (the arrow buttons at the ends) */
+.transparent-scrollpane .scroll-bar:vertical .increment-button,
+.transparent-scrollpane .scroll-bar:vertical .decrement-button,
+.transparent-scrollpane .scroll-bar:horizontal .increment-button,
+.transparent-scrollpane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent; /* Transparent background for the buttons */
+    -fx-padding: 0;                    /* No internal padding */
+}
+
+/* Styles for the arrows drawn within the increment/decrement buttons */
+.transparent-scrollpane .scroll-bar:vertical .increment-arrow,
+.transparent-scrollpane .scroll-bar:vertical .decrement-arrow,
+.transparent-scrollpane .scroll-bar:horizontal .increment-arrow,
+.transparent-scrollpane .scroll-bar:horizontal .decrement-arrow {
+    -fx-background-color: #cdd6f4; /* text: Color of the arrow shape */
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Defines a simple triangle shape */
+    -fx-scale-y: 1; /* Default scale */
+    -fx-scale-x: 1; /* Default scale */
+}
+
+/* Rotations for the arrows to point in the correct directions */
+.transparent-scrollpane .scroll-bar:vertical .decrement-arrow {
+    -fx-rotate: 180; /* Rotates the triangle to point upwards */
+}
+
+.transparent-scrollpane .scroll-bar:horizontal .decrement-arrow {
+    -fx-rotate: 90;  /* Rotates to point left for horizontal scrollbar */
+}
+
+.transparent-scrollpane .scroll-bar:horizontal .increment-arrow {
+    -fx-rotate: -90; /* Rotates to point right for horizontal scrollbar */
 }
