@@ -155,7 +155,7 @@ public class HomeController {
         VBox card = new VBox(5);
         card.setAlignment(Pos.CENTER);
         card.setPrefSize(150, 150);
-        card.setStyle("-fx-background-color: #36393f; -fx-background-radius: 8; -fx-border-color: #555; -fx-border-radius: 8; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #36393f; -fx-background-radius: 8; -fx-border-color: #555; -fx-border-radius: 8; -fx-border-width: 1;"); //Card in style.css
         card.setOnMouseEntered(e -> card.setStyle(card.getStyle() + "-fx-cursor: hand; -fx-scale-x: 1.02; -fx-scale-y: 1.02;"));
         card.setOnMouseExited(e -> card.setStyle(card.getStyle().replace("-fx-cursor: hand; -fx-scale-x: 1.02; -fx-scale-y: 1.02;", "")));
 

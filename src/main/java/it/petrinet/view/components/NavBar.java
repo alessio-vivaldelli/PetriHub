@@ -33,23 +33,27 @@ public class NavBar extends HBox {
     }
 
     private void setUserBar() {
+        leftButton.getChildren().addAll(homeButton, subNetsButton);
         rightButton.getChildren().addAll(logoutButton);
-        leftButton.getChildren().addAll(spacer, homeButton, subNetsButton);
-        this.getChildren().addAll(leftButton, rightButton);
+        this.getChildren().addAll(leftButton, spacer, rightButton);
     }
 
     private void setAdminBar() {
+        leftButton.getChildren().addAll(homeButton, myNetsButton, subNetsButton);
         rightButton.getChildren().addAll(logoutButton);
-        leftButton.getChildren().addAll(spacer, homeButton, myNetsButton, subNetsButton);
-        this.getChildren().addAll(leftButton, rightButton);
+        this.getChildren().addAll(leftButton, spacer, rightButton);
     }
 
     /** Setup stile e padding */
     private void setupLayout() {
-        HBox.setHgrow(spacer, Priority.ALWAYS);
         this.setSpacing(10);
         this.setPadding(new Insets(10));
-        this.setStyle("-fx-background-color: #181825;");
+        this.getStyleClass().add("navBar");
+
+        this.setFillHeight(true); // se VBox/HBox
+        this.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        this.setMaxHeight(Region.USE_COMPUTED_SIZE);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
     }
 
     /** Crea un bottone con stile e azione */

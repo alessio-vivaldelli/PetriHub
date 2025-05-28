@@ -19,7 +19,7 @@ public class MainController {
     private BorderPane mainContainer;
 
     @FXML
-    private HBox navBarContainer;
+    private VBox navBarContainer;
 
     @FXML
     public void initialize() {
@@ -37,15 +37,10 @@ public class MainController {
     }
 
     public void setNavBar(NavBar navBar) {
+        navBarContainer.getChildren().clear();
         if(navBar != null)
             navBarContainer.getChildren().add(navBar);
 
-        else
-            navBarContainer.getChildren().clear();
-
-        navBarContainer.setVisible(navBar != null);
-        navBarContainer.setManaged(navBar != null);
         mainContainer.setTop(navBarContainer);
-
     }
 }

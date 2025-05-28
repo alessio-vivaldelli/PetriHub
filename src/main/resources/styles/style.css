@@ -73,23 +73,8 @@
 
 /* Navigation bar styles - Enhanced Fixed Top Bar */
 
-.navBarContainer {
-    -fx-background-color: #1e1e2e; /* Solid background to prevent transparency issues */
-    -fx-max-width: Infinity;
-    -fx-min-width: 100%;
-    -fx-pref-width: Infinity;
-    /* Position fixed at top */
-    -fx-translate-y: 0;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 2);
-    /* Add subtle shadow for depth */
-    -fx-padding: 0;
-    -fx-spacing: 0;
-    /* Ensure it stays above other content */
-    -fx-view-order: -1000;
-    /* Force full width */
-    -fx-anchor-left: 0;
-    -fx-anchor-right: 0;
-    -fx-anchor-top: 0;
+.navBar {
+    -fx-background-color: #181825; /* Solid background to prevent transparency issues */
 }
 
 .navBar-home,
