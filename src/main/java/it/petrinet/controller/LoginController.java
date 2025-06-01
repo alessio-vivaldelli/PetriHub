@@ -5,6 +5,7 @@ import static it.petrinet.Main.isValidInput;
 
 import it.petrinet.Main;
 import it.petrinet.Main.*;
+import it.petrinet.exceptions.InputTypeException;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -43,7 +44,7 @@ public class LoginController {
     }
 
     @FXML
-    private void handleLogin() { //pulsante che accetta il login nel caso andasse bene (passa al model che poi rigira al view la schemrata giusta (credo)
+    private void handleLogin() throws InputTypeException { //pulsante che accetta il login nel caso andasse bene (passa al model che poi rigira al view la schemrata giusta (credo)
         String username = usernameField.getText();
         String password = passwordField.getText();
 

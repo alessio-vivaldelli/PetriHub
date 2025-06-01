@@ -17,5 +17,8 @@ module it.petrinet {
     exports it.petrinet;
     exports it.petrinet.model.Database;
     opens it.petrinet.model.Database to javafx.fxml;
+    exports it.petrinet.exceptions;
+    opens it.petrinet.exceptions to javafx.fxml;
     requires atlantafx.base;
+    requires java.desktop;
 }

@@ -1,5 +1,7 @@
 package it.petrinet.model.Database;
 
+import it.petrinet.exceptions.ExceptionType;
+import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 
@@ -10,9 +12,9 @@ import java.util.stream.Stream;
 import it.petrinet.model.Database.DatabaseManager.*;
 import javafx.scene.chart.PieChart;
 
-public class UserDAO {
+public class UserDAO implements DataAccessObject{
 
-    public static void createTable() {                          //metodo per creazione tabelle
+    public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS users (" +
                 "username TEXT PRIMARY KEY, " +
                 "password TEXT NOT NULL, " +
@@ -26,44 +28,56 @@ public class UserDAO {
         }
     }
 
-    public static void insertUser(Object user) {                  //inserimento di un utente che si registra
+    public static void insertUser(Object user) throws InputTypeException {                  //inserimento di un utente che si registra
         String command = "INSERT INTO users(username, password, isAdmin) VALUES (?, ?, ?)";
 
-        if(user instanceof User u) {
-
-            if (!DatabaseManager.tableExists("users", "users")) {
-                createTable();
+        try{
+            if(user instanceof User u) {
+                if (!DatabaseManager.tableExists("users", "users")) {
+                    UserDAO dao = new UserDAO();
+                    dao.createTable();
+                }
+                try (Connection connection = DatabaseManager.getUserDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+                    p_statement.setString(1, u.getUsername());
+                    p_statement.setString(2, u.getPassword());
+                    p_statement.setInt(3, u.isAdmin() ? 1 : 0);
+                    p_statement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
-
-            try (Connection connection = DatabaseManager.getUserDBConnection();
-                 PreparedStatement p_statement = connection.prepareStatement(command)) {
-                p_statement.setString(1, u.getUsername());
-                p_statement.setString(2, u.getPassword());
-                p_statement.setInt(3, u.isAdmin() ? 1 : 0);
-                p_statement.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            else{
+                throw new InputTypeException(typeErrorMessage, ExceptionType.USER);
             }
         }
-        else{
-            //throw InputTypeException();
+        catch(InputTypeException e){
+            e.ErrorPrinter();
         }
     }
 
-    public static void modifyUserPassword(Object user, String password) {                  //inserimento di un utente che si registra
-        if (user instanceof User u) {
-            String command = "UPDATE users SET password = ? isAdmin = ? WHERE username = ?";
+    public static void modifyUserPassword(Object user, String password) throws InputTypeException {                  //inserimento di un utente che si registra
+        try{
+            if (user instanceof User u) {
+                String command = "UPDATE users SET password = ? isAdmin = ? WHERE username = ?";
 
-            try (Connection connection = DatabaseManager.getUserDBConnection();
-                 PreparedStatement p_statement = connection.prepareStatement(command)){
-                        p_statement.setString(3, u.getUsername());
-                        p_statement.setString(1, password);
-                        p_statement.setBoolean(2, u.isAdmin());
-                        p_statement.executeUpdate();
-                    }
-            catch (SQLException e) {
-                e.printStackTrace();
+                try (Connection connection = DatabaseManager.getUserDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)){
+                    p_statement.setString(3, u.getUsername());
+                    p_statement.setString(1, password);
+                    p_statement.setBoolean(2, u.isAdmin());
+                    p_statement.executeUpdate();
+                }
+                catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
+            else{
+                throw new InputTypeException(typeErrorMessage, ExceptionType.USER);
+            }
+        }
+        catch (InputTypeException e){
+            e.ErrorPrinter();
         }
     }
 
@@ -87,7 +101,6 @@ public class UserDAO {
              PreparedStatement p_statement = connection.prepareStatement(search_command)) {
             p_statement.setString(0, username);
             ResultSet result = p_statement.executeQuery();
-
 
             if (result.next()) {
                  return new User(
@@ -124,18 +137,22 @@ public class UserDAO {
         return filteredUsers;
     }
 
-    public static User findSameUser(Object user, List <User> group2){
-        if(user instanceof User u){
-            for(User user2 : group2){
-                if (u.equals(user2)){
-                    return user2;
+    public static User findSameUser(Object user, List <User> group2) {
+        try{
+            if(user instanceof User u){
+                for(User user2 : group2){
+                    if (u.equals(user2)){
+                        return user2;
+                    }
                 }
             }
+            else{
+                throw new InputTypeException(typeErrorMessage,ExceptionType.USER);
+            }
         }
-        else{
-            //throw new InputTypeException();
+        catch(InputTypeException e){
+            e.ErrorPrinter();
         }
         return null;
     }
-
 }

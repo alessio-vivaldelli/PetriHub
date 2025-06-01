@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NotificationsDAO {
+public class NotificationsDAO implements DataAccessObject{
 
     //private final String dbURL = "jdbc:sqlite:/home/davide/IdeaProjects/PetriNetProject2025/notifications.db";
 
@@ -33,7 +33,7 @@ public class NotificationsDAO {
 //        }
 //    }
 
-    public static void createTable(){
+    public void createTable(){
         String table = "CREATE TABLE IF NOT EXISTS notifications (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "sender TEXT NOT NULL, " +
@@ -56,7 +56,8 @@ public class NotificationsDAO {
         String command = "INSERT INTO notifications(sender, recipient, netId, type, title, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         if (!DatabaseManager.tableExists("notifications", "notifications")){
-            createTable();
+            NotificationsDAO dao = new NotificationsDAO();
+            dao.createTable();
         }
 
         try (Connection connection = DatabaseManager.getNotificationDBConnection();
