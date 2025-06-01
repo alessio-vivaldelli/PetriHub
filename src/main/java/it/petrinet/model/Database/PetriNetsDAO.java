@@ -1,5 +1,6 @@
 package it.petrinet.model.Database;
 
+import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
 
 import java.sql.*;
@@ -16,23 +17,23 @@ public class PetriNetsDAO {
 
         try (Connection conn = DatabaseManager.getPetriNetsDBConnection();
              Statement statement = conn.createStatement()) {
-            statement.execute(table);
+            statement.executeUpdate(table);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
 
-    public static void addNet(Object net) {                //c'è da rimpiazzare i placeholder coi get della classe delle reti
+    public static void addNet(PetriNet net) {                //c'è da rimpiazzare i placeholder coi get della classe delle reti
         String command = "INSERT INTO petri_nets(NetName, XML_PATH, creatorId, netId, image_PATH, isReady ) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) {
-            p_statement.setString(1, "name");
-            p_statement.setString(2, "path");
-            p_statement.setInt(1, 0);
-            p_statement.setInt(1, 1 );
-            p_statement.setString(1, "imagepath");
-            p_statement.setBoolean(4, true);
+            p_statement.setString(1, net.getNetName());
+            p_statement.setString(2, net.getXML_PATH());
+            p_statement.setString(3, net.getCreatorId());
+            p_statement.setInt(4, net.getNetId());
+            p_statement.setString(5, net.getImagePATH());
+            p_statement.setBoolean(6, net.isReady());
             p_statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

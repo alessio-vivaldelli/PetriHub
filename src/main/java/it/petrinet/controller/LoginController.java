@@ -52,15 +52,10 @@ public class LoginController {
             return;
         }
 
-        //User user = newDB.getUsers().stream()
-        //        .filter(u -> u.equals(user))  //Sto provandoooooo!!!!
-        //        .findFirst()
-        //       .orElse(null);
-
-        if (UserDAO.findSameUser(UserDAO.getUsersByUsername(username), UserDAO.getUsersByPassword(password)) !=null){
+        if (UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password)) !=null){
 
                 //Login successful
-                User user = UserDAO.findSameUser(UserDAO.getUsersByUsername(username), UserDAO.getUsersByPassword(password));
+                User user = UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password));
                 ViewNavigator.setAuthenticatedUser(user);
                 System.out.println("login successful for user: "+ user.getUsername());
         }
