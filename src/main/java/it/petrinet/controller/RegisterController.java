@@ -49,7 +49,7 @@ public class RegisterController {
             return;
         }
 
-        if(!UserDAO.getUsersByUsername(username).isEmpty()){
+        if(UserDAO.getUserByUsername(username) != null){
             showError("Username already exists");
             return;
         }
