@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import it.petrinet.model.User;
+import it.petrinet.model.Database.*;
 import it.petrinet.view.ViewNavigator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -32,7 +33,6 @@ public class LoginController {
     @FXML
     private ImageView logoView;
 
-    private DB newDB = new DB(); // Da cancellare dopo aver fatto db
 
     @FXML
     // inizializza lo statuslabel (il messaggio di errore in caso di login fallito) e l'immagine del logo
@@ -52,17 +52,19 @@ public class LoginController {
             return;
         }
 
-        User user = newDB.getUsers().stream()
-                .filter(u -> u.getUsername().equals(username))  //Sto provandoooooo!!!!
-                .findFirst()
-                .orElse(null);
+        //User user = newDB.getUsers().stream()
+        //        .filter(u -> u.equals(user))  //Sto provandoooooo!!!!
+        //        .findFirst()
+        //       .orElse(null);
 
+        if (UserDAO.findSameUser(UserDAO.getUsersByUsername(username), UserDAO.getUsersByPassword(password)) !=null){
 
-        if (user != null && user.checkPassword(password)) {
-            // Login successful
-            ViewNavigator.setAuthenticatedUser(user);
-            System.out.println("Login successful for user: " + user.getUsername());
-        } else {
+                //Login successful
+                User user = UserDAO.findSameUser(UserDAO.getUsersByUsername(username), UserDAO.getUsersByPassword(password));
+                ViewNavigator.setAuthenticatedUser(user);
+                System.out.println("login successful for user: "+ user.getUsername());
+        }
+        else{
             showError("Invalid username or password");
         }
     }

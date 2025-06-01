@@ -4,6 +4,7 @@ import static it.petrinet.Main.isValidInput;
 import it.petrinet.controller.LoginController;
 
 import it.petrinet.Main;
+import it.petrinet.model.Database.UserDAO;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 import javafx.fxml.FXML;
@@ -29,8 +30,6 @@ public class RegisterController {
     @FXML
     private ImageView logoView;
 
-    private DB newDB = new DB(); // Da cancellare dopo aver fatto db
-
     @FXML
     public void initialize() { // guarda il duale LoginController
         statusLabel.setVisible(false);
@@ -50,7 +49,7 @@ public class RegisterController {
             return;
         }
 
-        if (newDB.getUsers().stream().anyMatch(x -> x.getUsername().equals(username))) { // Da cambiare con il DB
+        if(!UserDAO.getUsersByUsername(username).isEmpty()){
             showError("Username already exists");
             return;
         }
@@ -63,7 +62,7 @@ public class RegisterController {
         // Create and save new user
         User newUser = User.create(username, password);
 
-        newDB.addUser(newUser);
+        UserDAO.insertUser(newUser);
 
         // Show success message
         showSuccess("Registration successful! Please log in.");
