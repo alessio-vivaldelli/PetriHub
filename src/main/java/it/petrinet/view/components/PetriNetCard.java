@@ -5,24 +5,24 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.HBox; // Potrebbe non servire qui, ma lo lascio per completezza
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle; // <--- Import Rectangle for clipping
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.paint.Color; // Potrebbe non servire qui, ma lo lascio per completezza
+import javafx.scene.text.Font; // Potrebbe non servire qui, ma lo lascio per completezza
 
 public class PetriNetCard extends VBox {
 
     private static final String DEFAULT_CARD_IMAGE_PATH = "/assets/background/dummy.png";
-    private static final String DEFAULT_BUTTON_ICON_PATH = "/assets/icons/menu.png";
+    private static final String PATH = "/assets/background/";
 
     private StackPane imageContainer;
     private ImageView backgroundImageView;
     private Label titleLabel;
     private Label descriptionLabel;
-    private StackPane greenButtonOverlay;
+    private StackPane greenButtonOverlay; // Il pulsante verde in overlay
 
     public PetriNetCard(String title, String description, String imagePath) {
         this.getStyleClass().add("petri-net-card");
@@ -38,24 +38,20 @@ public class PetriNetCard extends VBox {
 
         backgroundImageView = new ImageView();
         try {
-            String actualImagePath = (imagePath != null && !imagePath.isEmpty()) ? imagePath : DEFAULT_CARD_IMAGE_PATH;
+            String actualImagePath = (imagePath != null && !imagePath.isEmpty()) ? PATH + imagePath : DEFAULT_CARD_IMAGE_PATH;
             Image cardImage = new Image(getClass().getResourceAsStream(actualImagePath));
             backgroundImageView.setImage(cardImage);
             backgroundImageView.setFitWidth(240);
             backgroundImageView.setFitHeight(179);
-            backgroundImageView.setPreserveRatio(false); // This ensures it fills and crops
+            backgroundImageView.setPreserveRatio(false);
 
-            // --- ADD THIS CLIP CODE FOR ROUNDED IMAGE CORNERS ---
             Rectangle clip = new Rectangle(
                     backgroundImageView.getFitWidth(),
                     backgroundImageView.getFitHeight()
             );
-            // Match the radius used in your CSS for .card-image-container or adjust as needed
-            clip.setArcWidth(12); // Arc width for horizontal rounding (2 * border-radius)
-            clip.setArcHeight(12); // Arc height for vertical rounding (2 * border-radius)
+            clip.setArcWidth(12);
+            clip.setArcHeight(12);
             backgroundImageView.setClip(clip);
-            // -----------------------------------------------------
-
             backgroundImageView.getStyleClass().add("card-image-view");
         } catch (Exception e) {
             System.err.println("Error loading card image: " + e.getMessage());
@@ -64,27 +60,27 @@ public class PetriNetCard extends VBox {
         imageContainer.getChildren().add(backgroundImageView);
         StackPane.setAlignment(backgroundImageView, Pos.CENTER);
 
-        // ... (rest of your PetriNetCard code, including green button overlay and text labels) ...
-
-        // --- 2. Green Button Overlay (initially hidden) ---
+        // --- 2. Green Button Overlay (NASCOSTO DI DEFAULT) ---
         greenButtonOverlay = new StackPane();
         greenButtonOverlay.getStyleClass().add("green-button-overlay");
-        greenButtonOverlay.setPrefSize(28, 28);
-        greenButtonOverlay.setMaxSize(28, 28);
-        greenButtonOverlay.setVisible(false);
-        greenButtonOverlay.setManaged(false);
+        greenButtonOverlay.setPrefSize(25, 25); // Dimensione del pulsante
+        greenButtonOverlay.setMaxSize(25, 25);
 
-        Circle buttonCircle = new Circle(14);
+        // IMPOSTA INIZIALMENTE A NASCOSTO E NON GESTITO
+        greenButtonOverlay.setVisible(false);
+        greenButtonOverlay.setManaged(false); // Non deve occupare spazio quando nascosto
+
+        Circle buttonCircle = new Circle(20); // Raggio del cerchio
         buttonCircle.getStyleClass().add("green-button-circle");
         greenButtonOverlay.getChildren().add(buttonCircle);
 
-        Label buttonIcon = new Label(">");
+        Label buttonIcon = new Label("☰"); // Icona Unicode
         buttonIcon.getStyleClass().add("green-button-icon");
         greenButtonOverlay.getChildren().add(buttonIcon);
         StackPane.setAlignment(buttonIcon, Pos.CENTER);
 
         StackPane.setAlignment(greenButtonOverlay, Pos.BOTTOM_RIGHT);
-        StackPane.setMargin(greenButtonOverlay, new Insets(0, 5, 5, 0));
+        StackPane.setMargin(greenButtonOverlay, new Insets(0, 10, 10, 0));
 
         imageContainer.getChildren().add(greenButtonOverlay);
 
@@ -102,30 +98,40 @@ public class PetriNetCard extends VBox {
 
         this.getChildren().addAll(imageContainer, titleLabel, descriptionLabel);
 
-        // --- Interaction: Hover and Click ---
-        this.setOnMouseEntered(e -> {
-            this.setScaleX(1.02);
-            this.setScaleY(1.02);
+
+        // --- LOGICA DI HOVER PER MOSTRARE/NASCONDERE IL PULSANTE ---
+        this.setOnMouseEntered(event -> {
+            // Mostra il pulsante quando il mouse entra nella card
             greenButtonOverlay.setVisible(true);
             greenButtonOverlay.setManaged(true);
+            // Puoi aggiungere un effetto di scala anche per la card intera qui, se non lo fai già in CSS
+            this.setScaleX(1.02);
+            this.setScaleY(1.02);
         });
-        this.setOnMouseExited(e -> {
-            this.setScaleX(1.0);
-            this.setScaleY(1.0);
+
+        this.setOnMouseExited(event -> {
+            // Nasconde il pulsante quando il mouse esce dalla card
             greenButtonOverlay.setVisible(false);
             greenButtonOverlay.setManaged(false);
+            // Ripristina l'effetto di scala della card
+            this.setScaleX(1.0);
+            this.setScaleY(1.0);
         });
+        // --- FINE LOGICA DI HOVER ---
 
+
+        // Il click della card intera (attento a non sovrapporlo al click del bottone)
         this.setOnMouseClicked(event -> {
-            System.out.println("PetriNet Card clicked: " + title);
+            // Se l'evento non è stato consumato dal bottone, allora è un click sulla card
+            if (!event.isConsumed()) {
+                System.out.println("PetriNet Card clicked: " + title);
+            }
         });
 
+        // Il click specifico del bottone verde
         greenButtonOverlay.setOnMouseClicked(event -> {
             System.out.println("Green button clicked for: " + title);
-            event.consume();
+            event.consume(); // FONDAMENTALE: Consuma l'evento per impedire che la card riceva il click
         });
     }
-
-
-
 }

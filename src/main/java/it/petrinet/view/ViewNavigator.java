@@ -2,8 +2,10 @@ package it.petrinet.view;
 
 import it.petrinet.Main;
 import it.petrinet.controller.MainController;
+import it.petrinet.controller.ShowAllController;
 import it.petrinet.model.User;
 import it.petrinet.view.components.NavBar;
+import it.petrinet.view.components.NetCategory;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -24,6 +26,7 @@ public final class ViewNavigator {
 
     private static MainController mainController;
     private static User authenticatedUser;
+    private String lastButtonClicked = "Home";
 
     private ViewNavigator() {}
 
@@ -41,6 +44,7 @@ public final class ViewNavigator {
     public static void HomeScene() {
         mainController.setNavBar(new NavBar());
         resizeStage(0, 0, "Home");
+        Main.getPrimaryStage().setTitle("PH - Petri Nets Hub");
         loadView("HomeView.fxml");
     }
 
@@ -52,6 +56,12 @@ public final class ViewNavigator {
     public static void navigateToRegister() {
         Main.getPrimaryStage().setTitle("PH - Registration");
         loadView("RegisterView.fxml");
+    }
+
+    public static void navigateToShowAll(NetCategory type) {
+        ShowAllController.setType(type);
+        Main.getPrimaryStage().setTitle("All nets");
+        loadView("ShowAllView.fxml");
     }
 
     public static void navigateToHome() {
@@ -157,4 +167,5 @@ public final class ViewNavigator {
         // Play animation sequence
         new SequentialTransition(fadeOut, pause, fadeIn).play();
     }
+
 }

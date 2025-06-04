@@ -1,5 +1,6 @@
 package it.petrinet.view.components;
 
+import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -26,8 +27,8 @@ public class NavBar extends HBox {
     private final Map<Button, String> originalButtonTexts = new HashMap<>();
 
     private final Button homeButton = createNavButton("Home", ViewNavigator::navigateToHome, "home.png", "home");
-    private final Button myNetsButton = createNavButton("My Nets", this::handleProjects, "myNets.png", "myNets");
-    private final Button subNetsButton = createNavButton("My Subs", this::handleProjects, "subNets.png", "subNets");
+    private final Button myNetsButton = createNavButton("My Nets", this::handleProjects, NetCategory.myNets.getDisplayName(), "myNets");
+    private final Button subNetsButton = createNavButton("My Subs", this::handleProjects, NetCategory.myNets.getDisplayName(), "subNets");
     private final Button logoutButton = createNavButton("", this::handleLogout, "logout.png", "logout");
 
     HBox rightButton = new HBox();
@@ -90,23 +91,7 @@ public class NavBar extends HBox {
         // Memorizza il testo originale del bottone
         originalButtonTexts.put(button, text);
 
-        ImageView icon = null;
-        if (iconPath != null && !iconPath.isBlank()) {
-            try (InputStream imageStream = NavBar.class.getResourceAsStream(pathToIcon + iconPath)) {
-                if (imageStream != null) {
-                    Image image = new Image(imageStream);
-                    icon = new ImageView(image);
-                    icon.setFitWidth(24); // Aumentato leggermente per visibilità, puoi regolare
-                    icon.setFitHeight(24); // Aumentato leggermente per visibilità, puoi regolare
-                    button.setGraphic(icon);
-                } else {
-                    System.err.println("Icon not found: " + pathToIcon + iconPath);
-                }
-            } catch (Exception e) {
-                System.err.println("Error loading icon: " + pathToIcon + iconPath);
-                e.printStackTrace();
-            }
-        }
+        IconUtils.setIcon(button, iconPath);
 
         // Imposta una larghezza minima per il bottone.
         // Questo è cruciale per evitare che il bottone si rimpicciolisca troppo quando il testo scompare.

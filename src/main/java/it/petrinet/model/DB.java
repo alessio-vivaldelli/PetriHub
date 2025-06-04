@@ -16,9 +16,9 @@ public class DB {
         return users;
     }
 
-    private final List<String> nets = List.of("net1", "net2" , "net3", "net4");
+    private static final List<String> nets = List.of("net1", "net2" , "net3", "net4");
 
-    public List<String> getNets() {
+    public static List<String> getNets() {
         return nets;
     }
 
