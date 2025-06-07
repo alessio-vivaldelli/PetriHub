@@ -5,7 +5,6 @@ import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;
 
 import javafx.geometry.Point2D;
 
-// This class is a placeholder for the Node class in the Petri net model. s
 public abstract class Node {
 
   private String name;
@@ -61,17 +60,17 @@ public abstract class Node {
   }
 
   /**
-   * Returns the name of the city.
+   * Returns the label of the node.
    * 
-   * @return the name of the city
+   * @return the name of the node
    */
   @SmartLabelSource
-  public String getName() {
+  final public String getName() {
     return this.name;
   }
 
   /*
-   * Establishes the shape of the vertex to use when representing this city.
+   * Establishes the shape of the vertex to use when representing the net.
    * 
    * @return the name of the shape, see {@link
    * com.brunomnsilva.smartgraph.graphview.ShapeFactory}
@@ -79,4 +78,8 @@ public abstract class Node {
   @SmartShapeTypeSource
   public abstract String modelShape();
 
+  // Additional method for compatibility with CustomVertex
+  public String getShapeType() {
+    return modelShape();
+  }
 }

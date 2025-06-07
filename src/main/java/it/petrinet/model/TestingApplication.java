@@ -1,10 +1,17 @@
 package it.petrinet.model;
 
 import atlantafx.base.theme.PrimerLight;
+import it.petrinet.petrinet.model.Node;
+import it.petrinet.petrinet.model.PLACE_TYPE;
+import it.petrinet.petrinet.model.Place;
+import it.petrinet.petrinet.model.TRANSITION_TYPE;
+import it.petrinet.petrinet.model.Transition;
+
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.*;
 
 import javafx.application.Application;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -22,20 +29,20 @@ public class TestingApplication extends Application {
 
   private String currentNodeType = "transition"; // Default node type
   private String currentMode = "CREATE"; // CREATE, CONNECT, SELECTION, or DELETION
-  private Vertex<CustomVertex> firstSelectedVertex = null; // For connection mode
+  private Vertex<Node> firstSelectedVertex = null; // For connection mode
 
   @Override
   public void start(Stage stage) throws IOException {
     Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
 
-    Graph<CustomVertex, String> g = new DigraphEdgeList<>();
-    CustomVertex vElement = new CustomVertex("A", "transition");
+    Graph<Node, String> g = new DigraphEdgeList<>();
+    Node vElement = createNode("A", "transition");
     g.insertVertex(vElement);
-    CustomVertex vElement_2 = new CustomVertex("B", "transition");
+    Node vElement_2 = createNode("B", "transition");
     g.insertVertex(vElement_2);
-    CustomVertex vElement_3 = new CustomVertex("C", "circle");
+    Node vElement_3 = createNode("C", "circle");
     g.insertVertex(vElement_3);
-    CustomVertex vElement_4 = new CustomVertex("D", "circle");
+    Node vElement_4 = createNode("D", "circle");
     g.insertVertex(vElement_4);
 
     g.insertEdge(vElement, vElement_2, "1");
@@ -43,7 +50,7 @@ public class TestingApplication extends Application {
     g.insertEdge(vElement_3, vElement_4, "3");
 
     SmartPlacementStrategy initialPlacement = new SmartRandomPlacementStrategy();
-    SmartGraphPanel<CustomVertex, String> graphView = new SmartGraphPanel<>(g, initialPlacement);
+    SmartGraphPanel<Node, String> graphView = new SmartGraphPanel<>(g, initialPlacement);
 
     VBox vBox = new VBox();
 
@@ -127,27 +134,29 @@ public class TestingApplication extends Application {
     HBox nodeTypeButtons = new HBox(10);
     nodeTypeButtons.getChildren().addAll(placeButton, transitionButton);
 
-    // Randomize shapes button
-    Button randomizeButton = new Button("Randomize shapes");
-    randomizeButton.setOnMouseClicked(_ -> {
-      String[] shapeTypes = { "transition", "circle", "star", "svg" };
-      Random random = new Random();
-      for (Vertex<CustomVertex> vertex : graphView.getModel().vertices()) {
-        String shape = shapeTypes[random.nextInt(shapeTypes.length)];
-        vertex.element().setShapeType(shape);
-      }
-      graphView.update();
-    });
+    // // Randomize shapes button
+    // Button randomizeButton = new Button("Randomize shapes");
+    // randomizeButton.setOnMouseClicked(_ -> {
+    // String[] shapeTypes = { "transition", "circle", "star", "svg" };
+    // Random random = new Random();
+    // for (Vertex<Node> vertex : graphView.getModel().vertices()) {
+    // String shape = shapeTypes[random.nextInt(shapeTypes.length)];
+    // vertex.element().setShapeType(shape);
+    // }
+    // graphView.update();
+    // });
 
     // Set up canvas click action for creating new nodes (only in CREATE mode)
+
     graphView.setCanvasSingleClickAction(point -> {
       if (currentMode.equals("CREATE")) {
         // Create a new vertex at the clicked point using current node type
         String nodeLabel = currentNodeType.equals("circle") ? "New Place" : "New Transition";
-        Vertex<CustomVertex> newVertex = g.insertVertex(new CustomVertex(nodeLabel, currentNodeType));
+        Vertex<Node> newVertex = g
+            .insertVertex(createNode(nodeLabel, currentNodeType, new Point2D(point.getX(), point.getY())));
         graphView.updateAndWait();
 
-        Vertex<CustomVertex> v = graphView.getModel().vertices().stream()
+        Vertex<Node> v = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == newVertex).findFirst().orElse(null);
         graphView.setVertexPosition(v, point.getX(), point.getY());
 
@@ -179,7 +188,7 @@ public class TestingApplication extends Application {
     graphView.setVertexRightClickAction(vertex -> {
       // If u are in create mode, u delete the vertex
       if (currentMode.equals("CREATE")) {
-        Vertex<CustomVertex> element = graphView.getModel().vertices().stream()
+        Vertex<Node> element = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
         if (element != null) {
           g.removeVertex(element);
@@ -189,7 +198,7 @@ public class TestingApplication extends Application {
         return; // Exit early if in CREATE mode
       }
       if (currentMode.equals("SELECTION")) {
-        Vertex<CustomVertex> element = graphView.getModel().vertices().stream()
+        Vertex<Node> element = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
 
         if (element != null) {
@@ -240,12 +249,6 @@ public class TestingApplication extends Application {
           } else {
             changeTypeItem.setText("Change to Place");
           }
-          changeTypeItem.setOnAction(_ -> {
-            String newType = currentType.equals("circle") ? "transition" : "circle";
-            element.element().setShapeType(newType);
-            System.out.println("Changed type from " + currentType + " to " + newType);
-            graphView.update();
-          });
 
           // Add user/admin toggle for transitions only
           MenuItem userTypeItem = null;
@@ -290,7 +293,7 @@ public class TestingApplication extends Application {
     // Set up vertex click action for connections
     graphView.setVertexSingleClickAction(vertex -> {
       if (currentMode.equals("CONNECT")) {
-        Vertex<CustomVertex> element = graphView.getModel().vertices().stream()
+        Vertex<Node> element = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
         if (firstSelectedVertex == null) {
           // First vertex selected
@@ -327,7 +330,7 @@ public class TestingApplication extends Application {
         System.out.println("------");
       } else if (currentMode.equals("DELETION")) {
         // In DELETION mode, delete the vertex on left click
-        Vertex<CustomVertex> element = graphView.getModel().vertices().stream()
+        Vertex<Node> element = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
         if (element != null) {
           g.removeVertex(element);
@@ -342,7 +345,7 @@ public class TestingApplication extends Application {
     });
 
     graphView.setPrefHeight(700);
-    vBox.getChildren().addAll(graphView, modeButtons, nodeTypeButtons, randomizeButton);
+    vBox.getChildren().addAll(graphView, modeButtons, nodeTypeButtons);
 
     Scene scene = new Scene(vBox, 1024, 768);
 
@@ -361,42 +364,22 @@ public class TestingApplication extends Application {
     graphView.update();
   }
 
-  /**
-   * A custom vertex class to represent a state.
-   */
-  private class CustomVertex {
-
-    private String label;
-    private String shapeType;
-
-    public CustomVertex(String label, String type) {
-      this.label = label;
-      this.shapeType = type;
+  // Replace the CustomVertex usage with factory methods
+  private Node createNode(String label, String type, Point2D position) {
+    if (type.contains("transition")) {
+      TRANSITION_TYPE transType = TRANSITION_TYPE.USER;
+      return new Transition(label, position, transType);
+    } else if (type.contains("place")) {
+      return new Place(label, position, PLACE_TYPE.NORMAL, 0);
     }
-
-    @SmartLabelSource
-    public String getName() {
-      return label;
-    }
-
-    public void setName(String name) {
-      this.label = name;
-    }
-
-    @SmartShapeTypeSource
-    public String modelShape() {
-      return this.shapeType;
-    }
-
-    public String getShapeType() {
-      return this.shapeType;
-    }
-
-    public void setShapeType(String shapeType) {
-      this.shapeType = shapeType;
-    }
+    return new Place(label, position);
   }
 
+  private Node createNode(String label, String type) {
+    return createNode(label, type, new Point2D(0, 0));
+  }
+
+  // start application
   public static void main(String[] args) {
     launch();
   }

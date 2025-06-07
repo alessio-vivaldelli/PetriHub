@@ -64,8 +64,10 @@ public class ShapeFactory {
       case "svg":
         return new ShapeSVG(x, y, radius);
       case "transition":
-          return new ShapeTransition(x, y, radius);
+        return new ShapeTransition(x, y, radius);
       case "circle":
+        return new ShapeCircle(x, y, radius);
+      case "place":
         return new ShapeCircle(x, y, radius);
       case "triangle":
         return new ShapeRegularPolygon(x, y, radius, 3);
