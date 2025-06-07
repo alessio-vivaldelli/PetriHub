@@ -103,9 +103,12 @@ public class SmartGraphPanel<V, E> extends Pane {
    */
   private Consumer<SmartGraphVertex<V>> vertexDoubleClickConsumer;
   private Consumer<SmartGraphVertex<V>> vertexSingleClickConsumer;
+  private Consumer<SmartGraphVertex<V>> vertexRightClickConsumer;
+  private Consumer<Point2D> canvasSingleClickConsumer;
 
   private Consumer<SmartGraphEdge<E, V>> edgeDoubleClickConsumer;
   private Consumer<SmartGraphEdge<E, V>> edgeSingleClickConsumer;
+  private Consumer<SmartGraphEdge<E, V>> edgeRightClickConsumer;
 
   /*
    * OPTIONAL PROVIDERS FOR LABELS, RADII AND SHAPE TYPES OF NODES.
@@ -182,8 +185,10 @@ public class SmartGraphPanel<V, E> extends Pane {
     // for the sake of readability
     this.vertexDoubleClickConsumer = null;
     this.vertexSingleClickConsumer = null;
+    this.vertexRightClickConsumer = null;
     this.edgeDoubleClickConsumer = null;
     this.edgeSingleClickConsumer = null;
+    this.edgeRightClickConsumer = null;
 
     // set stylesheet and class
     loadAndApplyStylesheet(cssFile);
@@ -554,6 +559,15 @@ public class SmartGraphPanel<V, E> extends Pane {
   }
 
   /**
+   * Sets the action that should be performed when canvas is single-clicked
+   * 
+   * @param action action to be performed
+   */
+  public void setCanvasSingleClickAction(Consumer<Point2D> action) {
+    this.canvasSingleClickConsumer = action;
+  }
+
+  /**
    * Sets the action that should be performed when a vertex is single-clicked.
    *
    * @param action action to be performed
@@ -563,12 +577,30 @@ public class SmartGraphPanel<V, E> extends Pane {
   }
 
   /**
+   * Sets the action that should be performed when a vertex is right-clicked.
+   *
+   * @param action action to be performed
+   */
+  public void setVertexRightClickAction(Consumer<SmartGraphVertex<V>> action) {
+    this.vertexRightClickConsumer = action;
+  }
+
+  /**
    * Sets the action that should be performed when an edge is double-clicked.
    *
    * @param action action to be performed
    */
   public void setEdgeSingleClickAction(Consumer<SmartGraphEdge<E, V>> action) {
     this.edgeSingleClickConsumer = action;
+  }
+
+  /**
+   * Sets the action that should be performed when an edge is right-clicked.
+   *
+   * @param action action to be performed
+   */
+  public void setEdgeRightClickAction(Consumer<SmartGraphEdge<E, V>> action) {
+    this.edgeRightClickConsumer = action;
   }
 
   /**
@@ -1221,6 +1253,12 @@ public class SmartGraphPanel<V, E> extends Pane {
    */
   public void setVertexPosition(Vertex<V> v, double x, double y) {
     SmartGraphVertexNode<V> node = vertexNodes.get(v);
+    System.out.println("Setting position for vertex " + node + " to (" + x + ", " + y + ")");
+
+    for (SmartGraphVertexNode<V> n : vertexNodes.values()) {
+      System.out.println("Node: " + n);
+    }
+
     if (node != null) {
       node.setPosition(x, y);
     }
@@ -1289,6 +1327,21 @@ public class SmartGraphPanel<V, E> extends Pane {
     for (Vertex<V> v : vertexNodes.keySet()) {
       if (v.element().equals(vertexElement)) {
         return vertexNodes.get(v);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns the associated stylable element with a graph vertex.
+   *
+   * @param vertexElement underlying vertex's element
+   * @return stylable element
+   */
+  public Vertex<V> getVertex(V vertexElement) {
+    for (Vertex<V> v : vertexNodes.keySet()) {
+      if (v.element().equals(vertexElement)) {
+        return (v);
       }
     }
     return null;
@@ -1370,6 +1423,11 @@ public class SmartGraphPanel<V, E> extends Pane {
         if (mouseEvent.getClickCount() == 1) {
 
           Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
+          System.out.println("node is: " + node);
+          if (node == SmartGraphPanel.this) {
+            this.canvasSingleClickConsumer.accept(new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY()));
+
+          }
           if (node == null) {
             return;
           }
@@ -1384,6 +1442,23 @@ public class SmartGraphPanel<V, E> extends Pane {
             if (edgeSingleClickConsumer != null) { // Only if the consumer is set
               edgeSingleClickConsumer.accept(e);
             }
+          }
+        }
+      } else if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+        Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        if (node == null) {
+          return;
+        }
+
+        if (node instanceof SmartGraphVertex) {
+          SmartGraphVertex<V> v = (SmartGraphVertex<V>) node;
+          if (vertexRightClickConsumer != null) { // Only if the consumer is set
+            vertexRightClickConsumer.accept(v);
+          }
+        } else if (node instanceof SmartGraphEdge) {
+          SmartGraphEdge<E, V> e = (SmartGraphEdge<E, V>) node;
+          if (edgeRightClickConsumer != null) { // Only if the consumer is set
+            edgeRightClickConsumer.accept(e);
           }
         }
       }
