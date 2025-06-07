@@ -22,13 +22,14 @@ import javafx.stage.StageStyle;
 import java.io.IOException;
 import java.util.Random;
 
+import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Graph;
 
 public class TestingApplication extends Application {
 
   private String currentNodeType = "transition"; // Default node type
-  private String currentMode = "CREATE"; // CREATE, CONNECT, SELECTION, or DELETION
+  private String currentMode = "SELECTION"; // CREATE, CONNECT, SELECTION, or DELETION
   private Vertex<Node> firstSelectedVertex = null; // For connection mode
 
   @Override
@@ -345,7 +346,8 @@ public class TestingApplication extends Application {
     });
 
     graphView.setPrefHeight(700);
-    vBox.getChildren().addAll(graphView, modeButtons, nodeTypeButtons);
+    ContentZoomScrollPane contentZoomScrollPane = new ContentZoomScrollPane(graphView);
+    vBox.getChildren().addAll(contentZoomScrollPane, modeButtons, nodeTypeButtons);
 
     Scene scene = new Scene(vBox, 1024, 768);
 
