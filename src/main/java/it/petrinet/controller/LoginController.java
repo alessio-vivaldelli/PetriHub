@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.net.URL;
+import java.util.Objects;
 import java.util.Optional;
 
 import static it.petrinet.utils.Validation.isValidInput;
@@ -74,7 +75,7 @@ public class LoginController {
 
     private void loadLogoImage() {
         try {
-            Image img = new Image(getClass().getResourceAsStream(LOGO_PATH));
+            Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(LOGO_PATH)));
             logoView.setImage(img);
         } catch (Exception e) {
             System.err.println("Unable to load logo: " + LOGO_PATH);

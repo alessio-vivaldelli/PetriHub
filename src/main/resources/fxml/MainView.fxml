@@ -8,9 +8,8 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="it.petrinet.controller.MainController">
 
-    <top>
-        <!-- Placeholder for navbar -->
-        <VBox fx:id="navBarContainer" />
-    </top>
+    <left>
+        <BorderPane fx:id="navBarContainer"/>
+    </left>
 
 </BorderPane>

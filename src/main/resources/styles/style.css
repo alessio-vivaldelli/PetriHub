@@ -2,19 +2,41 @@
    Project: PetriNet App - Catppuccin Mocha Theme (Peach Accent)
    ============================================================================ */
 
-/*
-   Catppuccin Mocha Color Palette (with Peach Accent):
-   - base: #1e1e2e (Main background) -> RGB: 30, 30, 46
-   - mantle: #181825 (Darker background, e.g., Navbar)
-   - surface0: #313244 (Card/Input background)
-   - surface1: #45475a (Subtle borders, hover states)
-   - surface2: #585b70 (Lighter hover states, scrollbar thumb hover)
-   - text: #cdd6f4 (Default text color)
-   - subtext0: #a6adc8 (Lighter text for descriptions)
-   - subtext1: #9399b2 (Placeholder text)
-   - peach: #fab387 (Main accent color)
-   - rosewater: #f38ba8 (Error messages)
-*/
+/* Catppuccin Mocha Color Palette */
+.catppuccin-mocha-rosewater { -fx-background-color: #f5e0dc; }
+.catppuccin-mocha-flamingo  { -fx-background-color: #f2cdcd; }
+.catppuccin-mocha-pink     { -fx-background-color: #f5c2e7; }
+.catppuccin-mocha-mauve    { -fx-background-color: #cba6f7; }
+.catppuccin-mocha-red      { -fx-background-color: #f38ba8; }
+.catppuccin-mocha-maroon   { -fx-background-color: #eba0ac; }
+.catppuccin-mocha-peach    { -fx-background-color: #fab387; }
+.catppuccin-mocha-yellow   { -fx-background-color: #f9e2af; }
+.catppuccin-mocha-green    { -fx-background-color: #a6e3a1; }
+.catppuccin-mocha-teal     { -fx-background-color: #94e2d5; }
+.catppuccin-mocha-sky      { -fx-background-color: #89dceb; }
+.catppuccin-mocha-sapphire { -fx-background-color: #74c7ec; }
+.catppuccin-mocha-blue     { -fx-background-color: #89b4fa; }
+.catppuccin-mocha-lavender { -fx-background-color: #b4befe; }
+.catppuccin-mocha-text     { -fx-text-fill: #cdd6f4; } /* Text color */
+.catppuccin-mocha-base     { -fx-background-color: #1e1e2e; } /* Base background */
+.catppuccin-mocha-surface0 { -fx-background-color: #313244; }
+.catppuccin-mocha-surface1 { -fx-background-color: #45475a; }
+.catppuccin-mocha-surface2 { -fx-background-color: #585b70; }
+
+/* Define custom properties for easier use of Catppuccin colors */
+.root {
+    -fx-catppuccin-mocha-base:     #1e1e2e;
+    -fx-catppuccin-mocha-surface0: #313244;
+    -fx-catppuccin-mocha-surface1: #45475a;
+    -fx-catppuccin-mocha-surface2: #585b70;
+    -fx-catppuccin-mocha-text:     #cdd6f4;
+    -fx-catppuccin-mocha-peach:    #fab387;
+    -fx-catppuccin-mocha-green:    #a6e3a1;
+    -fx-catppuccin-mocha-blue:     #89b4fa;
+    -fx-catppuccin-mocha-yellow:   #f9e2af;
+    -fx-catppuccin-mocha-red:      #f38ba8;
+    -fx-catppuccin-mocha-mauve:    #cba6f7;
+}
 
 /* ----------------------------------------------------------------------------
    1. Root & Base Application Styles
@@ -22,16 +44,16 @@
 
 /* Applies to the primary scene root */
 .root {
-    -fx-background-color: #1e1e2e; /* base: Main application background */
+    -fx-background-color: -fx-catppuccin-mocha-base; /* base: Main application background */
     -fx-font-family: "Segoe UI", "Helvetica Neue", sans-serif; /* Preferred font stack */
-    -fx-text-fill: #cdd6f4;        /* text: Default text color for all nodes */
+    -fx-text-fill: -fx-catppuccin-mocha-text;        /* text: Default text color for all nodes */
     -fx-padding: 0;                /* Ensures no default padding on the root container */
     -fx-spacing: 0;                /* Ensures no default spacing on the root container */
 }
 
 /* Style for the main BorderPane (e.g., if used as the root container in your FXML) */
 .root-container {
-    -fx-background-color: #1e1e2e; /* base: Explicitly set background for the main layout pane */
+    -fx-background-color: -fx-catppuccin-mocha-base; /* base: Explicitly set background for the main layout pane */
 }
 
 /* Common transparent background for frequently used layout panes */
@@ -49,19 +71,19 @@
 
 /* Default style for all Label nodes */
 .label {
-    -fx-text-fill: #cdd6f4; /* text: Standard label color */
+    -fx-text-fill: -fx-catppuccin-mocha-text; /* text: Standard label color */
     -fx-font-size: 14px;
 }
 
 /* Specific styling for error messages */
 .label#error,
 .label#errorLabel {
-    -fx-text-fill: #f38ba8; /* rosewater: Distinct color for error feedback */
+    -fx-text-fill: -fx-catppuccin-mocha-red; /* rosewater: Distinct color for error feedback */
 }
 
 /* Style for the main welcome message (e.g., "Welcome, [Username]!") */
 .welcome-label {
-    -fx-text-fill: #cdd6f4;    /* text: Prominent text color */
+    -fx-text-fill: -fx-catppuccin-mocha-text;    /* text: Prominent text color */
     -fx-font-size: 32px;       /* Larger font size for emphasis */
     -fx-font-weight: bold;
     -fx-padding: 0 0 20px 0;   /* Adds space below the welcome text */
@@ -69,7 +91,7 @@
 
 /* Style for section titles (e.g., "Subscriptions", "Creations", "Discover") */
 .section-title {
-    -fx-text-fill: #fab387;    /* peach: Accent color for section headings */
+    -fx-text-fill: -fx-catppuccin-mocha-peach;    /* peach: Accent color for section headings */
     -fx-font-size: 22px;       /* Appropriate font size for section titles */
     -fx-font-weight: bold;
     -fx-padding: 0 0 5px 0;    /* Adds slight space below the title */
@@ -81,8 +103,8 @@
 
 /* Base style for all Button nodes */
 .button {
-    -fx-background-color: #fab387; /* peach: Primary button background color */
-    -fx-text-fill: #1e1e2e;         /* base: Text color for high contrast */
+    -fx-background-color: -fx-catppuccin-mocha-peach; /* peach: Primary button background color */
+    -fx-text-fill: -fx-catppuccin-mocha-base;         /* base: Text color for high contrast */
     -fx-font-weight: bold;
     -fx-background-radius: 6px;     /* Rounded corners for buttons */
     -fx-padding: 8 16 8 16;         /* Padding around button content */
@@ -93,7 +115,7 @@
 
 /* Hover effect for general buttons */
 .button:hover {
-    -fx-background-color: #f2a97f; /* Slightly darker peach on hover */
+    -fx-background-color: derive(-fx-catppuccin-mocha-peach, -10%); /* Slightly darker peach on hover */
 }
 
 /* ----------------------------------------------------------------------------
@@ -105,8 +127,8 @@
 .password-field,
 .text-area,
 .combo-box {
-    -fx-background-color: #313244; /* surface0: Background for input fields */
-    -fx-text-fill: #cdd6f4;        /* text: Color for user input text */
+    -fx-background-color: -fx-catppuccin-mocha-surface0; /* surface0: Background for input fields */
+    -fx-text-fill: -fx-catppuccin-mocha-text;        /* text: Color for user input text */
     -fx-prompt-text-fill: #9399b2; /* subtext1: Color for placeholder text */
     -fx-border-color: transparent; /* No default border visible */
     -fx-background-radius: 6px;    /* Rounded corners */
@@ -119,13 +141,13 @@
 .password-field:focused,
 .text-area:focused,
 .combo-box:focused {
-    -fx-border-color: #fab387; /* peach: Accent border when focused */
+    -fx-border-color: -fx-catppuccin-mocha-peach; /* peach: Accent border when focused */
     -fx-border-width: 1.5px;   /* Slightly thicker border for focus */
 }
 
 /* Hyperlink styling */
 .hyperlink {
-    -fx-text-fill: #fab387; /* peach: Hyperlink color */
+    -fx-text-fill: -fx-catppuccin-mocha-peach; /* peach: Hyperlink color */
     -fx-underline: false;   /* No underline by default */
     -fx-transition: -fx-underline 0.2s ease; /* Smooth transition for underline */
 }
@@ -156,7 +178,7 @@
 .navBar-subNets,
 .navBar-logout {
     -fx-background-color: transparent; /* Transparent background */
-    -fx-text-fill: #cdd6f4;             /* text: Default text color */
+    -fx-text-fill: -fx-catppuccin-mocha-text;             /* text: Default text color */
     -fx-padding: 0 30px 15px 30px;         /* Horizontal padding around text/icon */
     -fx-font-size: 16px;
     -fx-font-weight: 500;               /* Medium font weight for readability */
@@ -173,9 +195,9 @@
 .navBar-subNets:hover,
 .navBar-logout:hover {
     -fx-background-color: transparent; /* Ensures background remains transparent on hover */
-    -fx-border-color: transparent transparent #fab387 transparent; /* peach: Accent underline */
+    -fx-border-color: transparent transparent -fx-catppuccin-mocha-peach transparent; /* peach: Accent underline */
     -fx-border-width: 0 0 2px 0;     /* Thickness of the underline */
-    -fx-text-fill: #fab387;          /* peach: Text color changes on hover */
+    -fx-text-fill: -fx-catppuccin-mocha-peach;          /* peach: Text color changes on hover */
 }
 
 /* Armed (clicked/active) state for navigation buttons */
@@ -184,9 +206,9 @@
 .navBar-subNets:armed,
 .navBar-logout:armed {
     -fx-background-color: transparent; /* Ensures background remains transparent when active */
-    -fx-border-color: transparent transparent #fab387 transparent; /* peach: Accent underline */
+    -fx-border-color: transparent transparent -fx-catppuccin-mocha-peach transparent; /* peach: Accent underline */
     -fx-border-width: 0 0 2px 0;     /* Maintains underline thickness */
-    -fx-text-fill: #fab387;          /* peach: Text color remains accented when active */
+    -fx-text-fill: -fx-catppuccin-mocha-peach;          /* peach: Text color remains accented when active */
 }
 
 /* Additional layout styling for HBox/VBox within navbar (if specified in NavBar.java) */
@@ -303,7 +325,7 @@
 
 /* The icon inside the green button */
 .petri-net-card .green-button-icon {
-    -fx-text-fill: #1e1e2e; /* base: Icon color */
+    -fx-text-fill: -fx-catppuccin-mocha-base; /* base: Icon color */
     -fx-font-size: 34px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI Symbol", "FontAwesome"; /* Example for icon font */
@@ -312,7 +334,7 @@
 
 /* Styles for the title label within PetriNet cards */
 .petri-net-card .card-title-label {
-    -fx-text-fill: #cdd6f4; /* text: Title color */
+    -fx-text-fill: -fx-catppuccin-mocha-text; /* text: Title color */
     -fx-font-size: 16px;    /* Slightly larger font for the title */
     -fx-font-weight: bold;
     -fx-padding: 0; /* Managed by VBox spacing */
@@ -328,9 +350,9 @@
 /* Style for the "New Net" creation card */
 /* This VBox remains largely the same as before, as it's distinct */
 .new-net-card {
-    -fx-background-color: #313244; /* surface0: Card background */
+    -fx-background-color: -fx-catppuccin-mocha-surface0; /* surface0: Card background */
     -fx-background-radius: 8px;
-    -fx-border-color: #fab387;     /* peach: Prominent accent border */
+    -fx-border-color: -fx-catppuccin-mocha-peach;     /* peach: Prominent accent border */
     -fx-border-width: 2px;         /* Thicker border for emphasis */
     -fx-border-radius: 8px;
     -fx-padding: 10px;             /* Internal padding */
@@ -345,21 +367,21 @@
 
 /* Hover effect for the "New Net" card */
 .new-net-card:hover {
-    -fx-background-color: #45475a; /* surface1: Lighter on hover */
+    -fx-background-color: -fx-catppuccin-mocha-surface1; /* surface1: Lighter on hover */
     -fx-scale-x: 1.02;
     -fx-scale-y: 1.02;
 }
 
 /* Specific styles for elements within the "New Net" card */
 .new-net-card .plus-symbol {
-    -fx-text-fill: #fab387; /* peach: Plus symbol color */
+    -fx-text-fill: -fx-catppuccin-mocha-peach; /* peach: Plus symbol color */
     -fx-font-size: 60px;
     -fx-font-weight: bold;
 }
 
 /* The title label within "New Net" card also uses the general title-label */
 .new-net-card .title-label {
-    -fx-text-fill: #cdd6f4; /* text: Title color */
+    -fx-text-fill: -fx-catppuccin-mocha-text; /* text: Title color */
     -fx-font-size: 14px;    /* Slightly smaller than general card title */
     -fx-font-weight: bold;
 }
@@ -371,108 +393,48 @@
 }
 
 /* ----------------------------------------------------------------------------
-   8. ScrollBar Customization & Scroll Shadows
+   8. TableView Styling (Specific to TableElement and NetCategory)
    ---------------------------------------------------------------------------- */
+/* styles.css */
 
-/* Styles applied to the ScrollPane itself */
-.transparent-scrollpane {
-    -fx-background-color: transparent; /* Makes the ScrollPane background invisible */
-    -fx-border-color: transparent;     /* Removes any default border */
-    -fx-padding: 0;                    /* Ensures no internal padding */
+/* Stile per la tabella (TableView) */
+.table-view {
+    -fx-background-color: #25253d;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-selection-bar: transparent; /* Rimuove il colore di selezione */
+    -fx-selection-bar-text: white;
 }
 
-/* Styles for the ScrollPane's viewport (the visible content area) */
-.transparent-scrollpane > .viewport {
-    -fx-background-color: transparent; /* Ensures content background is transparent */
+/* Stile per le intestazioni delle colonne */
+.table-view .column-header-background {
+    -fx-background-color: #3b3b54;
+    -fx-background-radius: 8 8 0 0; /* Angoli arrotondati solo in alto */
+    -fx-border-width: 0; /* Rimuove i bordi tra le intestazioni */
 }
 
-/* Base styles for both vertical and horizontal scrollbars */
-.transparent-scrollpane .scroll-bar:vertical,
-.transparent-scrollpane .scroll-bar:horizontal {
-    -fx-background-color: transparent; /* Transparent background for the scrollbar strip */
-    -fx-padding: 0;
+.table-view .column-header .label {
+    -fx-text-fill: #b0b0b0; /* Colore del testo delle intestazioni */
+    -fx-font-weight: bold;
 }
 
-/* The track (the groove where the thumb slides) of the scrollbar */
-.transparent-scrollpane .scroll-bar:vertical .track,
-.transparent-scrollpane .scroll-bar:horizontal .track {
-    -fx-background-color: #1e1e2e; /* base: Blends seamlessly with the main app background */
-    -fx-background-radius: 0;      /* Sharp corners for the track */
-    -fx-border-color: transparent; /* No border for the track */
+/* Stile per le celle della tabella */
+.table-view .table-cell {
+    -fx-text-fill: white;
+    -fx-border-color: transparent; /* Rimuove i bordi tra le celle */
+    -fx-alignment: CENTER_LEFT; /* Allineamento del testo nelle celle */
 }
 
-/* The background of the scrollbar track (if different from the track itself) */
-.transparent-scrollpane .scroll-bar:vertical .track-background,
-.transparent-scrollpane .scroll-bar:horizontal .track-background {
-    -fx-background-color: transparent; /* Keeps this layer transparent */
+/* Stile per le righe pari e dispari per un migliore contrasto */
+.table-row-cell:odd {
+    -fx-background-color: #25253d; /* Colore di sfondo per le righe dispari */
 }
 
-/* The thumb (the draggable indicator) of the scrollbar */
-.transparent-scrollpane .scroll-bar:vertical .thumb,
-.transparent-scrollpane .scroll-bar:horizontal .thumb {
-    -fx-background-color: #45475a; /* surface1: Darker, subtle thumb color */
-    -fx-background-insets: 0;      /* Ensures the thumb fits perfectly within the track */
-    -fx-background-radius: 5px;    /* Slightly rounded corners for the thumb */
+.table-row-cell:even {
+    -fx-background-color: #2e2e4a; /* Colore di sfondo per le righe pari */
 }
 
-/* Hover effect for the scrollbar thumb */
-.transparent-scrollpane .scroll-bar:vertical .thumb:hover,
-.transparent-scrollpane .scroll-bar:horizontal .thumb:hover {
-    -fx-background-color: #585b70; /* surface2: Slightly lighter on hover */
-}
-
-/* Styles for the increment and decrement buttons (the arrow buttons at the ends) */
-.transparent-scrollpane .scroll-bar:vertical .increment-button,
-.transparent-scrollpane .scroll-bar:vertical .decrement-button,
-.transparent-scrollpane .scroll-bar:horizontal .increment-button,
-.transparent-scrollpane .scroll-bar:horizontal .decrement-button {
-    -fx-background-color: transparent; /* Transparent background for the buttons */
-    -fx-padding: 0;                    /* No internal padding */
-}
-
-/* Styles for the arrows drawn within the increment/decrement buttons */
-.transparent-scrollpane .scroll-bar:vertical .increment-arrow,
-.transparent-scrollpane .scroll-bar:vertical .decrement-arrow,
-.transparent-scrollpane .scroll-bar:horizontal .increment-arrow,
-.transparent-scrollpane .scroll-bar:horizontal .decrement-arrow {
-    -fx-background-color: #cdd6f4; /* text: Color of the arrow shape */
-    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Defines a simple triangle shape */
-    -fx-scale-y: 1; /* Default scale */
-    -fx-scale-x: 1; /* Default scale */
-}
-
-/* Rotations for the arrows to point in the correct directions */
-.transparent-scrollpane .scroll-bar:vertical .decrement-arrow {
-    -fx-rotate: 180; /* Rotates the triangle to point upwards */
-}
-
-.transparent-scrollpane .scroll-bar:horizontal .decrement-arrow {
-    -fx-rotate: 90;  /* Rotates to point left for horizontal scrollbar */
-}
-
-.transparent-scrollpane .scroll-bar:horizontal .increment-arrow {
-    -fx-rotate: -90; /* Rotates to point right for horizontal scrollbar */
-}
-
-/* CRITICAL: Hides the default scrollbar visually */
-.transparent-scrollpane .scroll-bar {
-    -fx-opacity: 0;
-    -fx-pref-width: 0; /* Ensures it takes no space */
-    -fx-pref-height: 0; /* Ensures it takes no space */
-}
-
-
-/* --- Scroll Shadows --- */
-/* These shadows will appear on top of the content and blend with the background */
-.scroll-shadow {
-    -fx-fill: linear-gradient(to right,
-    rgba(0,0,0,0.2) 0%,
-    transparent 10%,
-    transparent 90%,
-    rgba(0,0,0,0.2) 100%);
-    -fx-opacity: 0.7;
-}
-
-#leftShadow {
-    -fx-scale-x: -1; /* Flip horizontally */
+/* Stile per la riga selezionata (ora sarà trasparente o non visibile a causa di selectionMode="NONE") */
+.table-row-cell:selected {
+    it.petrinet.controller.HomeController;
 }

@@ -6,6 +6,7 @@ import it.petrinet.controller.ShowAllController;
 import it.petrinet.model.User;
 import it.petrinet.view.components.NavBar;
 import it.petrinet.view.components.NetCategory;
+import it.petrinet.view.components.TableElement;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -57,7 +58,23 @@ public final class ViewNavigator {
         loadView("RegisterView.fxml");
     }
 
-    public static void navigateToShowAll(NetCategory type) {
+    public static void navigateToMyNets() { navigateToShowAll(NetCategory.myNets);}
+
+    public static void navigateToSubNets() { navigateToShowAll(NetCategory.mySubs);}
+
+    //TODO: implement this method
+    public static void navigateToDetail(TableElement net) {
+        System.out.println("Navigating to detail view for net: " + net.getName());
+    }
+
+    public static void navigateToCreateNet() {
+        System.out.println("Navigating to create net view");
+    }
+    //---------------------------
+
+    public void navigateToDiscover() { navigateToShowAll(NetCategory.discover);}
+
+    private static void navigateToShowAll(NetCategory type) {
         ShowAllController.setType(type);
         Main.getPrimaryStage().setTitle("All nets");
         loadView("ShowAllView.fxml");

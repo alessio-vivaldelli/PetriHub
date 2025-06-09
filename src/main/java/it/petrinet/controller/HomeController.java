@@ -1,194 +1,146 @@
 package it.petrinet.controller;
 
-import it.petrinet.model.User;
-import it.petrinet.utils.IconUtils;
-import it.petrinet.utils.ScrollManager;
-import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.NetCategory;
-import it.petrinet.view.components.PetriNetCard;
-import it.petrinet.view.components.NewNetCard;
+import it.petrinet.view.components.TableElement;
+import it.petrinet.model.User;
+import it.petrinet.view.ViewNavigator;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.text.TextAlignment;
 
-import java.io.InputStream;
+import java.time.format.DateTimeFormatter;
 
 public class HomeController {
 
-    private User user; // Assicurati che la classe User esista e abbia un metodo getUsername() e isAdmin()
+    public VBox activityFeedContainer;
+    public Label analysesPerformedLabel;
+    public Label simulationsRunLabel;
+    public Label totalNetsLabel;
 
-    @FXML
-    private Label userNameLabel;
+    @FXML private Label userNameLabel;
+    @FXML private ListView<TableElement> netsListView;
 
-    @FXML
-    private Hyperlink myNets; // Corrisponde al label "Creations" nel FXML
-    @FXML
-    private Hyperlink subNets; // Corrisponde al label "Subscriptions" nel FXML
-    @FXML
-    private Hyperlink discorver; // Corrisponde al label "Discover" nel FXML (attenzione al typo nel FXML se lo correggi)
-
-    // Sezione MyNets (Creations)
-    @FXML private HBox myNetsList;
-    @FXML private VBox myNetsSection;
-    @FXML private ScrollPane myNetsScrollPane;
-    @FXML private Rectangle myNetsLeftShadow;
-    @FXML private Rectangle myNetsRightShadow;
-    @FXML private StackPane myNetsScrollContainer; // Non direttamente usato nel Java per le ombre, ma utile nel FXML
-
-    // Sezione SubNets (Subscriptions)
-    @FXML private HBox subNetsList;
-    @FXML private VBox subNetsSection;
-    @FXML private ScrollPane subNetsScrollPane;
-    @FXML private Rectangle subNetsLeftShadow;
-    @FXML private Rectangle subNetsRightShadow;
-    @FXML private StackPane subNetsScrollContainer;
-
-    // Sezione Discover
-    @FXML private HBox discoverList;
-    @FXML private VBox discoverSection;
-    @FXML private ScrollPane discoverScrollPane;
-    @FXML private Rectangle discoverLeftShadow;
-    @FXML private Rectangle discoverRightShadow;
-    @FXML private StackPane discoverScrollContainer;
-
-
+    private final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @FXML
     private void initialize() {
+        // User
+        User user = ViewNavigator.getAuthenticatedUser();
+        userNameLabel.setText(user != null ? "Welcome, " + user.getUsername() : "Welcome, Guest!");
 
-        // --- Inizializzazione Utente ---
-        this.user = ViewNavigator.getAuthenticatedUser();
-        if (user != null) {
-            userNameLabel.setText("Welcome, " + user.getUsername());
-        } else {
-            userNameLabel.setText("Welcome, Guest!");
-            // Se l'utente è null, puoi impostare un utente di default o reindirizzare
-        }
+        // Custom Cell Factory
+        netsListView.setCellFactory(lv -> new ListCell<>() {
+            private final HBox container = new HBox(10);
+            private final Label typeLabel = new Label();
+            private final Label nameLabel = new Label();
+            private final Label authorLabel = new Label();
+            private final Label dateLabel = new Label();
+            private final Label statusLabel = new Label();
 
+            {
+                // -- RESPONSIVE LAYOUT --
+                // Allow the nameLabel to grow and fill available space
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
 
-        // --- Inizialmente Nascondi Sezioni e Pulisci Liste ---
-        // Imposta setManaged(false) per non occupare spazio quando nascoste
-        if (subNetsSection != null) {
-            subNetsSection.setVisible(false);
-            subNetsSection.setManaged(false);
-        }
-        if (myNetsSection != null) {
-            myNetsSection.setVisible(false);
-            myNetsSection.setManaged(false);
-        }
-        if (discoverSection != null) {
-            discoverSection.setVisible(false);
-            discoverSection.setManaged(false);
-        }
+                // Set fixed minimum widths for other columns so they don't shrink too much
+                typeLabel.setMinWidth(100);
+                authorLabel.setMinWidth(120);
+                dateLabel.setMinWidth(100);
+                statusLabel.setMinWidth(100);
 
-        // Pulisce le liste (anche se sono vuote all'inizio)
-        if (myNetsList != null) myNetsList.getChildren().clear();
-        if (subNetsList != null) subNetsList.getChildren().clear();
-        if (discoverList != null) discoverList.getChildren().clear();
+                // Center align text where appropriate
+                typeLabel.setAlignment(Pos.CENTER);
+                statusLabel.setAlignment(Pos.CENTER);
+                dateLabel.setAlignment(Pos.CENTER_RIGHT);
 
-        // Inizializzo icone hyperlinks per le sezioni
-        IconUtils.setIcon(myNets, NetCategory.myNets.getDisplayName(), 24, 24, Color.valueOf("#fab387"));
-        IconUtils.setIcon(subNets, NetCategory.mySubs.getDisplayName(), 24, 24, Color.valueOf("#fab387"));
-        IconUtils.setIcon(discorver, NetCategory.discover.getDisplayName(), 24, 24, Color.valueOf("#fab387"));
+                container.setAlignment(Pos.CENTER_LEFT);
+                container.setPadding(new Insets(4, 10, 4, 10)); // Add some vertical padding
 
-        // --- Popola le Sezioni in base al Ruolo Utente ---
-        if (user != null && user.isAdmin()) {
-            setAllHomeSections();
-        } else {
-            setUserHome();
-        }
+                container.getChildren().addAll(typeLabel, nameLabel, authorLabel, dateLabel, statusLabel);
 
-        // --- Configura le Ombre di Scroll (DOPO che le sezioni sono state popolate e rese visibili) ---
-        // Questo viene chiamato nel Platform.runLater all'interno di setupScrollShadows
-        // per garantire che il layout sia stabile.
-        // Controlla che gli elementi FXML non siano null prima di chiamare setupScrollShadows
+                // -- INTERACTIONS --
+                this.setOnMouseClicked(e -> {
+                    if (!isEmpty() && e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1) {
+                        ViewNavigator.navigateToDetail(getItem());
+                    }
+                });
 
-        if (myNetsScrollPane != null) ScrollManager.setup(myNetsScrollPane, myNetsLeftShadow, myNetsRightShadow);
-        if (subNetsScrollPane != null) ScrollManager.setup(subNetsScrollPane, subNetsLeftShadow, subNetsRightShadow);
-        if (discoverScrollPane != null) ScrollManager.setup(discoverScrollPane, discoverLeftShadow, discoverRightShadow);
-    }
+                // Subtle hover effect
+                setOnMouseEntered(e -> setStyle("-fx-background-color: #45475a; -fx-background-radius: 4;"));
+                setOnMouseExited(e -> setStyle(""));
+            }
 
+            @Override
+            protected void updateItem(TableElement net, boolean empty) {
+                super.updateItem(net, empty);
+                if (empty || net == null) {
+                    setGraphic(null);
+                } else {
+                    // Populate data
+                    nameLabel.setText(net.getName());
+                    authorLabel.setText(net.getAuthor());
+                    dateLabel.setText(net.getLastModified().format(dateFmt));
 
+                    // Set status badge style
+                    switch (net.getStatus()) {
+                        case completed -> setBadge(statusLabel, "Completed", "#a6e3a1"); // Green
+                        case notStarted -> setBadge(statusLabel, "Not Started", "#f38ba8"); // Red
+                        case waiting -> setBadge(statusLabel, "Waiting", "#fab387"); // Peach
+                        case inProgress -> setBadge(statusLabel, "In Progress", "#89b4fa"); // Blue
+                    }
 
+                    // Set type badge style
+                    switch (net.getType()) {
+                        case myNets -> setBadge(typeLabel, "Owned", "#cba6f7"); // Mauve
+                        case mySubs -> setBadge(typeLabel, "Subscribed", "#74c7ec"); // Sapphire
+                        case discover -> setBadge(typeLabel, "Discover", "#94e2d5"); // Teal
+                    }
 
-    private void setAllHomeSections() {
-        // Rendi visibile e gestisci la sezione MyNets se l'utente è admin
-        if (myNetsSection != null) {
-            myNetsSection.setVisible(true);
-            myNetsSection.setManaged(true);
-        }
-        populateMyNetList();
-        populateSubNetList();
-        populateDiscoverList();
-    }
-
-    private void setUserHome() {
-        // L'utente non admin non ha la sezione "My Creations", quindi resta nascosta
-        populateSubNetList();
-        populateDiscoverList();
-    }
-
-    private void populateMyNetList() {
-        if (user != null && user.isAdmin()) {
-            if (myNetsList != null) {
-                myNetsList.getChildren().clear();
-                myNetsList.getChildren().add(new NewNetCard()); // Usa la tua classe NewNetCard
-                // Aggiungi un numero sufficiente di card per abilitare lo scroll
-                for (int i = 1; i <= 15; i++) { // Aumentato il numero di card per testare lo scroll
-                    myNetsList.getChildren().add(new PetriNetCard("My Net " + i, "Description of Net " + i, ""));
+                    setGraphic(container);
                 }
             }
-        } else {
-            // Se non è admin, assicurati che la sezione sia nascosta (già fatto in initialize, ma ridondanza sicura)
-            if (myNetsSection != null) {
-                myNetsSection.setVisible(false);
-                myNetsSection.setManaged(false);
+
+            // Helper for creating minimalist badges
+            private void setBadge(Label lbl, String text, String bgColor) {
+                lbl.setText(text);
+                lbl.setAlignment(Pos.CENTER);
+                lbl.getStyleClass().add("badge");
+                // Style with Catppuccin Mocha colors
+                lbl.setStyle(String.format(
+                        "-fx-background-color: %s; " +
+                                "-fx-text-fill: #1e1e2e; " + // Base color for text for high contrast
+                                "-fx-background-radius: 12; " + // Pill shape
+                                "-fx-font-size: 11px; " +
+                                "-fx-font-weight: bold; " +
+                                "-fx-padding: 4px 12px;",
+                        bgColor
+                ));
             }
-            if (myNetsList != null) {
-                myNetsList.getChildren().clear();
-            }
-        }
+        });
+
+        // Example Data (can be replaced with DB/service call)
+        netsListView.setItems(FXCollections.observableArrayList(
+                new TableElement("Flow A", "Alice", java.time.LocalDate.now().minusDays(2), TableElement.Status.inProgress, NetCategory.myNets),
+                new TableElement("Flow B", "Bob", java.time.LocalDate.now().minusDays(5), TableElement.Status.completed, NetCategory.mySubs),
+                new TableElement("Flow C", "Charlie", java.time.LocalDate.now().minusDays(1), TableElement.Status.waiting, NetCategory.discover),
+                new TableElement("Flow D", "Alice", java.time.LocalDate.now().minusDays(3), TableElement.Status.notStarted, NetCategory.myNets)
+        ));
+
+        // To restrain the ListView in a certain space, you can set its max width/height in the FXML
+        // For example: <ListView fx:id="netsListView" maxWidth="800" ... />
+        netsListView.setMaxHeight(300); // Set a max height to prevent it from growing too large
+        netsListView.setPlaceholder(new Label("No nets available. Create or subscribe to some!"));
     }
 
-    private void populateSubNetList() {
-        // Rendi visibile e gestisci la sezione SubNets
-        if (subNetsSection != null) {
-            subNetsSection.setVisible(true);
-            subNetsSection.setManaged(true);
-        }
-        if (subNetsList != null) {
-            subNetsList.getChildren().clear();
-            // Aggiungi un numero sufficiente di card per abilitare lo scroll
-            for (int i = 1; i <= 12; i++) { // Aumentato
-                subNetsList.getChildren().add(new PetriNetCard("Subscribed Net " + i, "Shared project from team " + i + ".", ""));
-            }
-        }
+
+    public void handleNewNet(ActionEvent event) {
     }
-
-    private void populateDiscoverList() {
-        // Rendi visibile e gestisci la sezione Discover
-        if (discoverSection != null) {
-            discoverSection.setVisible(true);
-            discoverSection.setManaged(true);
-        }
-        if (discoverList != null) {
-            discoverList.getChildren().clear();
-            // Aggiungi un numero sufficiente di card per abilitare lo scroll
-            for (int i = 1; i <= 10; i++) { // Aumentato
-                discoverList.getChildren().add(new PetriNetCard("Discover Net " + i, "Publicly available net " + i + ".", ""));
-            }
-        }
-    }
-
-    public void handleShowAllMyNets() { ViewNavigator.navigateToShowAll(NetCategory.myNets);}
-
-    public void handleShowAllSubNets() { ViewNavigator.navigateToShowAll(NetCategory.mySubs);}
-
-    public void handleShowAllDiscover() { ViewNavigator.navigateToShowAll(NetCategory.discover);}
 }

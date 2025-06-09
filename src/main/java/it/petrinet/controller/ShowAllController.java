@@ -5,19 +5,12 @@ import it.petrinet.model.DB;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.NetCategory;
-import it.petrinet.view.components.PetriNetCard;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.util.List;
 
 public class ShowAllController {
 
@@ -44,9 +37,7 @@ public class ShowAllController {
     }
 
     private void loadCards() {
-        for( String card : DB.getNets() ) {
-            cardContainer.getChildren().add(new PetriNetCard(card, "blabla", "dummy.png"));
-        }
+
     }
 
     public void onBack(){

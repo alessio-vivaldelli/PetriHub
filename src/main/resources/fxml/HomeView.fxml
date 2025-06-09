@@ -1,79 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.shape.Rectangle?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.control.Hyperlink?>
-<BorderPane xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="it.petrinet.controller.HomeController"
-            maxHeight="Infinity" maxWidth="Infinity"
-            styleClass="root-container">
+            style="-fx-background-color: #1E1E2E;">
+
+    <!-- Top: Header con welcome e bottone New Net -->
+    <top>
+        <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #302D41; -fx-background-radius: 8;">
+            <Label fx:id="userNameLabel" text="Welcome, Guest!"
+                   style="-fx-text-fill: #C9CBFF; -fx-font-size: 16; -fx-font-weight: bold;"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button text="New Net" onAction="#handleNewNet"
+                    style="-fx-background-color: #C6A0F6; -fx-text-fill: #1E1E2E; -fx-font-weight: bold; -fx-background-radius: 6;"/>
+        </HBox>
+    </top>
+
+    <!-- Center: Tabella personalizzata -->
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="transparent-scrollpane">
-            <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 50 20 20 20;">
-                <Label fx:id="userNameLabel"
-                       styleClass="welcome-label"/>
-                <VBox spacing="30" style="-fx-padding: 0 0 0 0;">
+        <VBox spacing="5" style="-fx-padding: 10;">
 
-                    <VBox fx:id="subNetsSection" spacing="10" styleClass="section-container">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Hyperlink fx:id="subNets" text="Subscriptions"
-                                       styleClass="section-title"
-                                        onAction="#handleShowAllSubNets"/>
-                        </HBox>
-                        <StackPane fx:id="subNetsScrollContainer" alignment="CENTER_LEFT">
-                            <ScrollPane fx:id="subNetsScrollPane" hbarPolicy="NEVER" vbarPolicy="NEVER"
-                                        fitToHeight="true"
-                                        styleClass="transparent-scrollpane">
-                                <HBox fx:id="subNetsList" spacing="15" styleClass="card-list"/>
-                            </ScrollPane>
-                            <Rectangle fx:id="subNetsLeftShadow" width="50" StackPane.alignment="CENTER_LEFT" managed="false" visible="false" styleClass="scroll-shadow-left"/>
-                            <Rectangle fx:id="subNetsRightShadow" width="50" StackPane.alignment="CENTER_RIGHT" managed="false" visible="false" styleClass="scroll-shadow-right"/>
-                        </StackPane>
-                    </VBox>
+            <!-- Header colonna (static row) -->
+            <HBox spacing="10" style="-fx-padding: 8 6; -fx-background-color: #302D41; -fx-background-radius: 8;">
+                <Label text="Type"          prefWidth="120" style="-fx-text-fill: #BAC2DE; -fx-font-weight: bold; -fx-font-size: 12; -fx-alignment: center"/>
+                <Label text="Name"          prefWidth="150" style="-fx-text-fill: #BAC2DE; -fx-font-weight: bold; -fx-font-size: 14; -fx-alignment: center"/>
+                <Label text="Author"        prefWidth="120" style="-fx-text-fill: #BAC2DE; -fx-font-weight: bold; -fx-font-size: 14; -fx-alignment: center"/>
+                <Label text="Last Modified" prefWidth="120" style="-fx-text-fill: #BAC2DE; -fx-font-weight: bold; -fx-font-size: 12; -fx-alignment: center"/>
+                <Label text="Status"        prefWidth="120" style="-fx-text-fill: #BAC2DE; -fx-font-weight: bold; -fx-font-size: 12; -fx-alignment: center"/>
+            </HBox>
 
-                    <VBox fx:id="myNetsSection" spacing="10" styleClass="section-container">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Hyperlink fx:id="myNets" text="Creations"
-                                   styleClass="section-title"
-                                       onAction="#handleShowAllMyNets"/>
-                        </HBox>
-                        <StackPane fx:id="myNetsScrollContainer" alignment="CENTER_LEFT">
-                            <ScrollPane fx:id="myNetsScrollPane" hbarPolicy="NEVER" vbarPolicy="NEVER"
-                                        fitToHeight="true"
-                                        styleClass="transparent-scrollpane">
-                                <HBox fx:id="myNetsList" spacing="15" styleClass="card-list"/>
-                            </ScrollPane>
-                            <Rectangle fx:id="myNetsLeftShadow" width="50" StackPane.alignment="CENTER_LEFT" managed="false" visible="false" styleClass="scroll-shadow-left"/>
-                            <Rectangle fx:id="myNetsRightShadow" width="50" StackPane.alignment="CENTER_RIGHT" managed="false" visible="false" styleClass="scroll-shadow-right"/>
-                        </StackPane>
-                    </VBox>
-
-                    <VBox fx:id="discoverSection" spacing="10" styleClass="section-container">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Hyperlink fx:id="discorver" text="Discover"
-                                   styleClass="section-title"
-                                       onAction="#handleShowAllDiscover"/>
-                        </HBox>
-                        <StackPane fx:id="discoverScrollContainer" alignment="CENTER_LEFT">
-                            <ScrollPane fx:id="discoverScrollPane" hbarPolicy="NEVER" vbarPolicy="NEVER"
-                                        fitToHeight="true"
-                                        styleClass="transparent-scrollpane">
-                                <HBox fx:id="discoverList" spacing="15" styleClass="card-list"/>
-                            </ScrollPane>
-                            <Rectangle fx:id="discoverLeftShadow" width="50" StackPane.alignment="CENTER_LEFT" managed="false" visible="false" styleClass="scroll-shadow-left"/>
-                            <Rectangle fx:id="discoverRightShadow" width="50" StackPane.alignment="CENTER_RIGHT" managed="false" visible="false" styleClass="scroll-shadow-right"/>
-                        </StackPane>
-                    </VBox>
-                </VBox>
-            </VBox>
-        </ScrollPane>
+            <!-- Lista delle reti -->
+            <ListView fx:id="netsListView"
+                      VBox.vgrow="ALWAYS"
+                      prefWidth="600"
+                      fixedCellSize="48"
+                      style="-fx-background-color: #302D41;
+                             -fx-control-inner-background: #302D41;
+                             -fx-background-radius: 8;
+                             -fx-border-radius: 8;
+                             -fx-padding: 4;">
+                <!-- Inline hover styling via cell factory in controller -->
+            </ListView>
+        </VBox>
     </center>
+
+    <!-- Bottom: Stats e Activity Feed -->
+    <bottom>
+        <VBox spacing="20" style="-fx-padding: 10;">
+            <!-- Quick Stats -->
+            <Label text="Quick Stats" textFill="#C9CBFF"
+                   style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <VBox alignment="CENTER_LEFT" prefWidth="280"
+                      style="-fx-background-color: #393552; -fx-background-radius: 8; -fx-padding: 20;">
+                    <Label text="Total Nets" textFill="#BAC2DE" style="-fx-font-size: 14;"/>
+                    <Label fx:id="totalNetsLabel" text="15" textFill="#C9CBFF"
+                           style="-fx-font-size: 30; -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox alignment="CENTER_LEFT" prefWidth="280"
+                      style="-fx-background-color: #393552; -fx-background-radius: 8; -fx-padding: 20;">
+                    <Label text="Simulations Run" textFill="#BAC2DE" style="-fx-font-size: 14;"/>
+                    <Label fx:id="simulationsRunLabel" text="50" textFill="#C9CBFF"
+                           style="-fx-font-size: 30; -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox alignment="CENTER_LEFT" prefWidth="280"
+                      style="-fx-background-color: #393552; -fx-background-radius: 8; -fx-padding: 20;">
+                    <Label text="Analyses Performed" textFill="#BAC2DE" style="-fx-font-size: 14;"/>
+                    <Label fx:id="analysesPerformedLabel" text="20" textFill="#C9CBFF"
+                           style="-fx-font-size: 30; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Activity Feed -->
+            <Label text="Activity Feed" textFill="#C9CBFF"
+                   style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+            <VBox fx:id="activityFeedContainer" spacing="10"
+                  style="-fx-background-color: #393552; -fx-background-radius: 8; -fx-padding: 20;"/>
+        </VBox>
+    </bottom>
+
 </BorderPane>
