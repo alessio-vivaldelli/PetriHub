@@ -4,6 +4,7 @@ import static it.petrinet.Main.isValidInput;
 import it.petrinet.controller.LoginController;
 
 import it.petrinet.Main;
+import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Database.UserDAO;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
@@ -38,7 +39,7 @@ public class RegisterController {
     }
 
     @FXML
-    private void handleRegister() {
+    private void handleRegister() throws InputTypeException {
         String username = usernameField.getText();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
