@@ -1,10 +1,9 @@
 // src/main/java/it/petrinet/view/ShowAllController.java
 package it.petrinet.controller;
 
-import it.petrinet.model.DB;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
-import it.petrinet.view.components.NetCategory;
+import it.petrinet.model.NetCategory;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

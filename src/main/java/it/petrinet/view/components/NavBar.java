@@ -79,7 +79,6 @@ public class NavBar extends VBox {
         this.getStyleClass().add("nav-bar-vertical");
         this.setAlignment(Pos.TOP_CENTER); // Align items to the top-center
         this.setMinWidth(150); // Set a minimum width for the bar
-
         // The spacer will grow vertically to push subsequent items down.
         VBox.setVgrow(spacer, Priority.ALWAYS);
     }

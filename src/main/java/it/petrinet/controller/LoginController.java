@@ -21,8 +21,6 @@ import static it.petrinet.utils.Validation.isValidInput;
 
 public class LoginController {
     private static final String LOGO_PATH      = "/assets/images/logo.png";
-    private static final String FXML_HOME_PATH = "/fxml/Home.fxml";
-    private static final String CSS_PATH       = "/styles/style.css";
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -85,15 +83,6 @@ public class LoginController {
     private void proceedToMainView(ActionEvent event, User user) {
         ViewNavigator.setAuthenticatedUser(user);
         ViewNavigator.HomeScene();
-    }
-
-    private void applyStyles(Scene scene, String cssPath) {
-        URL cssUrl = getClass().getResource(cssPath);
-        if (cssUrl != null) {
-            scene.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Unable to find stylesheet: " + cssPath);
-        }
     }
 
     private void showError(String message) {

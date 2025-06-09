@@ -1,9 +1,9 @@
-package it.petrinet.view.components;
+package it.petrinet.model;
 
 public enum NetCategory {
-    myNets("Owned"),
-    mySubs("Subscribed"),
-    discover("Discover");
+    OWNED("Owned"),
+    SUBSCRIBED("Subscribed"),
+    DISCOVER("Discover");
 
     private final String displayName;
 
