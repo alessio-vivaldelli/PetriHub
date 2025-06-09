@@ -10,6 +10,7 @@ module it.petrinet {
   requires javafx.graphics;
   requires java.xml;
   requires javafx.controls;
+  requires javafx.base;
 
   opens it.petrinet to javafx.fxml;
 

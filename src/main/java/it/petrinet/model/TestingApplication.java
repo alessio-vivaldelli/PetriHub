@@ -11,6 +11,7 @@ import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.*;
 
 import javafx.application.Application;
+import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -25,12 +26,19 @@ import java.util.Random;
 import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Graph;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
 public class TestingApplication extends Application {
 
   private String currentNodeType = "transition"; // Default node type
   private String currentMode = "SELECTION"; // CREATE, CONNECT, SELECTION, or DELETION
   private Vertex<Node> firstSelectedVertex = null; // For connection mode
+  //
+
+  public void setCurrentMode(String mode) {
+    this.currentMode = mode;
+  }
 
   @Override
   public void start(Stage stage) throws IOException {
@@ -345,9 +353,26 @@ public class TestingApplication extends Application {
       }
     });
 
-    graphView.setPrefHeight(700);
     ContentZoomScrollPane contentZoomScrollPane = new ContentZoomScrollPane(graphView);
-    vBox.getChildren().addAll(contentZoomScrollPane, modeButtons, nodeTypeButtons);
+
+    graphView.setPrefHeight(700);
+    HBox zoomControls = new HBox(10);
+    Button zoomInButton = new Button("+");
+    Button zoomOutButton = new Button("-");
+
+    zoomInButton.setOnAction(_ -> {
+      System.out.println("Zoom in, current scale: " +
+          contentZoomScrollPane.scaleFactorProperty().get());
+      contentZoomScrollPane.zoomIn();
+    });
+    zoomOutButton.setOnAction(_ -> {
+      System.out.println("Zoom out, current scale: " +
+          contentZoomScrollPane.scaleFactorProperty().get());
+      contentZoomScrollPane.zoomOut();
+    });
+
+    zoomControls.getChildren().addAll(zoomInButton, zoomOutButton);
+    vBox.getChildren().addAll(contentZoomScrollPane, modeButtons, nodeTypeButtons, zoomControls);
 
     Scene scene = new Scene(vBox, 1024, 768);
 
