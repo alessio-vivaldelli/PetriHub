@@ -464,20 +464,15 @@
 
 /* --- Scroll Shadows --- */
 /* These shadows will appear on top of the content and blend with the background */
-.scroll-shadow-left {
-    /* Fades from base background color (with opacity) to transparent */
-    -fx-fill: linear-gradient(to right, rgba(30,30,46,0.8) 0%, transparent 100%);
-    -fx-opacity: 1.0;
-    -fx-mouse-transparent: true; /* Allows mouse events (like scrolling) to pass through */
-    -fx-max-height: 100%; /* Ensures the shadow takes the full height of its StackPane parent */
-    -fx-pref-width: 50px; /* Width of the shadow effect */
+.scroll-shadow {
+    -fx-fill: linear-gradient(to right,
+    rgba(0,0,0,0.2) 0%,
+    transparent 10%,
+    transparent 90%,
+    rgba(0,0,0,0.2) 100%);
+    -fx-opacity: 0.7;
 }
 
-.scroll-shadow-right {
-    /* Fades from base background color (with opacity) to transparent */
-    -fx-fill: linear-gradient(to left, rgba(30,30,46,0.8) 0%, transparent 100%);
-    -fx-opacity: 1.0;
-    -fx-mouse-transparent: true;
-    -fx-max-height: 100%;
-    -fx-pref-width: 50px;
+#leftShadow {
+    -fx-scale-x: -1; /* Flip horizontally */
 }

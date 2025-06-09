@@ -26,7 +26,6 @@ public final class ViewNavigator {
 
     private static MainController mainController;
     private static User authenticatedUser;
-    private String lastButtonClicked = "Home";
 
     private ViewNavigator() {}
 

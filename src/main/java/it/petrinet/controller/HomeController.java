@@ -2,11 +2,11 @@ package it.petrinet.controller;
 
 import it.petrinet.model.User;
 import it.petrinet.utils.IconUtils;
+import it.petrinet.utils.ScrollManager;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.NetCategory;
 import it.petrinet.view.components.PetriNetCard;
 import it.petrinet.view.components.NewNetCard;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -58,8 +58,10 @@ public class HomeController {
     @FXML private StackPane discoverScrollContainer;
 
 
+
     @FXML
     private void initialize() {
+
         // --- Inizializzazione Utente ---
         this.user = ViewNavigator.getAuthenticatedUser();
         if (user != null) {
@@ -91,9 +93,9 @@ public class HomeController {
         if (discoverList != null) discoverList.getChildren().clear();
 
         // Inizializzo icone hyperlinks per le sezioni
-        IconUtils.setIcon(myNets, NetCategory.myNets.getDisplayName(), 24, 24, Color.PEACHPUFF);
-        IconUtils.setIcon(subNets, NetCategory.mySubs.getDisplayName(), 24, 24, Color.PEACHPUFF);
-        IconUtils.setIcon(discorver, NetCategory.discover.getDisplayName(), 24, 24, null);
+        IconUtils.setIcon(myNets, NetCategory.myNets.getDisplayName(), 24, 24, Color.valueOf("#fab387"));
+        IconUtils.setIcon(subNets, NetCategory.mySubs.getDisplayName(), 24, 24, Color.valueOf("#fab387"));
+        IconUtils.setIcon(discorver, NetCategory.discover.getDisplayName(), 24, 24, Color.valueOf("#fab387"));
 
         // --- Popola le Sezioni in base al Ruolo Utente ---
         if (user != null && user.isAdmin()) {
@@ -106,68 +108,13 @@ public class HomeController {
         // Questo viene chiamato nel Platform.runLater all'interno di setupScrollShadows
         // per garantire che il layout sia stabile.
         // Controlla che gli elementi FXML non siano null prima di chiamare setupScrollShadows
-        if (myNetsScrollPane != null) setupScrollShadows(myNetsScrollPane, myNetsLeftShadow, myNetsRightShadow);
-        if (subNetsScrollPane != null) setupScrollShadows(subNetsScrollPane, subNetsLeftShadow, subNetsRightShadow);
-        if (discoverScrollPane != null) setupScrollShadows(discoverScrollPane, discoverLeftShadow, discoverRightShadow);
+
+        if (myNetsScrollPane != null) ScrollManager.setup(myNetsScrollPane, myNetsLeftShadow, myNetsRightShadow);
+        if (subNetsScrollPane != null) ScrollManager.setup(subNetsScrollPane, subNetsLeftShadow, subNetsRightShadow);
+        if (discoverScrollPane != null) ScrollManager.setup(discoverScrollPane, discoverLeftShadow, discoverRightShadow);
     }
 
 
-    /**
-     * Configura la visibilità delle ombre di scroll per uno ScrollPane.
-     * @param scrollPane Lo ScrollPane da monitorare.
-     * @param leftShadow Il Rectangle che funge da ombra sinistra.
-     * @param rightShadow Il Rectangle che funge da ombra destra.
-     */
-    private void setupScrollShadows(ScrollPane scrollPane, Rectangle leftShadow, Rectangle rightShadow) {
-        if (scrollPane == null || leftShadow == null || rightShadow == null) {
-            System.err.println("WARNING: ScrollPane or shadow Rectangles not injected for a section. Cannot setup shadows.");
-            return;
-        }
-
-        // Listener per la proprietà hvalue (posizione di scroll orizzontale)
-        scrollPane.hvalueProperty().addListener((obs, oldValue, newValue) -> {
-            HBox contentHBox = (HBox) scrollPane.getContent();
-            if (contentHBox == null) return; // Protezione se il contenuto non è ancora disponibile
-
-            double contentWidth = contentHBox.getBoundsInLocal().getWidth();
-            double viewportWidth = scrollPane.getWidth();
-
-            // Calcola la scorrevolezza
-            boolean isScrollable = (contentWidth > viewportWidth + 1.0); // +1.0 di tolleranza per floating point
-
-            // Ombra sinistra: visibile se è scrollabile E non siamo all'inizio
-            boolean showLeftShadow = isScrollable && newValue.doubleValue() > 0.001;
-
-            // Ombra destra: visibile se è scrollabile E non siamo alla fine
-            boolean showRightShadow = isScrollable && newValue.doubleValue() < 0.999;
-
-            leftShadow.setVisible(showLeftShadow);
-            leftShadow.setManaged(showLeftShadow);
-            rightShadow.setVisible(showRightShadow);
-            rightShadow.setManaged(showRightShadow);
-        });
-
-        // Ascolta i cambiamenti di dimensione dello ScrollPane (es. ridimensionamento finestra)
-        scrollPane.widthProperty().addListener((obs, oldVal, newVal) -> {
-            Platform.runLater(() -> {
-                // Forza un ricalcolo delle ombre
-                scrollPane.setHvalue(scrollPane.getHvalue());
-            });
-        });
-
-        // Ascolta i cambiamenti di layout del contenuto (es. aggiunta/rimozione di card)
-        scrollPane.getContent().layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
-            Platform.runLater(() -> {
-                // Forza un ricalcolo delle ombre
-                scrollPane.setHvalue(scrollPane.getHvalue());
-            });
-        });
-
-        // Forza un ricalcolo iniziale dopo che il layout è stabile
-        Platform.runLater(() -> {
-            scrollPane.setHvalue(scrollPane.getHvalue());
-        });
-    } //TODO: Fix this method
 
 
     private void setAllHomeSections() {

@@ -116,14 +116,19 @@ public final class IconUtils {
 
     /**
      * Applica un effetto di "tinta" all'ImageView.
-     * Funziona moltiplicando un livello di colore con l'immagine originale.
+     * Questa implementazione usa BlendMode.SRC_ATOP per colorare l'icona
+     * mantenendo la trasparenza originale, ed è ideale per icone bianche o in scala di grigi.
      */
     private static void applyColorEffect(ImageView iconView, double width, double height, Color color) {
+        // Il ColorInput crea un rettangolo del colore specificato
         ColorInput colorInput = new ColorInput(0, 0, width, height, color);
-        Blend blendEffect = new Blend(BlendMode.MULTIPLY, null, colorInput);
+
+        // Il BlendMode.SRC_ATOP sovrappone la sorgente (colorInput) alla destinazione (iconView)
+        // solo dove la destinazione è opaca, preservando l'alpha della destinazione.
+        // Se l'icona è bianca/grigia con aree trasparenti, questo la "tinge" efficacemente.
+        Blend blendEffect = new Blend(BlendMode.SRC_ATOP, null, colorInput);
         iconView.setEffect(blendEffect);
     }
-
     /**
      * Aggiunge l'estensione .png se non è presente.
      */

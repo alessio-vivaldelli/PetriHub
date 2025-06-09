@@ -34,9 +34,9 @@ public class ShowAllController {
     @FXML
     public void initialize() {
         frameTitle.setText(cardType.getDisplayName());
-        IconUtils.setIcon(frameTitle, cardType.getDisplayName() + ".png", 3, 3 , Color.PEACHPUFF);
-        IconUtils.setIcon(backButton, "backArrow.png", 30, 30, Color.BLACK);
-        backButton.setStyle("-fx-background-radius: 50%; -fx-min-width: 30px; -fx-min-height: 30px; -fx-max-width: 30px; -fx-max-height: 30px; ");
+        IconUtils.setIcon(frameTitle, cardType.getDisplayName() + ".png", 30, 30 , Color.WHITE);
+        IconUtils.setIcon(backButton, "backArrow.png", 30, 30, Color.valueOf("#181825"));
+        backButton.setStyle("-fx-background-radius: 50%; -fx-min-width: 40px; -fx-min-height: 40px; -fx-max-width: 40px; -fx-max-height: 40px; ");
         cardContainer.setVgap(20);
         cardContainer.setHgap(20);
         cardContainer.setPrefWrapLength(400); // Set preferred width for wrapping
