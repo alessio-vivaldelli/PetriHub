@@ -36,9 +36,8 @@
                        style="-fx-text-fill: #cdd6f4; -fx-font-size: 24; -fx-font-weight: bold;"/>
                 <Pane HBox.hgrow="ALWAYS"/>
             </HBox>
-
             <!-- Modern TableView Container -->
-            <VBox styleClass="modern-table-container" maxWidth="Infinity" prefHeight="287.5">
+            <VBox styleClass="modern-table-container" maxWidth="Infinity" prefHeight="272">
                 <TableView fx:id="tableView"
                            VBox.vgrow="ALWAYS"
                            prefHeight="320"
