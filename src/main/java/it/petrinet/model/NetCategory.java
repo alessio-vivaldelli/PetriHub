@@ -1,8 +1,8 @@
 package it.petrinet.model;
 
 public enum NetCategory {
-    OWNED("Owned"),
-    SUBSCRIBED("Subscribed"),
+    OWNED("Creations"),
+    SUBSCRIBED("Subscriptions"),
     DISCOVER("Discover");
 
     private final String displayName;

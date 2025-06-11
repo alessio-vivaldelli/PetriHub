@@ -43,7 +43,7 @@ public final class ViewNavigator {
     public static void HomeScene() {
         mainController.setNavBar(new NavBar());
         resizeStage(0, 0, "Home");
-        Main.getPrimaryStage().setTitle("PH - Petri Nets Hub");
+        Main.getPrimaryStage().setTitle(" ");
         loadView("HomeView.fxml");
     }
 
@@ -69,11 +69,10 @@ public final class ViewNavigator {
     }
     //---------------------------
 
-    public void navigateToDiscover() { navigateToShowAll(NetCategory.DISCOVER);}
+    public static void navigateToDiscover() { navigateToShowAll(NetCategory.DISCOVER);}
 
     private static void navigateToShowAll(NetCategory type) {
         ShowAllController.setType(type);
-        Main.getPrimaryStage().setTitle("All nets");
         loadView("ShowAllView.fxml");
     }
 
@@ -157,7 +156,6 @@ public final class ViewNavigator {
 
         // Apply changes during pause
         pause.setOnFinished(e -> {
-            stage.setTitle(title);
             stage.setWidth(targetWidth);
             stage.setHeight(targetHeight);
 

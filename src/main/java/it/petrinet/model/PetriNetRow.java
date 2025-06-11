@@ -12,7 +12,7 @@ public class PetriNetRow {
 
 
     public enum Status {
-        STARTED("Started"),
+        STARTED("Not Started"),
         IN_PROGRESS("In Progress"),
         COMPLETED("Completed"),
         WAITING("Waiting");

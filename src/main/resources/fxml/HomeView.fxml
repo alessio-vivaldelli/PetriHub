@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml"
@@ -18,17 +17,12 @@
                    text="Welcome, Guest!"
                    style="-fx-text-fill: #cdd6f4; -fx-font-size: 30; -fx-font-weight: bold;"/>
             <Pane HBox.hgrow="ALWAYS"/>
-            <Button text="+ New Net"
-                    onAction="#handleNewNet"
-                    style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 12 20; -fx-font-size: 14;"/>
-            <Button text="Open Net"
-                    style="-fx-background-color: #45475a; -fx-text-fill: #cdd6f4; -fx-font-weight: 500; -fx-background-radius: 8; -fx-padding: 12 20; -fx-font-size: 14; -fx-border-color: #585b70; -fx-border-width: 1; -fx-border-radius: 8;"/>
         </HBox>
     </top>
 
-    <!-- Center: Modern Table Layout -->
+    <!-- Center: Modern Layout -->
     <center>
-        <VBox spacing="24" style="-fx-padding: 20 0 20 0;">
+        <VBox spacing="24" style="-fx-padding: 50 70 10 30;">
 
             <!-- Table Section Header -->
             <HBox alignment="CENTER_LEFT">
@@ -36,94 +30,59 @@
                        style="-fx-text-fill: #cdd6f4; -fx-font-size: 24; -fx-font-weight: bold;"/>
                 <Pane HBox.hgrow="ALWAYS"/>
             </HBox>
-            <!-- Modern TableView Container -->
-            <VBox styleClass="modern-table-container" maxWidth="Infinity" prefHeight="272">
-                <TableView fx:id="tableView"
-                           VBox.vgrow="ALWAYS"
-                           prefHeight="320"
-                           style="-fx-background-color: transparent;">
 
-                    <columns>
-                        <!-- Type Column -->
-                        <TableColumn fx:id="typeCol" text="TYPE" prefWidth="120" minWidth="100">
-                            <cellValueFactory>
-                                <PropertyValueFactory property="type"/>
-                            </cellValueFactory>
-                        </TableColumn>
-
-                        <!-- Name Column -->
-                        <TableColumn fx:id="nameCol" text="NOME" prefWidth="250" minWidth="200">
-                            <cellValueFactory>
-                                <PropertyValueFactory property="Name"/>
-                            </cellValueFactory>
-                        </TableColumn>
-
-                        <!-- Author Column -->
-                        <TableColumn fx:id="authorCol" text="AUTHOR" prefWidth="150" minWidth="120">
-                            <cellValueFactory>
-                                <PropertyValueFactory property="author"/>
-                            </cellValueFactory>
-                        </TableColumn>
-
-                        <!-- Last Modified Column -->
-                        <TableColumn fx:id="dateCol" text="LAST MODIFIED" prefWidth="140" minWidth="120">
-                            <cellValueFactory>
-                                <PropertyValueFactory property="lastModified"/>
-                            </cellValueFactory>
-                        </TableColumn>
-
-                        <!-- Status Column -->
-                        <TableColumn fx:id="statusCol" text="STATUS" prefWidth="120" minWidth="100">
-                            <cellValueFactory>
-                                <PropertyValueFactory property="status"/>
-                            </cellValueFactory>
-                        </TableColumn>
-                    </columns>
-
-                    <!-- Remove table menu -->
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                    </columnResizePolicy>
-
-                </TableView>
-            </VBox>
+            <!-- Table Container - The PetriNetTableComponent will be added here programmatically -->
+        <VBox styleClass="modern-table-container" maxWidth="Infinity" prefHeight="272">
+            <VBox fx:id="tableContainer"/>
+        </VBox>
 
             <!-- Quick Stats Section -->
-            <Label text="Quick Stats"
-                   style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold;"/>
+<Label text="Quick Stats"
+              style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold; -fx-padding: 25 0 0 0"/>
 
             <HBox spacing="20">
-                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
+                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleOwnedNetsClick"
                       style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
-                    <Label text="Total Nets"
+                    <Label text="Owned Nets"
                            style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
-                    <Label fx:id="totalNetsLabel"
-                           text="15"
+                    <Label fx:id="ownedNetsLabel"
                            style="-fx-text-fill: #cdd6f4; -fx-font-size: 32; -fx-font-weight: bold;"/>
                 </VBox>
 
-                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
+                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleSubscribedNetsClick"
                       style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
-                    <Label text="Simulations Run"
+                    <Label text="Subscribed Nets"
                            style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
-                    <Label fx:id="simulationsRunLabel"
-                           text="50"
+                    <Label fx:id="subscribedNetsLabel"
                            style="-fx-text-fill: #cdd6f4; -fx-font-size: 32; -fx-font-weight: bold;"/>
                 </VBox>
 
-                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
+                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleDiscoverableNetsClick"
                       style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
-                    <Label text="Analyses Performed"
+                    <Label text="Discoverable Nets"
                            style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
-                    <Label fx:id="analysesPerformedLabel"
-                           text="20"
+                    <Label fx:id="discoverableNetsLabel"
                            style="-fx-text-fill: #cdd6f4; -fx-font-size: 32; -fx-font-weight: bold;"/>
                 </VBox>
             </HBox>
 
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- TODO: lista notifiche-->
+
             <!-- Activity Feed Section -->
-                <Label text="Activity Feed"
-                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold;"/>
+            <Label text="Activity Feed"
+                   style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold;"/>
             <VBox style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
                 <VBox.margin>
                     <Insets bottom="16"/>

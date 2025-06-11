@@ -10,134 +10,85 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
-import java.io.InputStream;
-import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * A vertical navigation bar component for the left side of the application.
- * It extends VBox and includes a logo, navigation buttons, and a logout button
- * at the bottom.
+ * Simple vertical navigation bar for the application sidebar.
  */
 public class NavBar extends VBox {
 
-    // Define the path to your logo. Update "logo.png" to your actual logo file name.
-    private static final String pathToLogo = "/assets/images/logo.png";
-    private static final String pathToIcon = "/assets/icons/";
-
-    // Navigation buttons are created once
-    private final Button homeButton = createNavButton("Home", ViewNavigator::navigateToHome, "home.png", "home");
-    private final Button myNetsButton = createNavButton("My Nets", ViewNavigator::navigateToMyNets, "Creations.png", "myNets"); // Assuming an icon name
-    private final Button subNetsButton = createNavButton("My Subs", ViewNavigator::navigateToSubNets, "Subscriptions.png", "subNets"); // Assuming an icon name
-    private final Button discoverButton = createNavButton("Discover", this::handleDummy, "Discover.png", "discover"); // Placeholder for future functionality
-    private final Button logoutButton = createNavButton("Logout", this::handleLogout, "logout.png", "logout");
-
-    // Spacer to push the logout button to the bottom
-    private final Region spacer = new Region();
+    private static final Logger log = LoggerFactory.getLogger(NavBar.class);
 
     public NavBar() {
-        setupLogo();
         setupLayout();
-
-        // Populate the bar based on user role
-        if (ViewNavigator.userIsAdmin()) {
-            setAdminBar();
-        } else {
-            setUserBar();
-        }
+        setupLogo();
+        setupButtons();
     }
 
-    /**
-     * Creates and adds the logo to the top of the NavBar.
-     */
+    private void setupLayout() {
+        setSpacing(15);
+        setPadding(new Insets(20, 15, 20, 15));
+        setAlignment(Pos.TOP_CENTER);
+        setPrefWidth(250);
+        getStyleClass().add("navBar");
+    }
+
     private void setupLogo() {
         try {
-            InputStream logoStream = getClass().getResourceAsStream(pathToLogo);
-            if (logoStream == null) {
-                System.err.println("Logo resource not found at: " + pathToLogo);
-                // Handle error, maybe show a placeholder text
-            } else {
-                Image logo = new Image(logoStream);
-                ImageView logoView = new ImageView(logo);
-                logoView.setFitWidth(120); // Adjust width as needed
-                logoView.setPreserveRatio(true);
-                logoView.setSmooth(true);
-                this.getChildren().add(logoView);
+            var logoStream = getClass().getResourceAsStream("/assets/images/logo.png");
+            if (logoStream != null) {
+                ImageView logo = new ImageView(new Image(logoStream));
+                VBox logoSpacer = new VBox();
+                logo.setFitWidth(180);
+                logo.setPreserveRatio(true);
+                logoSpacer.setStyle("-fx-padding: 10 0 20 15");
+                logoSpacer.getChildren().add(logo);
+                getChildren().add(logoSpacer);
+
+
+                logoStream.close();
             }
         } catch (Exception e) {
-            System.err.println("Error loading logo: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Could not load logo: " + e.getMessage());
         }
     }
 
-    /**
-     * Configures the layout and style for the vertical navigation bar.
-     */
-    private void setupLayout() {
-        this.setSpacing(15); // Space between vertical items
-        this.setPadding(new Insets(20, 10, 20, 10)); // Top, Right, Bottom, Left padding
-        this.getStyleClass().add("nav-bar-vertical");
-        this.setAlignment(Pos.TOP_CENTER); // Align items to the top-center
-        this.setMinWidth(150); // Set a minimum width for the bar
-        // The spacer will grow vertically to push subsequent items down.
+    private void setupButtons() {
+        // Create buttons
+        Button homeBtn = createButton("Home", "home.png", "home", ViewNavigator::navigateToHome);
+        Button subNetsBtn = createButton("My Subs", "Subscriptions.png", "subNets", ViewNavigator::navigateToSubNets);
+        Button discoverBtn = createButton("Discover", "Discover.png", "discover", ViewNavigator::navigateToDiscover);
+
+        // Spacer to push logout to bottom
+        Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        Button logoutBtn = createButton("Logout", "logout.png", "logout", this::handleLogout);
+
+        // Add buttons based on user role
+        getChildren().addAll(homeBtn, subNetsBtn, discoverBtn);
+
+        if (ViewNavigator.userIsAdmin()) {
+            Button myNetsBtn = createButton("My Nets", "Creations.png", "myNets", ViewNavigator::navigateToMyNets);
+            getChildren().add(2, myNetsBtn); // Insert after homeBtn
+        }
+
+        getChildren().addAll(spacer, logoutBtn);
     }
 
-    /**
-     * Populates the NavBar with buttons for a standard user.
-     */
-    private void setUserBar() {
-        this.getChildren().addAll(
-                homeButton,
-                subNetsButton,
-                discoverButton,
-                spacer, // Pushes logout to the bottom
-                logoutButton
-        );
-    }
-
-    /**
-     * Populates the NavBar with buttons for an admin user.
-     */
-    private void setAdminBar() {
-        this.getChildren().addAll(
-                homeButton,
-                myNetsButton,
-                subNetsButton,
-                discoverButton,
-                spacer, // Pushes logout to the bottom
-                logoutButton
-        );
-    }
-
-    /**
-     * Creates a styled navigation button with an icon, text, and action.
-     *
-     * @param text     The text to display on the button.
-     * @param action   The Runnable to execute on button click.
-     * @param iconName The name of the icon file in the icon assets folder.
-     * @param cssClass A specific CSS class for styling.
-     * @return A configured Button.
-     */
-    private Button createNavButton(String text, Runnable action, String iconName, String cssClass) {
-        Button button = new Button(text);
+    private Button createButton(String text, String iconName, String cssClass, Runnable action) {
+        Button button = new Button(" "+text);
         button.setOnAction(e -> action.run());
-        button.getStyleClass().add("nav-button-" + cssClass);
-        button.setMaxWidth(Double.MAX_VALUE); // Allow button to fill the width of the VBox
-        button.setAlignment(Pos.CENTER_LEFT); // Align text and icon to the left
-
-        // Set icon using your utility class
+        button.getStyleClass().add("navBar-button-" + cssClass);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setAlignment(Pos.CENTER_LEFT);
         IconUtils.setIcon(button, iconName);
-
         return button;
     }
 
-    /**
-     * Placeholder method for handling navigation to project views.
-     */
-    private void handleDummy() {
-        System.out.println("Navigating to projects (not yet implemented).");
-        // Example: ViewNavigator.navigateToProjects();
+    private void handleDiscover() {
+        ViewNavigator.navigateToSubNets();
     }
 
     private void handleLogout() {
