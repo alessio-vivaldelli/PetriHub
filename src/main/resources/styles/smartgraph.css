@@ -51,3 +51,21 @@
   /* you should keep this if using arrows */
   -fx-fill: yellowgreen;
 }
+
+.startVertex {
+  -fx-stroke-width: 5;
+  -fx-stroke: green;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: yellowgreen;
+}
+
+.endVertex {
+  -fx-stroke-width: 5;
+  -fx-stroke: red;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: tomato;
+}
+
+

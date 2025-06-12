@@ -13,8 +13,18 @@ public class PetriNetBuilder {
   private List<Transition> transitions;
   private List<Arc> arcs;
 
-  private Place startNode;
-  private Place finishNode;
+  private Place startNode = null;
+
+  public Place getStartNode() {
+    return startNode;
+  }
+
+  private Place finishNode = null;
+
+  public Place getFinishNode() {
+    return finishNode;
+  }
+
   private String petriName;
 
   public PetriNetBuilder(String petriNetName) {
@@ -28,8 +38,16 @@ public class PetriNetBuilder {
     return new PlaceBuilder(this, name);
   }
 
+  public PlaceBuilder newPlace(Place place) {
+    return new PlaceBuilder(this, place);
+  }
+
   public TransitionBuilder newTransition(String name) {
     return new TransitionBuilder(this, name);
+  }
+
+  public TransitionBuilder newTransition(Transition transition) {
+    return new TransitionBuilder(this, transition);
   }
 
   public PetriNetBuilder addArc(String from, String to) {
@@ -39,6 +57,7 @@ public class PetriNetBuilder {
   }
 
   public PetriNetBuilder setFinishNode(String name) {
+    System.out.println("All nodes: " + places.size() + " places, " + transitions.size() + " transitions");
     Node d = getNodeByName(name);
     if (d instanceof Place p) {
       p.setType(PLACE_TYPE.END);
@@ -46,7 +65,11 @@ public class PetriNetBuilder {
         finishNode.setType(PLACE_TYPE.NORMAL);
       }
       finishNode = p;
+    } else if (finishNode != null && name == null) {
+      finishNode.setType(PLACE_TYPE.NORMAL);
+      finishNode = null;
     }
+
     return this;
   }
 
@@ -58,6 +81,9 @@ public class PetriNetBuilder {
         startNode.setType(PLACE_TYPE.NORMAL);
       }
       startNode = p;
+    } else if (startNode != null && name == null) {
+      startNode.setType(PLACE_TYPE.NORMAL);
+      startNode = null;
     }
     return this;
   }
@@ -102,6 +128,11 @@ public class PetriNetBuilder {
       this.place = new Place(name);
     }
 
+    public PlaceBuilder(PetriNetBuilder petriNet, Place place) {
+      this.petriNetBuilder = petriNet;
+      this.place = place;
+    }
+
     public PlaceBuilder initialMarking(int count) {
       place.setPlaceTokens(count);
       return this;
@@ -132,6 +163,11 @@ public class PetriNetBuilder {
       this.transition = new Transition(name);
     }
 
+    public TransitionBuilder(PetriNetBuilder petriNet, Transition transition) {
+      this.petriNetBuilder = petriNet;
+      this.transition = transition;
+    }
+
     public TransitionBuilder withType(TRANSITION_TYPE type) {
       transition.setType(type);
       return this;
@@ -150,6 +186,7 @@ public class PetriNetBuilder {
 
   private Node getNodeByName(String name) {
     for (Place place : places) {
+      System.out.println("Checking place: " + place.getName());
       if (place.getName().equals(name)) {
         return place;
       }

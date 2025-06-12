@@ -1,8 +1,11 @@
 package it.petrinet.model;
 
 import atlantafx.base.theme.PrimerLight;
+import it.petrinet.petrinet.IllegalConnectionException;
+import it.petrinet.petrinet.builder.PetriNetBuilder;
 import it.petrinet.petrinet.model.Node;
 import it.petrinet.petrinet.model.PLACE_TYPE;
+import it.petrinet.petrinet.model.PetriNetModel;
 import it.petrinet.petrinet.model.Place;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
 import it.petrinet.petrinet.model.Transition;
@@ -21,6 +24,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Random;
 
 import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
@@ -32,9 +36,14 @@ import javafx.beans.property.SimpleDoubleProperty;
 public class TestingApplication extends Application {
 
   private String currentNodeType = "transition"; // Default node type
-  private String currentMode = "SELECTION"; // CREATE, CONNECT, SELECTION, or DELETION
+  private String currentMode = "CREATE"; // CREATE, CONNECT, SELECTION, or DELETION
+  private SmartGraphPanel<Node, String> graphView;
   private Vertex<Node> firstSelectedVertex = null; // For connection mode
   //
+  //
+  private String name = "TEST";
+
+  private PetriNetBuilder petriNetBuilder;
 
   public void setCurrentMode(String mode) {
     this.currentMode = mode;
@@ -42,24 +51,14 @@ public class TestingApplication extends Application {
 
   @Override
   public void start(Stage stage) throws IOException {
+
+    petriNetBuilder = new PetriNetBuilder(this.name);
+
     Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
 
     Graph<Node, String> g = new DigraphEdgeList<>();
-    Node vElement = createNode("A", "transition");
-    g.insertVertex(vElement);
-    Node vElement_2 = createNode("B", "transition");
-    g.insertVertex(vElement_2);
-    Node vElement_3 = createNode("C", "circle");
-    g.insertVertex(vElement_3);
-    Node vElement_4 = createNode("D", "circle");
-    g.insertVertex(vElement_4);
-
-    g.insertEdge(vElement, vElement_2, "1");
-    g.insertEdge(vElement_2, vElement_3, "2");
-    g.insertEdge(vElement_3, vElement_4, "3");
-
     SmartPlacementStrategy initialPlacement = new SmartRandomPlacementStrategy();
-    SmartGraphPanel<Node, String> graphView = new SmartGraphPanel<>(g, initialPlacement);
+    graphView = new SmartGraphPanel<>(g, initialPlacement);
 
     VBox vBox = new VBox();
 
@@ -156,25 +155,55 @@ public class TestingApplication extends Application {
     // });
 
     // Set up canvas click action for creating new nodes (only in CREATE mode)
-
     graphView.setCanvasSingleClickAction(point -> {
       if (currentMode.equals("CREATE")) {
         // Create a new vertex at the clicked point using current node type
-        String nodeLabel = currentNodeType.equals("circle") ? "New Place" : "New Transition";
+        // Prompt user for a unique node label using JavaFX
+        String baseLabel = currentNodeType.equals("place") ? "New Place" : "New Transition";
+        boolean unique = false;
+        String nodeLabel = baseLabel;
+
+        while (!unique) {
+          TextInputDialog dialog = new TextInputDialog(nodeLabel);
+          dialog.setTitle("New Node");
+          dialog.setHeaderText("Enter a unique name for the new node:");
+          dialog.setContentText("Name:");
+          Optional<String> result = dialog.showAndWait();
+          if (!result.isPresent() || result.get().trim().isEmpty()) {
+            return; // Cancelled or empty input
+          }
+          String tmpNodeLabel = result.get().trim();
+          nodeLabel = tmpNodeLabel;
+          boolean exists = g.vertices().stream()
+              .anyMatch(vtx -> vtx.element().getName().equals(tmpNodeLabel));
+          if (!exists) {
+            unique = true;
+          } else {
+            nodeLabel = tmpNodeLabel + " (copy)";
+          }
+        }
         Vertex<Node> newVertex = g
             .insertVertex(createNode(nodeLabel, currentNodeType, new Point2D(point.getX(), point.getY())));
         graphView.updateAndWait();
 
         Vertex<Node> v = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == newVertex).findFirst().orElse(null);
+
+        if (currentNodeType.equals("transition")) {
+          graphView.getStylableVertex(v).setStyleClass("userTransition");
+        }
         graphView.setVertexPosition(v, point.getX(), point.getY());
 
         graphView.updateAndWait();
-        System.out.println("Created " + currentNodeType + " at pos " +
-            graphView.getVertexPositionY(newVertex) + ", " +
-            graphView.getVertexPositionX(newVertex));
-
         graphView.update();
+      } else {
+        PetriNetModel model = null;
+        try {
+          model = petriNetBuilder.build();
+        } catch (IllegalConnectionException e1) {
+          e1.printStackTrace();
+        }
+        System.out.println("Model built: " + model);
       }
     });
 
@@ -224,26 +253,29 @@ public class TestingApplication extends Application {
           // Handle Enter key and focus lost to apply changes
           Runnable applyLabelChange = () -> {
             String newLabel = labelField.getText().trim();
-            if (!newLabel.isEmpty() && !newLabel.equals(element.element().getName())) {
+            if (!newLabel.isEmpty() && !newLabel.equals(element.element().getName()) && isLabelUnique(newLabel)) {
               element.element().setName(newLabel);
               System.out.println("Changed label to: " + newLabel);
               graphView.update();
+            } else {
+              // If the label is not unique or empty, show an error message
+              Alert alert = new Alert(Alert.AlertType.ERROR);
+              alert.setTitle("Invalid Label");
+              alert.setHeaderText("Label Change Error");
+              alert.setContentText("The label must be unique and cannot be empty.");
+              alert.showAndWait();
+
             }
             contextMenu.hide();
           };
 
           labelField.setOnAction(_ -> applyLabelChange.run());
-          // labelField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-          // if (!newVal) { // Focus lost
-          // applyLabelChange.run();
-          // }
-          // });
 
           editBox.getChildren().addAll(editLabel, labelField);
           editLabelItem.setContent(editBox);
           editLabelItem.setHideOnClick(false); // Keep menu open while editing
 
-          MenuItem deleteItem = new MenuItem("🗑️ Delete Node");
+          MenuItem deleteItem = new MenuItem("Delete Node");
           deleteItem.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
           deleteItem.setOnAction(_ -> {
             g.removeVertex(element);
@@ -251,21 +283,69 @@ public class TestingApplication extends Application {
             graphView.update();
           });
 
-          MenuItem changeTypeItem = new MenuItem();
           String currentType = element.element().getShapeType();
-          if (currentType.equals("circle")) {
-            changeTypeItem.setText("Change to Transition");
-          } else {
-            changeTypeItem.setText("Change to Place");
-          }
-
           // Add user/admin toggle for transitions only
           MenuItem userTypeItem = null;
-          if (currentType.equals("transition")) {
-            userTypeItem = new MenuItem("Change to User"); // Default, since not implemented yet
+          MenuItem startPlaceItem = null;
+          MenuItem endPlaceItem = null;
+          if (currentType.equals("Transition")) {
+            TRANSITION_TYPE current = ((Transition) element.element()).getType();
+            userTypeItem = new MenuItem(
+                (current.equals(TRANSITION_TYPE.ADMIN)) ? "Change to User"
+                    : "Change to Admin"); // Default, since not implemented yet
             userTypeItem.setOnAction(_ -> {
-              // TODO: Implement user/admin type change logic
-              System.out.println("Changed transition to User type (not implemented yet)");
+              TRANSITION_TYPE newType = (current.equals(TRANSITION_TYPE.ADMIN)) ? TRANSITION_TYPE.USER
+                  : TRANSITION_TYPE.ADMIN;
+              ((Transition) element.element()).setType(newType);
+
+              if (newType.equals(TRANSITION_TYPE.ADMIN)) {
+                graphView.getStylableVertex(element).setStyleClass("adminTransition");
+              } else {
+                graphView.getStylableVertex(element).setStyleClass("userTransition");
+              }
+            });
+          } else {
+            startPlaceItem = new MenuItem("Set as Start Node");
+            startPlaceItem.setOnAction(_ -> {
+
+              if (petriNetBuilder.getStartNode() != null) {
+                Vertex<Node> node = graphView.getModel().vertices().stream()
+                    .filter(
+                        vtx -> vtx.element() instanceof Place
+                            && vtx.element().getName().equals(petriNetBuilder.getStartNode().getName()))
+                    .findFirst().orElse(null);
+                graphView.getStylableVertex(node).setStyleClass("vertex");
+
+              }
+
+              graphView.getStylableVertex(element).setStyleClass("startVertex");
+              if (petriNetBuilder.getFinishNode() != null) {
+                if (petriNetBuilder.getFinishNode().getName().equals(element.element().getName())) {
+                  petriNetBuilder.setFinishNode(null);
+                }
+              }
+              petriNetBuilder.setStartNode(element.element().getName());
+            });
+            endPlaceItem = new MenuItem("Set as Finish Node");
+            endPlaceItem.setOnAction(_ -> {
+              if (petriNetBuilder.getFinishNode() != null) {
+                Vertex<Node> node = graphView.getModel().vertices().stream()
+                    .filter(
+                        vtx -> vtx.element() instanceof Place
+                            && vtx.element().getName().equals(petriNetBuilder.getFinishNode().getName()))
+                    .findFirst().orElse(null);
+                graphView.getStylableVertex(node).setStyleClass("vertex");
+              }
+              if (petriNetBuilder.getStartNode() != null) {
+
+                System.out.println("Old name: " + petriNetBuilder.getStartNode().getName() + " , New Name: "
+                    + element.element().getName());
+                if (petriNetBuilder.getStartNode().getName().equals(element.element().getName())) {
+                  petriNetBuilder.setStartNode(null);
+                }
+              }
+              graphView.getStylableVertex(element).setStyleClass("endVertex");
+              petriNetBuilder.setFinishNode(element.element().getName());
             });
           }
 
@@ -281,10 +361,10 @@ public class TestingApplication extends Application {
           });
 
           if (userTypeItem != null) {
-            contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(), changeTypeItem,
+            contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(),
                 userTypeItem, new SeparatorMenuItem(), infoItem, deleteItem);
           } else {
-            contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(), changeTypeItem,
+            contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(), startPlaceItem, endPlaceItem,
                 new SeparatorMenuItem(), infoItem, deleteItem);
           }
 
@@ -319,6 +399,21 @@ public class TestingApplication extends Application {
 
             if (!edgeExists) {
               String edgeLabel = "edge_" + System.currentTimeMillis(); // Unique edge label
+              // only connection with place -> transition or transition -> place are allowed
+              if (!areCompatible(firstSelectedVertex.element(), element.element())) {
+                System.out.println("Incompatible nodes for connection: " +
+                    firstSelectedVertex.element().getName() + " and " + element.element().getName());
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Connection Error");
+                alert.setHeaderText("Incompatible Nodes");
+                alert.setContentText("Cannot connect " + firstSelectedVertex.element().getName() +
+                    " to " + element.element().getName()
+                    + ". Only Place to Transition or Transition to Place connections are allowed.");
+                alert.showAndWait();
+                firstSelectedVertex = null; // Reset selection
+                return;
+              }
+              createArc(firstSelectedVertex.element().getName(), element.element().getName());
               g.insertEdge(firstSelectedVertex, element, edgeLabel);
               System.out.println("Connected " + firstSelectedVertex.element().getName() +
                   " to " + element.element().getName());
@@ -391,19 +486,47 @@ public class TestingApplication extends Application {
     graphView.update();
   }
 
+  private void createArc(String from, String to) {
+    petriNetBuilder.addArc(from, to);
+  }
+
   // Replace the CustomVertex usage with factory methods
   private Node createNode(String label, String type, Point2D position) {
     if (type.contains("transition")) {
       TRANSITION_TYPE transType = TRANSITION_TYPE.USER;
-      return new Transition(label, position, transType);
-    } else if (type.contains("place")) {
-      return new Place(label, position, PLACE_TYPE.NORMAL, 0);
+      Transition transition = new Transition(label, position, transType);
+      PetriNetBuilder.TransitionBuilder transitioBuilder = petriNetBuilder.newTransition(transition);
+      petriNetBuilder = transitioBuilder.doneTransition();
+      System.out.println("Creating transition with label: " + label + " at position: " + position);
+      return transition;
+    } else if (type.contains("place") || type.contains("circle")) {
+      System.out.println("Creating place with label: " + label + " at position: " + position);
+      Place place = new Place(label, position);
+      petriNetBuilder.newPlace(label).donePlace();
+      return place;
     }
     return new Place(label, position);
   }
 
   private Node createNode(String label, String type) {
     return createNode(label, type, new Point2D(0, 0));
+  }
+
+  // check compatibility between two nodes
+  private boolean areCompatible(Node node1, Node node2) {
+    if (node1 instanceof Place && node2 instanceof Transition) {
+      return true; // Place can connect to Transition
+    } else if (node1 instanceof Transition && node2 instanceof Place) {
+      return true; // Transition can connect to Place
+    }
+    return false; // Other combinations are not allowed
+  }
+
+  // Checks if the given label is unique among all elements in the graph
+  private boolean isLabelUnique(String label) {
+    return graphView.getModel().vertices().stream()
+        .map(e -> e.element().getName())
+        .noneMatch(name -> name.equals(label));
   }
 
   // start application

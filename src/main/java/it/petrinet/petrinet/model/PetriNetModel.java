@@ -164,5 +164,4 @@ public class PetriNetModel {
         (from instanceof Transition && to instanceof Place);
   }
 
-  // TODO: add setters for finish and start
 }
