@@ -1,5 +1,6 @@
-package it.petrinet.model;
+package it.petrinet.petrinet.view;
 
+import javafx.scene.layout.Pane;
 import atlantafx.base.theme.PrimerLight;
 import it.petrinet.petrinet.IllegalConnectionException;
 import it.petrinet.petrinet.builder.PetriNetBuilder;
@@ -36,8 +37,7 @@ import com.brunomnsilva.smartgraph.graph.Graph;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
-public class TestingApplication extends Application {
-
+public class PetriNetCreationPane extends Pane {
   private String currentNodeType = "transition"; // Default node type
   private String currentMode = "CREATE"; // CREATE, CONNECT, SELECTION, or DELETION
   private SmartGraphPanel<Node, String> graphView;
@@ -60,8 +60,14 @@ public class TestingApplication extends Application {
     this.currentMode = mode;
   }
 
-  @Override
-  public void start(Stage stage) throws IOException {
+  public PetriNetCreationPane(String name, String description) {
+    this.name = name;
+    this.description = description;
+
+    start();
+  }
+
+  private void start() {
 
     petriNetBuilder = new PetriNetBuilder(this.name);
 
@@ -497,12 +503,19 @@ public class TestingApplication extends Application {
 
     vBox.getChildren().addAll(contentZoomScrollPane, modeButtons, nodeTypeButtons, zoomControls, actionControls);
 
-    Scene scene = new Scene(vBox, 1024, 768);
+    this.getChildren().add(vBox);
 
-    stage = new Stage(StageStyle.DECORATED);
-    stage.setTitle("JavaFXGraph Visualization");
-    stage.setScene(scene);
-    stage.show();
+    // Initialize graph view
+    graphView.init();
+    // graphView.getStylableVertex(vElement_3).setStyleClass("svg_elem");
+
+    graphView.setAutomaticLayout(true);
+    graphView.setAutomaticLayout(false);
+
+    graphView.update();
+  }
+
+  public void init() {
 
     // Initialize graph view
     graphView.init();
@@ -562,11 +575,6 @@ public class TestingApplication extends Application {
         .noneMatch(name -> name.equals(label));
   }
 
-  // start application
-  public static void main(String[] args) {
-    launch();
-  }
-
   private void serializePetriNet(PetriNetModel model) {
     System.out.println("Serializing Petri Net Model to PNML format...");
     PNMLSerializer serializer = new PNMLSerializer();
@@ -594,4 +602,5 @@ public class TestingApplication extends Application {
       petriNetBuilder.setNodePosition(vtx.element().getName(), x, y);
     });
   }
+
 }

@@ -34,7 +34,6 @@ public class BuilderTest {
     // try {
     // serializer.serialize(petriNetModel);
     // } catch (IOException e) {
-    // // TODO Auto-generated catch block
     // e.printStackTrace();
     // }
     String path = System.getProperty("user.dir") +

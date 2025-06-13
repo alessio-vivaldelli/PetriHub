@@ -33,21 +33,44 @@ public class PetriNetModel {
     this.name = name;
     // generate warning if startNode or finishNode are null
     if (startNode == null || finishNode == null) {
-      System.err.println("Warning: Start or Finish node is null. Please ensure both are set.");
+      throw new IllegalConnectionException(
+          "Start and Finish must be specified for a Petri net");
     }
 
+    Map<Node, Boolean> allNodes = new HashMap<>();
     for (Place node : places) {
       addNode(node);
+      allNodes.put(node, false);
     }
 
     for (Node node : transition) {
       addNode(node);
+      allNodes.put(node, false);
     }
 
     for (Arc arc : arcs) {
+      Node fromNode = getNodeByName(arc.getFrom());
+      Node toNode = getNodeByName(arc.getTo());
+
+      if (fromNode.equals(finishNode)) {
+        throw new IllegalConnectionException("Arc cannot connect to the finish node: %s".formatted(arc.getFrom()));
+      }
+      if (toNode.equals(startNode)) {
+        throw new IllegalConnectionException("Arc cannot connect from the start node: %s".formatted(arc.getTo()));
+      }
+      if (!adjacencyList.containsKey(fromNode) || !adjacencyList.containsKey(toNode)) {
+        throw new IllegalConnectionException("Arc connects nodes not present in the Petri net: %s->%s".formatted(
+            arc.getFrom(), arc.getTo()));
+      }
+
+      allNodes.put(fromNode, true);
+      allNodes.put(toNode, true);
       addArc(arc.getFrom(), arc.getTo());
     }
-
+    if (!allNodes.values().stream().allMatch(t -> t)) {
+      System.out.println("All nodes are connected: " + allNodes);
+      throw new IllegalConnectionException("Some nodes are not connected.");
+    }
   }
 
   public String getName() {
@@ -149,7 +172,15 @@ public class PetriNetModel {
    * @return the node with the specified name
    */
   public Node getNodeByName(String name) {
-    return adjacencyList.keySet().stream().filter(e -> e.getName().equals(name)).findFirst().get();
+    Node n = adjacencyList.keySet().stream().filter(e -> e.getName().equals(name)).findFirst().get();
+
+    if (n instanceof Place p) {
+      return p;
+    } else if (n instanceof Transition t) {
+      return t;
+    } else {
+      throw new IllegalArgumentException("Node with name " + name + " is not a valid Place or Transition.");
+    }
   }
 
   /**

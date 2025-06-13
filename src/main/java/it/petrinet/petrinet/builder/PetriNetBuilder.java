@@ -34,6 +34,48 @@ public class PetriNetBuilder {
     this.petriName = petriNetName;
   }
 
+  public PetriNetBuilder setNodePosition(String name, double x, double y) {
+    Node node = getNodeByName(name);
+    if (node instanceof Place place) {
+      place.setPosition(new Point2D(x, y));
+    } else if (node instanceof Transition transition) {
+      transition.setPosition(new Point2D(x, y));
+    }
+    return this;
+  }
+
+  public PetriNetBuilder removeNode(String name) {
+    Node node = getNodeByName(name);
+    if (node instanceof Place place) {
+      return removePlace(place);
+    } else if (node instanceof Transition transition) {
+      return removeTransition(transition);
+    }
+    return this;
+  }
+
+  private PetriNetBuilder removePlace(Place place) {
+    if (place.equals(startNode)) {
+      startNode = null;
+    }
+    if (place.equals(finishNode)) {
+      finishNode = null;
+    }
+    System.out.println("Removing place: " + places.remove(place));
+    return this;
+  }
+
+  private PetriNetBuilder removeTransition(Transition transition) {
+    System.out.println("Removing transition: " + transitions.remove(transition));
+    return this;
+  }
+
+  public PetriNetBuilder removeArc(String from, String to) {
+    Arc arc = new Arc(from, to);
+    arcs.remove(arc);
+    return this;
+  }
+
   public PlaceBuilder newPlace(String name) {
     return new PlaceBuilder(this, name);
   }
