@@ -14,6 +14,10 @@ import javafx.scene.chart.PieChart;
 
 public class UserDAO implements DataAccessObject{
 
+//    public static void main(String[] args) throws InputTypeException {
+//        User davide = new User("davide", "davide", false);
+//        modifyUserPassword(davide, "sala");
+//    }
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS users (" +
                 "username TEXT PRIMARY KEY, " +
@@ -22,7 +26,7 @@ public class UserDAO implements DataAccessObject{
 
         try (Connection connection = DatabaseManager.getUserDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.executeUpdate(table);
+            statement.execute(table);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -56,10 +60,10 @@ public class UserDAO implements DataAccessObject{
         }
     }
 
-    public static void modifyUserPassword(Object user, String password) throws InputTypeException {                  //inserimento di un utente che si registra
+    public static void modifyUserPassword(Object user, String password) throws InputTypeException {
         try{
             if (user instanceof User u) {
-                String command = "UPDATE users SET password = ? isAdmin = ? WHERE username = ?";
+                String command = "UPDATE users SET password = ?, isAdmin = ? WHERE username = ?";
 
                 try (Connection connection = DatabaseManager.getUserDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)){
@@ -67,6 +71,7 @@ public class UserDAO implements DataAccessObject{
                     p_statement.setString(1, password);
                     p_statement.setBoolean(2, u.isAdmin());
                     p_statement.executeUpdate();
+                    connection.commit();
                 }
                 catch (SQLException e) {
                     e.printStackTrace();
@@ -95,11 +100,11 @@ public class UserDAO implements DataAccessObject{
     }
 
     public static User getUserByUsername(String username) {
-        String search_command = "SELECT FROM users WHERE username = ? ";
+        String search_command = "SELECT * FROM users WHERE username = ? ";
 
         try (Connection connection = DatabaseManager.getUserDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(search_command)) {
-            p_statement.setString(0, username);
+            p_statement.setString(1, username);
             ResultSet result = p_statement.executeQuery();
 
             if (result.next()) {
@@ -116,12 +121,12 @@ public class UserDAO implements DataAccessObject{
     }
 
     public static List<User> getUsersByPassword(String password) {
-        String search_command = "SELECT * FROM users WHERE password = ";
+        String search_command = "SELECT * FROM users WHERE password = ? ";
         List <User> filteredUsers = new ArrayList<User>();
 
         try (Connection connection = DatabaseManager.getUserDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(search_command)) {
-            p_statement.setString(2, password);
+            p_statement.setString(1, password);
             ResultSet result = p_statement.executeQuery();
 
             while(result.next()) {

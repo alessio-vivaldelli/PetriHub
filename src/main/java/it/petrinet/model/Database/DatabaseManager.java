@@ -10,6 +10,8 @@ public class DatabaseManager {
     private static final String USER_DB_URL = "jdbc:sqlite:users.db";
     private static final String PETRI_NETS_DB_URL = "jdbc:sqlite:nets.db";
     private static final String NOTIFICATIONS_DB_URL = "jdbc:sqlite:notifications.db";
+    private static final String COMPUTATIONS_DB_URL = "jdbc:sqlite:computations.db";
+    private static final String COMPUTATION_STEPS_DB_URL = "jdbc:sqlite:steps.db";
 
     public static Connection getUserDBConnection() throws SQLException {
         return DriverManager.getConnection(USER_DB_URL);

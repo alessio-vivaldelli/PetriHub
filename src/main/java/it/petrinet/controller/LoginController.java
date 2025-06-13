@@ -61,6 +61,7 @@ public class LoginController {
                 System.out.println("login successful for user: "+ user.getUsername());
         }
         else{
+            System.out.println(UserDAO.getUserByUsername(username));
             showError("Invalid username or password");
         }
     }
