@@ -1,6 +1,5 @@
 package it.petrinet.controller;
 
-import static it.petrinet.Main.isValidInput;
 import it.petrinet.controller.LoginController;
 
 import it.petrinet.Main;

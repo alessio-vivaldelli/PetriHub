@@ -1,11 +1,9 @@
 package it.petrinet.controller;
 
-
-import static it.petrinet.Main.isValidInput;
-
 import it.petrinet.Main;
 import it.petrinet.Main.*;
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.Database.UserDAO;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 import javafx.event.ActionEvent;
@@ -65,7 +63,7 @@ public class LoginController {
                 User user = UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password));
                 ViewNavigator.setAuthenticatedUser(user);
                 System.out.println("login successful for user: "+ user.getUsername());
-                proceedToMainView(event, userOpt.get());
+                proceedToMainView(event, user);
         }
         else{
             System.out.println(UserDAO.getUserByUsername(username));

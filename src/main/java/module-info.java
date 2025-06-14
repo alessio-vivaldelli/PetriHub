@@ -23,15 +23,8 @@ module it.petrinet {
     exports it.petrinet.exceptions;
     opens it.petrinet.exceptions to javafx.fxml;
     requires atlantafx.base;
-    requires java.desktop;
-    exports it.petrinet.view;
-    exports it.petrinet.controller;
-    exports it.petrinet.model;
     exports it.petrinet.view.components;
     exports it.petrinet.utils;
-    opens it.petrinet.view;
-    opens it.petrinet.controller;
-    opens it.petrinet.model;
     opens it.petrinet.view.components;
     opens it.petrinet.utils;
 
