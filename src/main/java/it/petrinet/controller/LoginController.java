@@ -6,45 +6,51 @@ import static it.petrinet.Main.isValidInput;
 import it.petrinet.Main;
 import it.petrinet.Main.*;
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.User;
+import it.petrinet.view.ViewNavigator;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import it.petrinet.model.User;
-import it.petrinet.model.Database.*;
-import it.petrinet.view.ViewNavigator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import java.io.InputStream;
 import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.Objects;
+import java.util.Optional;
+
+import static it.petrinet.utils.Validation.isValidInput;
 
 public class LoginController {
-    @FXML
-    private TextField usernameField;
+    private static final String LOGO_PATH      = "/assets/images/logo.png";
 
-    @FXML
-    private PasswordField passwordField;
-
-    @FXML
-    private Label statusLabel;
-
-    @FXML
-    private ImageView logoView;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private Label statusLabel;
+    @FXML private ImageView logoView;
+    @FXML private Button loginButton;
 
 
     @FXML
     // inizializza lo statuslabel (il messaggio di errore in caso di login fallito) e l'immagine del logo
     public void initialize() {
+        // Hide error message initially
         statusLabel.setVisible(false);
-        Image img = new Image(getClass().getResourceAsStream("/assets/images/logo.png"));
-        logoView.setImage(img);
+
+        // Load logo
+        loadLogoImage();
+
+        // Enable Enter key to trigger login
+        loginButton.setDefaultButton(true);
     }
 
     @FXML
-    private void handleLogin() throws InputTypeException { //pulsante che accetta il login nel caso andasse bene (passa al model che poi rigira al view la schemrata giusta (credo)
+    private void handleLogin(ActionEvent event) throws InputTypeException{
+        clearError();
+
         String username = usernameField.getText();
         String password = passwordField.getText();
 
@@ -59,21 +65,41 @@ public class LoginController {
                 User user = UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password));
                 ViewNavigator.setAuthenticatedUser(user);
                 System.out.println("login successful for user: "+ user.getUsername());
+                proceedToMainView(event, userOpt.get());
         }
         else{
             System.out.println(UserDAO.getUserByUsername(username));
             showError("Invalid username or password");
         }
+
     }
 
     @FXML
-    private void handleRegister() { //easy peasy switch di scena
+    private void handleRegister() {
         ViewNavigator.navigateToRegister();
     }
 
-    private void showError(String message) { //errore di login
+    private void loadLogoImage() {
+        try {
+            Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(LOGO_PATH)));
+            logoView.setImage(img);
+        } catch (Exception e) {
+            System.err.println("Unable to load logo: " + LOGO_PATH);
+        }
+    }
+
+    private void proceedToMainView(ActionEvent event, User user) {
+        ViewNavigator.setAuthenticatedUser(user);
+        ViewNavigator.HomeScene();
+    }
+
+    private void showError(String message) {
         statusLabel.setText(message);
         statusLabel.setStyle("-fx-text-fill: red;");
         statusLabel.setVisible(true);
+    }
+
+    private void clearError() {
+        statusLabel.setVisible(false);
     }
 }

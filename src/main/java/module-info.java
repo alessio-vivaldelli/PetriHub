@@ -7,6 +7,9 @@ module it.petrinet {
 //    requires javafx.fxml;
     requires jdk.xml.dom;
     requires java.sql;
+    requires java.desktop;
+    requires org.slf4j;
+
     opens it.petrinet to javafx.fxml;
     exports it.petrinet.model;
     opens it.petrinet.model to javafx.fxml;
@@ -21,4 +24,15 @@ module it.petrinet {
     opens it.petrinet.exceptions to javafx.fxml;
     requires atlantafx.base;
     requires java.desktop;
+    exports it.petrinet.view;
+    exports it.petrinet.controller;
+    exports it.petrinet.model;
+    exports it.petrinet.view.components;
+    exports it.petrinet.utils;
+    opens it.petrinet.view;
+    opens it.petrinet.controller;
+    opens it.petrinet.model;
+    opens it.petrinet.view.components;
+    opens it.petrinet.utils;
+
 }

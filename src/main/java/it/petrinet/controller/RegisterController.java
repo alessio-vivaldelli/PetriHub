@@ -15,26 +15,23 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.util.Objects;
+
+import static it.petrinet.utils.Validation.isValidInput;
+
 public class RegisterController {
-    @FXML
-    private TextField usernameField;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private PasswordField confirmPasswordField;
 
-    @FXML
-    private PasswordField passwordField;
+    @FXML private Label statusLabel;
 
-    @FXML
-    private PasswordField confirmPasswordField;
-
-    @FXML
-    private Label statusLabel;
-
-    @FXML
-    private ImageView logoView;
+    @FXML private ImageView logoView;
 
     @FXML
     public void initialize() { // guarda il duale LoginController
         statusLabel.setVisible(false);
-        Image img = new Image(getClass().getResourceAsStream("/assets/images/logo.png"));
+        Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/logo.png")));
         logoView.setImage(img);
     }
 

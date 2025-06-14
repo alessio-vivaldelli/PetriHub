@@ -1,124 +1,609 @@
-/* ================================
-   Catppuccin Mocha + Peach Accent
-   ================================ */
-
-/* -------------------------------
-   ROOT & COLOURS
-   ------------------------------- */
+/* ============================================================================
+Catppuccin Mocha Theme - Refactored CSS
+/============================================================================ \*/
+*{
+    -fx-font-family: "Inter", "Segoe UI", "Roboto", "Arial", sans-serif;
+}
+/*=============================================================================
+1. Color Palette Variables (Updated)
+=============================================================================*/
 .root {
-    -fx-background-color: #1e1e2e; /* base */
-    -fx-font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-    -fx-text-fill: #cdd6f4;        /* main text */
+    /* Base Colors */
+    -fx-catppuccin-mocha-base:     #1e1e2e;
+    -fx-catppuccin-mocha-base0:    #26263b;
+    -fx-catppuccin-mocha-surface0: #313244;
+    -fx-catppuccin-mocha-surface1: #45475a;
+    -fx-catppuccin-mocha-surface2: #585b70;
+    -fx-catppuccin-mocha-overlay0: #6c7086;
+    -fx-catppuccin-mocha-overlay1: #7f849c;
+
+    /* Text & Accents */
+    -fx-catppuccin-mocha-text:     #cdd6f4;
+    -fx-catppuccin-mocha-subtext1: #bac2de;
+    -fx-catppuccin-mocha-subtext0: #a6adc8;
+    -fx-catppuccin-mocha-peach:    #fab387;
+    -fx-catppuccin-mocha-green:    #a6e3a1;
+    -fx-catppuccin-mocha-blue:     #89b4fa;
+    -fx-catppuccin-mocha-yellow:   #f9e2af;
+    -fx-catppuccin-mocha-red:      #f38ba8;
+    -fx-catppuccin-mocha-mauve:    #cba6f7;
+    -fx-catppuccin-mocha-pink:     #f5c2e7;
+    -fx-catppuccin-mocha-lavender: #b4befe;
 }
 
-/* -------------------------------
-   LABELS & TEXT
-   ------------------------------- */
+/*=============================================================================
+2. Global Element Styles
+\=============================================================================*/
+.root-container,
+.vbox,
+.hbox,
+.stack-pane,
+.anchor-pane,
+.border-pane {
+    -fx-background-color: -fx-catppuccin-mocha-base;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+
 .label {
-    -fx-text-fill: #cdd6f4;
+    -fx-text-fill: -fx-catppuccin-mocha-text;
     -fx-font-size: 14px;
 }
-.label#error, .label#errorLabel {
-    -fx-text-fill: #f38ba8; /* rosewater for errors */
-}
 
-/* -------------------------------
-   BUTTONS
-   ------------------------------- */
 .button {
-    -fx-background-color: #fab387; /* peach accent */
-    -fx-text-fill: #1e1e2e;         /* base bg for contrast */
-    -fx-font-weight: bold;
+    -fx-background-color: -fx-catppuccin-mocha-peach;
+    -fx-text-fill:      -fx-catppuccin-mocha-base;
+    -fx-font-weight:    bold;
     -fx-background-radius: 6px;
-    -fx-padding: 8 16 8 16;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+    -fx-transition: -fx-background-color 0.2s ease;
 }
-.button:hover {
-    -fx-background-color: #f2a97f; /* slightly darker peach */
+.button\:hover {
+    -fx-background-color: derive(-fx-catppuccin-mocha-peach, -10%);
 }
 
-/* -------------------------------
-   TEXT FIELDS & CONTROLS
-   ------------------------------- */
 .text-field,
 .password-field,
 .text-area,
 .combo-box {
-    -fx-background-color: #313244; /* surface0 */
-    -fx-text-fill: #cdd6f4;
-    -fx-prompt-text-fill: #9399b2;
-    -fx-border-color: transparent;
+    -fx-background-color: -fx-catppuccin-mocha-surface0;
+    -fx-text-fill:       -fx-catppuccin-mocha-text;
+    -fx-prompt-text-fill:#9399b2;
     -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
-    -fx-padding: 6px 8px 6px 8px;
+    -fx-padding: 6 8;
+    -fx-border-color: transparent;
 }
-.text-field:focused,
-.password-field:focused,
-.text-area:focused,
-.combo-box:focused {
-    -fx-border-color: #fab387; /* peach border on focus */
+.text-field\:focused,
+.password-field\:focused,
+.text-area\:focused,
+.combo-box\:focused {
+    -fx-border-color: -fx-catppuccin-mocha-peach;
     -fx-border-width: 1.5px;
 }
 
-/* -------------------------------
-   HYPERLINKS & CHECKBOXES
-   ------------------------------- */
 .hyperlink {
-    -fx-text-fill: #fab387;
+    -fx-text-fill: -fx-catppuccin-mocha-peach;
     -fx-underline: false;
+    -fx-transition: -fx-underline 0.2s ease;
 }
-.hyperlink:hover {
+.hyperlink\:hover {
     -fx-underline: true;
 }
 
-.check-box .box,
-.radio-button .radio {
-    -fx-mark-color: #fab387;
-}
-.check-box,
-.radio-button {
-    -fx-text-fill: #cdd6f4;
+/*=============================================================================
+3\. Navigation Bar Styles
+\=============================================================================*/
+.navBar {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0.0, 0, 5);
 }
 
-/* -------------------------------
-   PANES & CONTAINERS
-   ------------------------------- */
-.vbox, .hbox, .stack-pane, .anchor-pane, .border-pane {
+/* Base button styles */
+.navBar-button-home,
+.navBar-button-myNets,
+.navBar-button-subNets,
+.navBar-button-discover,
+.navBar-button-logout {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-catppuccin-mocha-text;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 35px;
+    -fx-padding: 12px 10px;
+    -fx-transition: all 0.15s ease-out;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+/* Hover and armed states */
+.navBar-button-home:hover,
+.navBar-button-myNets:hover,
+.navBar-button-subNets:hover,
+.navBar-button-logout:hover,
+.navBar-button-discover:hover {
+    -fx-background-color: -fx-catppuccin-mocha-surface0;
+    -fx-background-radius: 35px;
+    -fx-effect: dropshadow(gaussian, -fx-catppuccin-mocha-base0, 8, 0.2, 0, 2);
+    -fx-transition: all 0.2s ease-out;
+    -fx-scale-x: 1.06;
+    -fx-scale-y: 1.06;
+}
+
+/* Click/pressed animation - scales down when clicked */
+.navBar-button-home:armed,
+.navBar-button-myNets:armed,
+.navBar-button-subNets:armed,
+.navBar-button-discover:armed,
+.navBar-button-logout:armed {
+    -fx-background-color: -fx-catppuccin-mocha-surface0;
+    -fx-background-radius: 35px;
+    -fx-effect: dropshadow(gaussian, -fx-catppuccin-mocha-surface0, 4, 0.3, 0, 1);
+    -fx-transition: all 0.08s ease-in;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+
+
+/* ============================================================================
+Modern Catppuccin Mocha TableView Styles
+============================================================================ */
+
+/*=============================================================================
+2. Modern TableView Container
+=============================================================================*/
+.modern-table-container {
+    -fx-background-color: -fx-catppuccin-mocha-base;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 16, 0.15, 0, 4);
+    -fx-padding: 0;
+    -fx-border-color: -fx-catppuccin-mocha-surface1;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+/*=============================================================================
+3. TableView Base Styling
+=============================================================================*/
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-background-radius: 12px;
+    -fx-padding: 0;
+}
+
+/* Remove default table borders and background */
+.table-view .virtual-flow .corner-button {
     -fx-background-color: transparent;
 }
 
-/* -------------------------------
-   TABLEVIEW (se usi tabelle)
-   ------------------------------- */
-.table-view {
-    -fx-background-color: #313244;
-    -fx-table-cell-border-color: transparent;
-    -fx-control-inner-background: #313244;
-    -fx-text-background-color: #cdd6f4;
-}
-.table-column-header {
-    -fx-background-color: #45475a; /* surface1 */
-    -fx-text-fill: #cdd6f4;
+/*=============================================================================
+4. Modern Header Styling
+=============================================================================*/
+.table-view .column-header-background {
+    -fx-background-color: -fx-catppuccin-mocha-surface0;
+    -fx-background-radius: 12px 12px 0 0;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
 }
 
-/* -------------------------------
-   UTILITY CLASSES
-   ------------------------------- */
-/* Card style */
-.card {
-    -fx-background-color: #313244;
-    -fx-border-color: #45475a;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-    -fx-padding: 16px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8, 0.2, 0, 2);
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 16px 20px;
+    -fx-background-radius: 0;
 }
 
-/* Centering helper */
-.text-center {
+.table-view .column-header .label {
+    -fx-text-fill: -fx-catppuccin-mocha-subtext1;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+    -fx-alignment: center-left;
+    -fx-padding: 0;
+}
+
+.table-view .column-header:hover {
+    -fx-background-color: rgba(186, 194, 222, 0.05);
+}
+
+/* Column separators */
+.table-view .column-header .separator {
+    -fx-background-color: -fx-catppuccin-mocha-surface1;
+    -fx-pref-width: 1px;
+}
+
+/* Corner styling */
+.table-view .corner-button {
+    -fx-background-color: -fx-catppuccin-mocha-surface0;
+    -fx-background-radius: 12px 0 0 0;
+}
+
+/*=============================================================================
+5. Modern Row Styling
+=============================================================================*/
+.table-view .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-background-radius: 0;
+}
+
+.table-view .table-row-cell:even,
+.table-view .table-row-cell:odd {
+    -fx-background-color: rgba(49, 50, 68, 0.3);
+    -fx-border-color: -fx-catppuccin-mocha-surface1 transparent transparent transparent;
+}
+
+
+
+/* Hover effect */
+.table-view .table-row-cell:hover {
+    -fx-background-color: rgba(116, 199, 236, 0.08);
+    -fx-cursor: hand;
+}
+
+/* Selection styling */
+.table-view .table-row-cell:selected {
+    -fx-background-color: rgba(137, 180, 250, 0.15);
+    -fx-border-color: -fx-catppuccin-mocha-blue;
+    -fx-border-width: 0 0 0 3px;
+}
+
+.table-view .table-row-cell:selected:hover {
+    -fx-background-color: rgba(137, 180, 250, 0.2);
+}
+
+/*=============================================================================
+6. Modern Cell Styling
+=============================================================================*/
+.table-view .table-cell {
+    -fx-padding: 16px 20px;
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-catppuccin-mocha-text;
+    -fx-border-color: transparent;
+    -fx-alignment: center-left;
+    -fx-background-color: transparent;
+}
+
+/* First column styling */
+.table-view .table-cell:first-child {
+    -fx-padding: 16px 20px 16px 24px;
+}
+
+/* Last column styling */
+.table-view .table-cell:last-child {
+    -fx-padding: 16px 24px 16px 20px;
+}
+
+/*=============================================================================
+8. Enhanced Cell Content Styling
+=============================================================================*/
+.table-cell .label {
+    -fx-text-fill: -fx-catppuccin-mocha-text;
+    -fx-font-size: 14px;
+}
+
+/* Author cell styling */
+.author-cell {
+    -fx-text-fill: -fx-catppuccin-mocha-subtext1;
+    -fx-font-size: 13px;
+}
+
+/* Date cell styling */
+.date-cell {
+    -fx-text-fill: -fx-catppuccin-mocha-subtext0;
+    -fx-font-size: 13px;
+    -fx-font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", "JetBrains Mono", monospace;
+}
+
+/* Name cell styling - make it prominent */
+.name-cell {
+    -fx-text-fill: -fx-catppuccin-mocha-text;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+/*=============================================================================
+7. Modern Badge/Status Styling
+=============================================================================*/
+.label.badge {
+    -fx-background-radius: 12px;
+    -fx-padding: 6px 6px;
+    -fx-font-size: 11px;
+    -fx-font-weight: 400;
+    -fx-text-fill: black;
     -fx-alignment: center;
+    -fx-min-width: 70px;
+    -fx-pref-width: 85px;
+    -fx-max-width: 85px;
 }
 
-/* Spacing helpers */
-.mt-1 { -fx-padding: 8 0 0 0; }
-.mb-1 { -fx-padding: 0 0 8 0; }
-.p-1  { -fx-padding: 8; }
+/* Status badges */
+.badge-status-started {
+    -fx-background-color: -fx-catppuccin-mocha-red;
+}
+
+.badge-status-in_progress {
+    -fx-background-color: -fx-catppuccin-mocha-peach;
+}
+
+.badge-status-completed {
+    -fx-background-color: -fx-catppuccin-mocha-green;
+}
+
+.badge-status-waiting {
+    -fx-background-color: -fx-catppuccin-mocha-blue;
+}
+
+/* Type badges */
+.badge-type-owned {
+    -fx-background-color: -fx-catppuccin-mocha-lavender;
+}
+
+.badge-type-subscribed {
+    -fx-background-color: -fx-catppuccin-mocha-pink;
+}
+
+.badge-type-discover {
+    -fx-background-color: -fx-catppuccin-mocha-mauve;
+}
+
+
+/*=============================================================================
+9. Action Button Styling
+=============================================================================*/
+.action-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-catppuccin-mocha-blue;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.action-button:hover {
+    -fx-background-color: rgba(137, 180, 250, 0.1);
+    -fx-text-fill: -fx-catppuccin-mocha-lavender;
+}
+
+.action-button:pressed {
+    -fx-background-color: rgba(137, 180, 250, 0.2);
+}
+
+/*=============================================================================
+10. Enhanced Scrollbar Styling
+=============================================================================*/
+
+/* Base scrollbar container */
+.table-view .scroll-bar:vertical,
+.table-view .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-opacity: 0.6;
+    -fx-transition: -fx-opacity 0.2s ease;
+}
+
+/* Show scrollbar on hover */
+.table-view:hover .scroll-bar:vertical,
+.table-view:hover .scroll-bar:horizontal {
+    -fx-opacity: 1.0;
+}
+
+/* Scrollbar track */
+.table-view .scroll-bar .track {
+    -fx-background-color: derive(-fx-catppuccin-mocha-base, 5%);
+    -fx-border-color: transparent;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-background-insets: 2;
+    -fx-padding: 2;
+}
+
+/* Scrollbar thumb - default state */
+.table-view .scroll-bar .thumb {
+    -fx-background-color: -fx-catppuccin-mocha-surface1;
+    -fx-background-radius: 6px;
+    -fx-border-color: transparent;
+    -fx-border-radius: 6px;
+    -fx-background-insets: 1;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);
+    -fx-transition: -fx-background-color 0.15s ease, -fx-scale-x 0.15s ease, -fx-scale-y 0.15s ease;
+}
+
+/* Scrollbar thumb on hover */
+.table-view .scroll-bar .thumb:hover {
+    -fx-background-color: -fx-catppuccin-mocha-surface2;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+/* Scrollbar thumb when pressed */
+.table-view .scroll-bar .thumb:pressed {
+    -fx-background-color: -fx-catppuccin-mocha-overlay0;
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+/* Completely remove increment/decrement buttons */
+.table-view .scroll-bar .increment-button,
+.table-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-max-width: 0;
+    -fx-max-height: 0;
+    -fx-min-width: 0;
+    -fx-min-height: 0;
+    -fx-opacity: 0;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+}
+
+/* Hide arrow shapes inside buttons */
+.table-view .scroll-bar .increment-arrow,
+.table-view .scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-max-width: 0;
+    -fx-max-height: 0;
+    -fx-min-width: 0;
+    -fx-min-height: 0;
+    -fx-opacity: 0;
+    -fx-shape: null;
+}
+
+/* Target any remaining scrollbar button elements */
+.table-view .scroll-bar > .increment-button > .increment-arrow,
+.table-view .scroll-bar > .decrement-button > .decrement-arrow,
+.table-view .scroll-bar .up-button,
+.table-view .scroll-bar .down-button,
+.table-view .scroll-bar .left-button,
+.table-view .scroll-bar .right-button {
+    -fx-background-color: transparent !important;
+    -fx-border-color: transparent !important;
+    -fx-pref-width: 0 !important;
+    -fx-pref-height: 0 !important;
+    -fx-max-width: 0 !important;
+    -fx-max-height: 0 !important;
+    -fx-min-width: 0 !important;
+    -fx-min-height: 0 !important;
+    -fx-opacity: 0 !important;
+    -fx-padding: 0 !important;
+    -fx-background-insets: 0 !important;
+    -fx-border-insets: 0 !important;
+    -fx-shape: null !important;
+}
+
+/* Hide track ends that might show as dots */
+.table-view .scroll-bar .track-background {
+    -fx-background-color: transparent;
+}
+
+/* Ensure no white background on scrollbar */
+.table-view .scroll-bar {
+    -fx-background-color: transparent !important;
+    -fx-border-color: transparent !important;
+}
+
+/* Table header corner styling - this is likely the white dot! */
+.table-view .column-header-background .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header-background .show-hide-columns-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-max-width: 0;
+    -fx-max-height: 0;
+}
+
+.table-view .column-header-background .nested-column-header .arrow {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-shape: null;
+}
+
+/* Hide the corner button that appears at scrollbar intersection */
+.table-view .corner-button {
+    -fx-background-color: transparent !important;
+    -fx-border-color: transparent !important;
+    -fx-opacity: 0 !important;
+}
+
+/* Additional table header elements that might show as white dots */
+.table-view .table-header-row .nested-column-header-background {
+    -fx-background-color: transparent;
+}
+
+.table-view .table-header-row .column-drag-header {
+    -fx-background-color: transparent;
+}
+
+/* Vertical scrollbar specific styling */
+.table-view .scroll-bar:vertical {
+    -fx-pref-width: 12px;
+    -fx-min-width: 12px;
+    -fx-max-width: 12px;
+}
+
+.table-view .scroll-bar:vertical .thumb {
+    -fx-min-width: 8px;
+    -fx-pref-width: 8px;
+    -fx-max-width: 8px;
+}
+
+.table-view .scroll-bar:vertical .thumb:hover {
+    -fx-min-width: 10px;
+    -fx-pref-width: 10px;
+    -fx-max-width: 10px;
+}
+
+/* Horizontal scrollbar specific styling */
+.table-view .scroll-bar:horizontal {
+    -fx-pref-height: 12px;
+    -fx-min-height: 12px;
+    -fx-max-height: 12px;
+}
+
+.table-view .scroll-bar:horizontal .thumb {
+    -fx-min-height: 8px;
+    -fx-pref-height: 8px;
+    -fx-max-height: 8px;
+}
+
+.table-view .scroll-bar:horizontal .thumb:hover {
+    -fx-min-height: 10px;
+    -fx-pref-height: 10px;
+    -fx-max-height: 10px;
+}
+
+/* Corner where scrollbars meet */
+.table-view .corner {
+    -fx-background-color: derive(-fx-catppuccin-mocha-base, 5%);
+    -fx-background-radius: 0 0 8px 0;
+}
+
+/* Auto-hide scrollbars when not needed */
+.table-view .scroll-bar:disabled {
+    -fx-opacity: 0;
+}
+
+/* Smooth scrolling enhancement - if your JavaFX version supports it */
+.table-view {
+    -fx-smooth: true;
+}
+
+/*=============================================================================
+11. Empty Table Styling
+=============================================================================*/
+.table-view .placeholder .label {
+    -fx-text-fill: -fx-catppuccin-mocha-subtext0;
+    -fx-font-size: 14px;
+    -fx-font-style: italic;
+}
+
+/*=============================================================================
+12. Additional Cell Styling
+=============================================================================*/
+.size-label {
+    -fx-text-fill: -fx-catppuccin-mocha-subtext0;
+    -fx-font-size: 13px;
+    -fx-font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+}
+
+.date-label {
+    -fx-text-fill: -fx-catppuccin-mocha-subtext0;
+    -fx-font-size: 13px;
+}
+
