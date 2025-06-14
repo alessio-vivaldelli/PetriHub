@@ -1,41 +1,47 @@
 package it.petrinet.petrinet.view;
 
-import javafx.scene.layout.Pane;
-import atlantafx.base.theme.PrimerLight;
-import it.petrinet.petrinet.IllegalConnectionException;
-import it.petrinet.petrinet.builder.PetriNetBuilder;
-import it.petrinet.petrinet.model.Node;
-import it.petrinet.petrinet.model.PLACE_TYPE;
-import it.petrinet.petrinet.model.PetriNetModel;
-import it.petrinet.petrinet.model.Place;
-import it.petrinet.petrinet.model.TRANSITION_TYPE;
-import it.petrinet.petrinet.model.Transition;
-import it.petrinet.petrinet.persistance.pnml.PNMLSerializer;
-
-import com.brunomnsilva.smartgraph.graph.Vertex;
-import com.brunomnsilva.smartgraph.graphview.*;
-
-import javafx.application.Application;
-import javafx.geometry.Orientation;
-import javafx.geometry.Point2D;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Consumer;
 
 import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Graph;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import com.brunomnsilva.smartgraph.graph.Vertex;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
+
+import atlantafx.base.theme.PrimerLight;
+import it.petrinet.petrinet.IllegalConnectionException;
+import it.petrinet.petrinet.builder.PetriNetBuilder;
+import it.petrinet.petrinet.model.Node;
+import it.petrinet.petrinet.model.PetriNetModel;
+import it.petrinet.petrinet.model.Place;
+import it.petrinet.petrinet.model.TRANSITION_TYPE;
+import it.petrinet.petrinet.model.Transition;
+import it.petrinet.petrinet.persistance.pnml.PNMLSerializer;
+import javafx.animation.PauseTransition;
+import javafx.application.Application;
+import javafx.geometry.Point2D;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 public class PetriNetCreationPane extends Pane {
   private String currentNodeType = "transition"; // Default node type
@@ -43,6 +49,7 @@ public class PetriNetCreationPane extends Pane {
   private SmartGraphPanel<Node, String> graphView;
   private Vertex<Node> firstSelectedVertex = null; // For connection mode
   private Graph<Node, String> g; // The graph model
+  private ContentZoomScrollPane contentZoomScrollPane;
   //
   //
   private String name = "TEST";
@@ -51,6 +58,9 @@ public class PetriNetCreationPane extends Pane {
   private PetriNetBuilder petriNetBuilder;
 
   private Consumer<String> onPetriNetSaved = null;
+
+  private boolean firstStart = true; // To ensure the scene is initialized only IllegalConnectionException
+  private boolean initialized;
 
   public void setOnPetriNetSaved(Consumer<String> onPetriNetSaved) {
     this.onPetriNetSaved = onPetriNetSaved;
@@ -64,10 +74,24 @@ public class PetriNetCreationPane extends Pane {
     this.name = name;
     this.description = description;
 
-    start();
+    sceneProperty().addListener((_, _, newScene) -> {
+      if (newScene != null) {
+        newScene.windowProperty().addListener((_, _, newWindow) -> {
+          if (newWindow != null && !initialized) {
+            PauseTransition delay = new PauseTransition(Duration.millis(200));
+            delay.setOnFinished(event -> {
+              init();
+            });
+            delay.play();
+          }
+        });
+      }
+    });
+
+    this.setPrefSize(1920, 1080);
   }
 
-  private void start() {
+  public void start() {
 
     petriNetBuilder = new PetriNetBuilder(this.name);
 
@@ -173,6 +197,8 @@ public class PetriNetCreationPane extends Pane {
 
     // Set up canvas click action for creating new nodes (only in CREATE mode)
     graphView.setCanvasSingleClickAction(point -> {
+      System.out.println("Canvas clicked at: " + point + ", Transformed: "
+          + contentZoomScrollPane.transformFromContentToScaled(point));
       if (currentMode.equals("CREATE")) {
         // Create a new vertex at the clicked point using current node type
         // Prompt user for a unique node label using JavaFX
@@ -199,8 +225,10 @@ public class PetriNetCreationPane extends Pane {
             nodeLabel = tmpNodeLabel + " (copy)";
           }
         }
+        Point2D transformedPoint = contentZoomScrollPane.transformFromContentToScaled(point);
         Vertex<Node> newVertex = g
-            .insertVertex(createNode(nodeLabel, currentNodeType, new Point2D(point.getX(), point.getY())));
+            .insertVertex(createNode(nodeLabel, currentNodeType,
+                transformedPoint));
         graphView.updateAndWait();
 
         Vertex<Node> v = graphView.getModel().vertices().stream()
@@ -209,7 +237,7 @@ public class PetriNetCreationPane extends Pane {
         if (currentNodeType.equals("transition")) {
           graphView.getStylableVertex(v).setStyleClass("userTransition");
         }
-        graphView.setVertexPosition(v, point.getX(), point.getY());
+        graphView.setVertexPosition(v, transformedPoint.getX(), transformedPoint.getY());
 
         graphView.updateAndWait();
         graphView.update();
@@ -450,7 +478,7 @@ public class PetriNetCreationPane extends Pane {
       }
     });
 
-    ContentZoomScrollPane contentZoomScrollPane = new ContentZoomScrollPane(graphView);
+    contentZoomScrollPane = new ContentZoomScrollPane(graphView);
 
     graphView.setPrefHeight(700);
     HBox zoomControls = new HBox(10);
@@ -503,16 +531,9 @@ public class PetriNetCreationPane extends Pane {
 
     vBox.getChildren().addAll(contentZoomScrollPane, modeButtons, nodeTypeButtons, zoomControls, actionControls);
 
+    vBox.prefWidthProperty().bind(this.widthProperty());
+    vBox.prefHeightProperty().bind(this.heightProperty());
     this.getChildren().add(vBox);
-
-    // Initialize graph view
-    graphView.init();
-    // graphView.getStylableVertex(vElement_3).setStyleClass("svg_elem");
-
-    graphView.setAutomaticLayout(true);
-    graphView.setAutomaticLayout(false);
-
-    graphView.update();
   }
 
   public void init() {
@@ -525,6 +546,8 @@ public class PetriNetCreationPane extends Pane {
     graphView.setAutomaticLayout(false);
 
     graphView.update();
+    contentZoomScrollPane.zoomIn();
+
   }
 
   private void createArc(String from, String to) {

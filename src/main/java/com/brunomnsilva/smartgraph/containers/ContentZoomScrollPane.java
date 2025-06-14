@@ -199,6 +199,11 @@ public class ContentZoomScrollPane extends ScrollPane {
     setHbarPolicy(ScrollBarPolicy.NEVER);
   }
 
+  public Point2D transformFromContentToScaled(Point2D point) {
+    double scale = content.getScaleX(); // Assumendo scala uniforme su X e Y
+    return new Point2D(point.getX() / scale, point.getY() / scale);
+  }
+
   public void zoomIn() {
     zoomContent(getViewportBounds().getMinX(), getViewportBounds().getMinY(), ZoomDirection.IN);
   }
@@ -225,6 +230,7 @@ public class ContentZoomScrollPane extends ScrollPane {
    * Performs the zoom (scaling) functionality.
    */
   private void zoomContent(double pivotX, double pivotY, ZoomDirection direction) {
+    System.out.println("Zooming " + direction + " at (" + pivotX + ", " + pivotY + ")");
     double previousScale = scaleFactorProperty.doubleValue();
     double nextScale = previousScale + direction.getValue() * deltaScaleFactor;
 
