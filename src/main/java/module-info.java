@@ -18,8 +18,8 @@ module it.petrinet {
     exports it.petrinet.view;
     opens it.petrinet.view to javafx.fxml;
     exports it.petrinet;
-    exports it.petrinet.model.Database;
-    opens it.petrinet.model.Database to javafx.fxml;
+    exports it.petrinet.model.database;
+    opens it.petrinet.model.database to javafx.fxml;
     exports it.petrinet.exceptions;
     opens it.petrinet.exceptions to javafx.fxml;
     requires atlantafx.base;

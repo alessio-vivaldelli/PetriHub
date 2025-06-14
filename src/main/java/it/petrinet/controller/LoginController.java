@@ -1,14 +1,11 @@
 package it.petrinet.controller;
 
-import it.petrinet.Main;
-import it.petrinet.Main.*;
 import it.petrinet.exceptions.InputTypeException;
-import it.petrinet.model.Database.UserDAO;
+import it.petrinet.model.database.UserDAO;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -16,9 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import java.net.URL;
 import java.util.Objects;
-import java.util.Optional;
 
 import static it.petrinet.utils.Validation.isValidInput;
 
@@ -66,10 +61,8 @@ public class LoginController {
                 proceedToMainView(event, user);
         }
         else{
-            System.out.println(UserDAO.getUserByUsername(username));
             showError("Invalid username or password");
         }
-
     }
 
     @FXML

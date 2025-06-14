@@ -1,10 +1,7 @@
 package it.petrinet.controller;
 
-import it.petrinet.controller.LoginController;
-
-import it.petrinet.Main;
 import it.petrinet.exceptions.InputTypeException;
-import it.petrinet.model.Database.UserDAO;
+import it.petrinet.model.database.UserDAO;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 import javafx.fxml.FXML;

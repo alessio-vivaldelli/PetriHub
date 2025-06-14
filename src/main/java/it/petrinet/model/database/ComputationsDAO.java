@@ -1,4 +1,4 @@
-package it.petrinet.model.Database;
+package it.petrinet.model.database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,7 +13,7 @@ public class ComputationsDAO implements DataAccessObject{
                 "timestamp TEXT NOT NULL, " +
                 "isComplete BOOLEAN NOT NULL)";
 
-        try (Connection connection = DatabaseManager.getUserDBConnection();
+        try (Connection connection = DatabaseManager.getComputationsDBConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(table);
         } catch (SQLException ex) {

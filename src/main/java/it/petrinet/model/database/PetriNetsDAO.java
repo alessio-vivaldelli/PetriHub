@@ -1,11 +1,9 @@
-package it.petrinet.model.Database;
+package it.petrinet.model.database;
 
 import it.petrinet.exceptions.ExceptionType;
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.PetriNet;
-import it.petrinet.model.User;
 
-import javax.swing.*;
 import java.sql.*;
 
 public class PetriNetsDAO implements DataAccessObject{

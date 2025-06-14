@@ -1,4 +1,4 @@
-package it.petrinet.model.Database;
+package it.petrinet.model.database;
 
 public interface DataAccessObject {
     final String typeErrorMessage = "Object input has wrong type!";

@@ -1,4 +1,4 @@
-package it.petrinet.model.Database;
+package it.petrinet.model.database;
 
 public class ComputationStepDAO {
 

@@ -1,10 +1,6 @@
-package it.petrinet.model.Database;
+package it.petrinet.model.database;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
+import java.sql.*;
 
 public class DatabaseManager {
     private static final String USER_DB_URL = "jdbc:sqlite:users.db";
@@ -21,8 +17,16 @@ public class DatabaseManager {
         return DriverManager.getConnection(PETRI_NETS_DB_URL);
     }
 
-    public static Connection getNotificationDBConnection() throws SQLException {
+    public static Connection getNotificationsDBConnection() throws SQLException {
         return DriverManager.getConnection(NOTIFICATIONS_DB_URL);
+    }
+
+    public static Connection getComputationsDBConnection() throws SQLException{
+        return DriverManager.getConnection(COMPUTATIONS_DB_URL);
+    }
+
+    public static Connection getComputationStepsDBConnection() throws SQLException{
+        return DriverManager.getConnection(COMPUTATION_STEPS_DB_URL);
     }
 
     protected static boolean tableExists(String file, String name) {

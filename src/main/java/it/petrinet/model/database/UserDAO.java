@@ -1,16 +1,12 @@
-package it.petrinet.model.Database;
+package it.petrinet.model.database;
 
 import it.petrinet.exceptions.ExceptionType;
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.User;
-import it.petrinet.view.ViewNavigator;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
-import it.petrinet.model.Database.DatabaseManager.*;
-import javafx.scene.chart.PieChart;
 
 public class UserDAO implements DataAccessObject{
 

@@ -12,7 +12,7 @@ public class Notification {
 
     public Notification() {
         this.sender= "sender";
-        this.recipient = "recipient";
+        this.recipient = "io";
         this.netId = 0;
         this.type = 0;
         this.title = "title";
