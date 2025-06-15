@@ -4,7 +4,7 @@ public class Notification {
 
     private String sender;
     private String recipient;
-    private int netId;
+    private String netId;
     private int type;
     private String title;
     private String text;
@@ -13,14 +13,14 @@ public class Notification {
     public Notification() {
         this.sender= "sender";
         this.recipient = "io";
-        this.netId = 0;
+        this.netId = "d";
         this.type = 0;
         this.title = "title";
         this.text = "text";
         this.timestamp = 000002025234501;
     }
 
-    public Notification(String sender, String recipient, int netId, int type, String title, String text, int timestamp) {
+    public Notification(String sender, String recipient, String netId, int type, String title, String text, int timestamp) {
         this.sender= sender;
         this.recipient = recipient;
         this.netId = netId;
@@ -39,7 +39,7 @@ public class Notification {
         return recipient;
     }
 
-    public int getNetId() {
+    public String getNetId() {
         return netId;
     }
 

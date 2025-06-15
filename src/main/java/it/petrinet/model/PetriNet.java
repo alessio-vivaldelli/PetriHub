@@ -1,10 +1,10 @@
 package it.petrinet.model;
 
 public class PetriNet {
-    private int netId;
     private String netName;
     private String XML_PATH;
     private String creatorId;
+    private int creationDate;
     private String imagePATH;
     private boolean isReady;
 
@@ -15,6 +15,10 @@ public class PetriNet {
 
     public String getCreatorId() {
         return creatorId;
+    }
+
+    public int getCreationDate() {
+        return creationDate;
     }
 
     public String getXML_PATH() {
@@ -28,9 +32,4 @@ public class PetriNet {
     public boolean isReady() {
         return isReady;
     }
-
-    public int getNetId() {
-        return netId;
-    }
-
 }

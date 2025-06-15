@@ -67,7 +67,6 @@ public class UserDAO implements DataAccessObject{
                     p_statement.setString(1, password);
                     p_statement.setBoolean(2, u.isAdmin());
                     p_statement.executeUpdate();
-                    connection.commit();
                 }
                 catch (SQLException e) {
                     e.printStackTrace();
@@ -82,24 +81,34 @@ public class UserDAO implements DataAccessObject{
         }
     }
 
-    public static void deleteUser(String username){
-        String command = "DELETE FROM users WHERE username = ?";
+    public static void deleteUser(Object user){
+        try{
+            if (user instanceof User u) {
+                String command = "DELETE FROM users WHERE username = ?";
 
-        try (Connection connection = DatabaseManager.getUserDBConnection();
-            PreparedStatement p_statement = connection.prepareStatement(command)){
-                p_statement.setString(1, username);
-                p_statement.executeUpdate();
+                try (Connection connection = DatabaseManager.getUserDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)){
+                    p_statement.setString(1, u.getUsername());
+                    p_statement.executeUpdate();
+                }
+                catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, ExceptionType.USER);
+            }
         }
-        catch (SQLException e) {
-            e.printStackTrace();
+        catch (InputTypeException e){
+            e.ErrorPrinter();
         }
     }
 
     public static User getUserByUsername(String username) {
-        String search_command = "SELECT * FROM users WHERE username = ? ";
+        String command = "SELECT * FROM users WHERE username = ? ";
 
         try (Connection connection = DatabaseManager.getUserDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(search_command)) {
+             PreparedStatement p_statement = connection.prepareStatement(command)) {
             p_statement.setString(1, username);
             ResultSet result = p_statement.executeQuery();
 
@@ -117,11 +126,11 @@ public class UserDAO implements DataAccessObject{
     }
 
     public static List<User> getUsersByPassword(String password) {
-        String search_command = "SELECT * FROM users WHERE password = ? ";
+        String command = "SELECT * FROM users WHERE password = ? ";
         List <User> filteredUsers = new ArrayList<User>();
 
         try (Connection connection = DatabaseManager.getUserDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(search_command)) {
+             PreparedStatement p_statement = connection.prepareStatement(command)) {
             p_statement.setString(1, password);
             ResultSet result = p_statement.executeQuery();
 

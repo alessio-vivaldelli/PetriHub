@@ -11,20 +11,12 @@ import java.util.List;
 
 public class NotificationsDAO implements DataAccessObject{
 
-    public static void main(String[] args) throws InputTypeException {
-        NotificationsDAO not = new NotificationsDAO();
-        Notification n = new Notification();
-//        insertNotification(n);
-        User u = new User("io", "e", true);
-
-    }
-
     public void createTable(){
         String table = "CREATE TABLE IF NOT EXISTS notifications (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "sender TEXT NOT NULL, " +
                 "recipient TEXT NOT NULL, " +
-                "netId INTEGER NOT NULL, " +
+                "netId TEXT NOT NULL, " +
                 "type INTEGER NOT NULL, " +
                 "title TEXT NOT NULL, " +
                 "text TEXT NOT NULL, " +
@@ -51,7 +43,7 @@ public class NotificationsDAO implements DataAccessObject{
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, not.getSender());
                     p_statement.setString(2, not.getRecipient());
-                    p_statement.setInt(3, not.getNetId());
+                    p_statement.setString(3, not.getNetId());
                     p_statement.setInt(4, not.getType());
                     p_statement.setString(5, not.getTitle());
                     p_statement.setString(6, not.getText());
@@ -75,7 +67,7 @@ public class NotificationsDAO implements DataAccessObject{
             if(net instanceof PetriNet pNet){
                 try (Connection connection = DatabaseManager.getNotificationsDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)){
-                    p_statement.setInt(1, pNet.getNetId());
+                    p_statement.setString(1, pNet.getNetName());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -133,7 +125,7 @@ public class NotificationsDAO implements DataAccessObject{
                         filteredNotifications.add(new Notification(
                                 result.getString("sender"),
                                 result.getString("recipient"),
-                                result.getInt("netId"),
+                                result.getString("netId"),
                                 result.getInt("type"),
                                 result.getString("title"),
                                 result.getString("text"),
@@ -171,7 +163,7 @@ public class NotificationsDAO implements DataAccessObject{
                         filteredNotifications.add(new Notification(
                                 result.getString("sender"),
                                 result.getString("recipient"),
-                                result.getInt("netId"),
+                                result.getString("netId"),
                                 result.getInt("type"),
                                 result.getString("title"),
                                 result.getString("text"),
@@ -192,10 +184,10 @@ public class NotificationsDAO implements DataAccessObject{
         return filteredNotifications;
     }
 
-    public List<Notification> getNotificationsbyType(Object type){
+    public List<Notification> getNotificationsByType(Object type){
         List<Notification> filteredNotifications = new ArrayList<Notification>();
 
-        String command = "SELECT FROM notifications WHERE type = ? ";
+        String command = "SELECT * FROM notifications WHERE type = ? ";
 
         try (Connection connection = DatabaseManager.getNotificationsDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) {
@@ -205,7 +197,7 @@ public class NotificationsDAO implements DataAccessObject{
                 filteredNotifications.add(new Notification(
                         result.getString("sender"),
                         result.getString("recipient"),
-                        result.getInt("netId"),
+                        result.getString("netId"),
                         result.getInt("type"),
                         result.getString("title"),
                         result.getString("text"),
@@ -231,7 +223,7 @@ public class NotificationsDAO implements DataAccessObject{
                         filteredNotifications.add(new Notification(
                                 result.getString("sender"),
                                 result.getString("recipient"),
-                                result.getInt("netId"),
+                                result.getString("netId"),
                                 result.getInt("type"),
                                 result.getString("title"),
                                 result.getString("text"),
