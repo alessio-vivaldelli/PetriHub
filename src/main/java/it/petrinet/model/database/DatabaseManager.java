@@ -30,8 +30,8 @@ public class DatabaseManager {
 //    }
 
     protected static boolean tableExists(String file, String name) {
-        String db_URL = "jdbc:sqlite:" + file + ".db";
-        if(!db_URL.equals(USER_DB_URL) & !db_URL.equals(PETRI_NETS_DB_URL)){
+        String db_URL = "jdbc:sqlite:" + file + ".db";      //TODO SI PUÒ USARE QUESTA STRINGA PER FORZARE I DATABASE IN UNA CARTELLA
+        if(!db_URL.equals(USER_DB_URL) & !db_URL.equals(PETRI_NETS_DB_URL) &!db_URL.equals(COMPUTATIONS_DB_URL) &!db_URL.equals(NOTIFICATIONS_DB_URL)){
             System.err.println("Unfindable database");
             return true;
         }
@@ -47,7 +47,7 @@ public class DatabaseManager {
         }
         catch (SQLException e) {
             System.err.println("Table Data gathering returned error:" + e.getMessage());
-            return false;
+            return true;
         }
         finally {
             try {
