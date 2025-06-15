@@ -11,13 +11,13 @@ public class Notification {
     private int timestamp;
 
     public Notification() {
-        this.sender= "sender";
+        this.sender= "sender2";
         this.recipient = "io";
         this.netId = "d";
-        this.type = 0;
-        this.title = "title";
+        this.type = 9;
+        this.title = "title2";
         this.text = "text";
-        this.timestamp = 000002025234501;
+        this.timestamp = 453435;
     }
 
     public Notification(String sender, String recipient, String netId, int type, String title, String text, int timestamp) {

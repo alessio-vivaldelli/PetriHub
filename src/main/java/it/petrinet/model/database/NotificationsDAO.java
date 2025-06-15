@@ -106,7 +106,7 @@ public class NotificationsDAO implements DataAccessObject{
 
     }
 
-    public List<Notification> getNotificationsBySender(Object sender) throws InputTypeException{
+    public static List<Notification> getNotificationsBySender(Object sender) throws InputTypeException{
         List <Notification> filteredNotifications = new ArrayList<Notification>();
         try{
             if(sender instanceof User user) {
@@ -145,7 +145,7 @@ public class NotificationsDAO implements DataAccessObject{
         return filteredNotifications;
     }
 
-    public List<Notification> getNotificationsByRecipient(Object recipient) throws InputTypeException{
+    public static List<Notification> getNotificationsByRecipient(Object recipient) throws InputTypeException{
         List<Notification> filteredNotifications = new ArrayList<Notification>();
         try{
             if(recipient instanceof User user) {
@@ -184,32 +184,42 @@ public class NotificationsDAO implements DataAccessObject{
         return filteredNotifications;
     }
 
-    public List<Notification> getNotificationsByType(Object type){
+    public static List<Notification> getNotificationsByType(Object type){
         List<Notification> filteredNotifications = new ArrayList<Notification>();
+        try{
+            if(type instanceof Integer t){
+                String command = "SELECT * FROM notifications WHERE type = ? ";
 
-        String command = "SELECT * FROM notifications WHERE type = ? ";
-
-        try (Connection connection = DatabaseManager.getNotificationsDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command)) {
-            p_statement.setString(1, (String) type);
-            ResultSet result = p_statement.executeQuery();
-            while(result.next()){
-                filteredNotifications.add(new Notification(
-                        result.getString("sender"),
-                        result.getString("recipient"),
-                        result.getString("netId"),
-                        result.getInt("type"),
-                        result.getString("title"),
-                        result.getString("text"),
-                        result.getInt("timestamp")));
+                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+                    p_statement.setInt(1, t);
+                    ResultSet result = p_statement.executeQuery();
+                    while(result.next()){
+                        filteredNotifications.add(new Notification(
+                                result.getString("sender"),
+                                result.getString("recipient"),
+                                result.getString("netId"),
+                                result.getInt("type"),
+                                result.getString("title"),
+                                result.getString("text"),
+                                result.getInt("timestamp")));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            else{
+                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+            }
         }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+
         return filteredNotifications;
     }
 
-    public List<Notification> getNotificationsByTimestamp(Object timestamp) throws InputTypeException{
+    public static List<Notification> getNotificationsByTimestamp(Object timestamp) throws InputTypeException{
         List<Notification> filteredNotifications = new ArrayList<Notification>();
         try{
             if(timestamp instanceof Integer time){

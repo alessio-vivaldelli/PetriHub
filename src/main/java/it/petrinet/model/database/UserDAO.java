@@ -10,10 +10,10 @@ import java.util.List;
 
 public class UserDAO implements DataAccessObject{
 
-//    public static void main(String[] args) throws InputTypeException {
-//        User davide = new User("davide", "davide", false);
-//        modifyUserPassword(davide, "sala");
-//    }
+    public static void main(String[] args) throws InputTypeException {
+        User davide = new User("io", "no", false);
+        insertUser(davide);
+    }
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS users (" +
                 "username TEXT PRIMARY KEY, " +

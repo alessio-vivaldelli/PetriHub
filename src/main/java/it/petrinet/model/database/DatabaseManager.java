@@ -3,10 +3,10 @@ package it.petrinet.model.database;
 import java.sql.*;
 
 public class DatabaseManager {
-    private static final String USER_DB_URL = "jdbc:sqlite:users.db";
-    private static final String PETRI_NETS_DB_URL = "jdbc:sqlite:nets.db";
-    private static final String NOTIFICATIONS_DB_URL = "jdbc:sqlite:notifications.db";
-    private static final String COMPUTATIONS_DB_URL = "jdbc:sqlite:computations.db";
+    private static final String USER_DB_URL = "jdbc:sqlite:database/users.db";
+    private static final String PETRI_NETS_DB_URL = "jdbc:sqlite:database/nets.db";
+    private static final String NOTIFICATIONS_DB_URL = "jdbc:sqlite:database/notifications.db";
+    private static final String COMPUTATIONS_DB_URL = "jdbc:sqlite:database/computations.db";
 //    private static final String COMPUTATION_STEPS_DB_URL = "jdbc:sqlite:steps.db";
 
     public static Connection getUserDBConnection() throws SQLException {
@@ -30,7 +30,7 @@ public class DatabaseManager {
 //    }
 
     protected static boolean tableExists(String file, String name) {
-        String db_URL = "jdbc:sqlite:" + file + ".db";      //TODO SI PUÒ USARE QUESTA STRINGA PER FORZARE I DATABASE IN UNA CARTELLA
+        String db_URL = "jdbc:sqlite:database/" + file + ".db";      //TODO SI PUÒ USARE QUESTA STRINGA PER FORZARE I DATABASE IN UNA CARTELLA
         if(!db_URL.equals(USER_DB_URL) & !db_URL.equals(PETRI_NETS_DB_URL) &!db_URL.equals(COMPUTATIONS_DB_URL) &!db_URL.equals(NOTIFICATIONS_DB_URL)){
             System.err.println("Unfindable database");
             return true;
