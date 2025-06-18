@@ -2,9 +2,12 @@ package it.petrinet.model.database;
 
 import it.petrinet.exceptions.ExceptionType;
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
+import it.petrinet.model.User;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Manifest;
 
@@ -13,7 +16,7 @@ public class PetriNetsDAO implements DataAccessObject{
     public void createTable() {
         String table = "CREATE TABLE IF NOT EXISTS petri_nets (" +
                 "netName TEXT PRIMARY KEY, " +
-                "creatorId INTEGER NOT NULL, " +
+                "creatorId TEXT NOT NULL, " +
                 "creationDate INTEGER NOT NULL, " +
                 "XML_PATH TEXT NOT NULL, " +
                 "image_PATH TEXT NOT NULL, " +
@@ -124,6 +127,72 @@ public class PetriNetsDAO implements DataAccessObject{
         }
     }
 
+    public static List<PetriNet> getNetsByCreator(Object admin) throws InputTypeException{
+        List<PetriNet> wantedNets = new ArrayList<PetriNet>();
+        try{
+            if(admin instanceof User u){
+                String command = "SELECT * FROM petri_nets WHERE creatorId = ?";
+                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                     PreparedStatement p_Statement = connection.prepareStatement(command)){
+                    p_Statement.setString(1, u.getUsername());
+                    ResultSet result = p_Statement.executeQuery();
+                    while(result.next()){
+                        wantedNets.add( new PetriNet(
+                                result.getString(1),
+                                result.getString(2),
+                                result.getInt(3),
+                                result.getString(4),
+                                result.getString(5),
+                                result.getBoolean(6)
+                        ));
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return wantedNets;
+    }
 
+    public static PetriNet getNetByName(Object name) throws InputTypeException{
+        try{
+            if(name instanceof String n){
+                String command = "SELECT * FROM petri_nets WHERE netName = ?";
+
+                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                     PreparedStatement p_Statement = connection.prepareStatement(command)){
+                    p_Statement.setString(1, n);
+                    ResultSet result = p_Statement.executeQuery();
+                    if(result.next()){
+                        return new PetriNet(
+                                result.getString(1),
+                                result.getString(2),
+                                result.getInt(3),
+                                result.getString(4),
+                                result.getString(5),
+                                result.getBoolean(6)
+                        );
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return null;
+    }
 }
 

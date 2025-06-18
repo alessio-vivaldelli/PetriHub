@@ -344,7 +344,6 @@ public class ComputationsDAO implements DataAccessObject{
         catch(InputTypeException e){
             e.ErrorPrinter();
         }
-
         return wantedComputations;
     }
 
