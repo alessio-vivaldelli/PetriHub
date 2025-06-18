@@ -13,19 +13,24 @@ import java.util.List;
 
 public class ComputationsDAO implements DataAccessObject{
 
+    public static void main(String args[]) throws InputTypeException {
+        Computation c = new Computation("piero", "davide", "ddd", 2);
+        insertComputation(c);
+    }
 
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS computations (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "netId TEXT NOT NULL, " +
                 "creatorId TEXT NOT NULL, " +
                 "userId TEXT NOT NULL," +
                 "startDate INTEGER NOT NULL, " +
-                "endDate INTEGER, " +
-                "PRIMARY KEY(netId, creatorId, userId))";
+                "endDate INTEGER," +
+                "UNIQUE (netId, userId, creatorId))";
 
         try (Connection connection = DatabaseManager.getComputationsDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute(table);
+            statement.executeUpdate(table);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -49,6 +54,63 @@ public class ComputationsDAO implements DataAccessObject{
                     if(c.getEndDate()!= -1){
                         p_Statement.setInt(5, c.getEndDate());
                     }
+                    p_Statement.executeUpdate();
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+    }
+
+    public static Computation getComputationById(Object id)throws InputTypeException{
+        try{
+            if(id instanceof Integer i){
+                String command = "SELECT * FROM computations WHERE id = ?";
+
+                try (Connection connection = DatabaseManager.getComputationsDBConnection();
+                     PreparedStatement p_Statement = connection.prepareStatement(command)){
+                    p_Statement.setInt(1, i);
+                    ResultSet result = p_Statement.executeQuery();
+
+                    if(result.next()){
+                        return new Computation(
+                            result.getString(1),
+                            result.getString(2),
+                            result.getString(3),
+                            result.getInt(4),
+                            result.getInt(5)
+                        );
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return null;
+    }
+
+    public static void deleteComputationById(Object id) throws InputTypeException{
+        try{
+            if(id instanceof Integer i){
+                String command = "DELETE FROM computations WHERE id = ?";
+
+                try (Connection connection = DatabaseManager.getComputationsDBConnection();
+                     PreparedStatement p_Statement = connection.prepareStatement(command)){
+                    p_Statement.setInt(1, i);
                     p_Statement.executeUpdate();
                 }
                 catch(SQLException ex){
@@ -188,24 +250,52 @@ public class ComputationsDAO implements DataAccessObject{
         return wantedComputations;
     }
 
-    public static Computation getComputationsByUser(Object user) throws InputTypeException{
+    public static int getIdByComputation(Object computation) throws InputTypeException{
+        try {
+            if (computation instanceof Computation c) {
+                String command = "SELECT id FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
+
+                try (Connection connection = DatabaseManager.getComputationsDBConnection();
+                     PreparedStatement p_Statement = connection.prepareStatement(command)) {
+                    p_Statement.setString(1, c.getNetId());
+                    p_Statement.setString(2, c.getCreatorId());
+                    p_Statement.setString(3,c.getUserId());
+                    ResultSet result = p_Statement.executeQuery();
+
+                    if(result.next()){
+                        return result.getInt(1);
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+                e.ErrorPrinter();
+        }
+        return -1;
+    }
+
+    public static List<Computation> getComputationsByUser(Object user) throws InputTypeException{
+        List<Computation> wantedComputations = new ArrayList<Computation>();
         try{
             if(user instanceof User u){
-                String command = "SELECT * FROM computations WHERE userId = ?";
+                String command = "SELECT * FROM computations WHERE creatorId = ?";
 
                 try (Connection connection = DatabaseManager.getComputationsDBConnection();
                      PreparedStatement p_Statement = connection.prepareStatement(command)){
                     p_Statement.setString(1, u.getUsername());
                     ResultSet result = p_Statement.executeQuery();
-
-                    if(result.next()){
-                        return new Computation(
+                    while(result.next()){
+                        wantedComputations.add( new Computation(
                                 result.getString(1),
                                 result.getString(2),
                                 result.getString(3),
                                 result.getInt(4),
                                 result.getInt(5)
-                        );
+                        ));
                     }
                 }
                 catch(SQLException ex){
@@ -220,10 +310,46 @@ public class ComputationsDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
 
-        return null;
+        return wantedComputations;
     }
 
-    public static Computation getComputationByAdminAndUser(Object user, Object admin) throws InputTypeException{
+    public static List<Computation> getComputationsByAdmin(Object user) throws InputTypeException{
+        List<Computation> wantedComputations = new ArrayList<Computation>();
+        try{
+            if(user instanceof User u){
+                String command = "SELECT * FROM computations WHERE Id = ?";
+
+                try (Connection connection = DatabaseManager.getComputationsDBConnection();
+                     PreparedStatement p_Statement = connection.prepareStatement(command)){
+                    p_Statement.setString(1, u.getUsername());
+                    ResultSet result = p_Statement.executeQuery();
+                    while(result.next()){
+                        wantedComputations.add( new Computation(
+                                result.getString(1),
+                                result.getString(2),
+                                result.getString(3),
+                                result.getInt(4),
+                                result.getInt(5)
+                        ));
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+
+        return wantedComputations;
+    }
+
+    public static List<Computation> getComputationsByAdminAndUser(Object user, Object admin) throws InputTypeException{
+        List<Computation> wantedComputations = new ArrayList<Computation>();
         try{
             if(user instanceof User u){
                 if(admin instanceof User a) {
@@ -235,14 +361,14 @@ public class ComputationsDAO implements DataAccessObject{
                         p_Statement.setString(1, a.getUsername());
                         ResultSet result = p_Statement.executeQuery();
 
-                        if (result.next()) {
-                            return new Computation(
+                        while (result.next()) {
+                            wantedComputations.add( new Computation(
                                     result.getString(1),
                                     result.getString(2),
                                     result.getString(3),
                                     result.getInt(4),
                                     result.getInt(5)
-                            );
+                            ));
                         }
                     } catch (SQLException ex) {
                         ex.printStackTrace();
@@ -259,6 +385,6 @@ public class ComputationsDAO implements DataAccessObject{
         catch(InputTypeException e){
             e.ErrorPrinter();
         }
-        return null;
+        return wantedComputations;
     }
 }

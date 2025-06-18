@@ -30,7 +30,6 @@ public class Notification {
         this.timestamp = timestamp;
     }
 
-
     public String getSender() {
         return sender;
     }

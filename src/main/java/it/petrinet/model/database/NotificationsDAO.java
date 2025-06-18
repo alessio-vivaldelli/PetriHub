@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationsDAO implements DataAccessObject{
+    public static void main(String args[]) throws InputTypeException {
+        Notification not = new Notification();
+        insertNotification(not);
+    }
 
     public void createTable(){
         String table = "CREATE TABLE IF NOT EXISTS notifications (" +
@@ -20,7 +24,8 @@ public class NotificationsDAO implements DataAccessObject{
                 "type INTEGER NOT NULL, " +
                 "title TEXT NOT NULL, " +
                 "text TEXT NOT NULL, " +
-                "timestamp INTEGER NOT NULL)";
+                "timestamp INTEGER NOT NULL," +
+                "UNIQUE(sender, recipient, timestamp))";
         ;
         try (Connection conn = DatabaseManager.getNotificationsDBConnection();
              Statement statement = conn.createStatement()) {
@@ -251,6 +256,61 @@ public class NotificationsDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
         return filteredNotifications;
+    }
+
+    public static User getRecipientByNotification(Object notification) throws InputTypeException{
+        try {
+            if (notification instanceof Notification not) {
+                String command = "SELECT userId FROM notifications WHERE id = ?";
+
+                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+                    p_statement.setInt(1,NotificationsDAO.getIdByNotification(not));
+                    ResultSet result = p_statement.executeQuery();
+
+                    if(result.next()){
+                        return UserDAO.getUserByUsername(result.getString(1));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return null;
+    }
+
+    public static int getIdByNotification(Object notification) throws InputTypeException{
+        try {
+            if (notification instanceof Notification not) {
+                String command = "SELECT id FROM notifications WHERE sender = and recipient = ? and timestamp = ?";
+
+                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+                    p_statement.setString(1,not.getSender());
+                    p_statement.setString(2, not.getRecipient());
+                    p_statement.setInt(3, not.getTimestamp());
+                    ResultSet result = p_statement.executeQuery();
+
+                    if(result.next()){
+                        return result.getInt(1);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            } else {
+                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return -1;
     }
 
 }

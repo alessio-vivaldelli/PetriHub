@@ -5,6 +5,7 @@ import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.PetriNet;
 
 import java.sql.*;
+import java.util.List;
 import java.util.jar.Manifest;
 
 public class PetriNetsDAO implements DataAccessObject{
@@ -122,5 +123,7 @@ public class PetriNetsDAO implements DataAccessObject{
                 e.ErrorPrinter();
         }
     }
+
+
 }
 
