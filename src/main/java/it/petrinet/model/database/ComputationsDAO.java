@@ -386,4 +386,33 @@ public class ComputationsDAO implements DataAccessObject{
         }
         return wantedComputations;
     }
+
+    public static List<User> getSubscribedUsersByNet(Object p_net){
+        List<User> subscribedUsers = new ArrayList<User>();
+        try{
+            if(p_net instanceof PetriNet net){
+                String command = "SELECT userId FROM computations WHERE netId = ?";
+
+                try (Connection connection = DatabaseManager.getComputationsDBConnection();
+                     PreparedStatement p_Statement = connection.prepareStatement(command)){
+                    p_Statement.setString(1, net.getNetName());
+                    ResultSet result = p_Statement.executeQuery();
+                    while(result.next()){
+                        subscribedUsers.add(UserDAO.getUserByUsername(result.getString(1))
+                        );
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return subscribedUsers;
+    }
 }
