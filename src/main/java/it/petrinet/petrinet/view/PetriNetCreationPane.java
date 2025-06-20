@@ -44,8 +44,30 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 public class PetriNetCreationPane extends Pane {
-  private String currentNodeType = "transition"; // Default node type
-  private String currentMode = "CREATE"; // CREATE, CONNECT, SELECTION, or DELETION
+
+  public enum MODE {
+    CREATE, CONNECT, SELECTION, DELETION
+  }
+
+  public enum NODE_TYPE {
+    PLACE,
+    TRANSITION,;
+
+    @Override
+    public String toString() {
+      switch (this) {
+        case PLACE:
+          return "circle";
+        case TRANSITION:
+          return "transition";
+        default:
+          return super.toString();
+      }
+    }
+  }
+
+  private NODE_TYPE currentNodeType = NODE_TYPE.TRANSITION; // Default node type
+  private MODE currentMode = MODE.CREATE; // CREATE, CONNECT, SELECTION, or DELETION
   private SmartGraphPanel<Node, String> graphView;
   private Vertex<Node> firstSelectedVertex = null; // For connection mode
   private Graph<Node, String> g; // The graph model
@@ -67,20 +89,63 @@ public class PetriNetCreationPane extends Pane {
     this.onPetriNetSaved = onPetriNetSaved;
   }
 
-  public void setCurrentMode(String mode) {
+  public void setCurrentMode(MODE mode) {
     this.currentMode = mode;
   }
 
-  public String getCurrentMode() {
+  public MODE getCurrentMode() {
     return currentMode;
   }
 
-  public String getCurrentNodeType() {
+  public NODE_TYPE getCurrentNodeType() {
     return currentNodeType;
   }
 
-  public void setCurrentNodeType(String currentNodeType) {
+  public void setCurrentNodeType(NODE_TYPE currentNodeType) {
     this.currentNodeType = currentNodeType;
+  }
+
+  public void saveNetAction() {
+    showMessage(AlertType.CONFIRMATION, "Save Petri Net",
+        "Save Confirmation", "Do you want to save the Petri Net?").ifPresent((response) -> {
+          if (response.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+            System.out.println("Saving Petri Net...");
+          } else {
+            System.out.println("Save cancelled.");
+            return; // Exit if user cancels
+          }
+        });
+    PetriNetModel model = null;
+    try {
+      prepareNodes(); // Ensure all nodes have their positions set
+      model = petriNetBuilder.build();
+      serializePetriNet(model);
+      if (onPetriNetSaved != null)
+        onPetriNetSaved.accept(model.getName());
+    } catch (IllegalConnectionException e1) {
+      System.out.println("Error building model");
+
+      e1.printStackTrace();
+      String errorMessage = e1.getMessage();
+      showMessage(AlertType.ERROR, "Error", "Connection Error", errorMessage);
+      System.out.println("Error building model: " + errorMessage);
+    }
+  }
+
+  public void zoomInAction() {
+    System.out.println("Zoom in, current scale: " +
+        contentZoomScrollPane.scaleFactorProperty().get());
+    contentZoomScrollPane.zoomIn();
+  }
+
+  public void zoomOutAction() {
+    System.out.println("Zoom out, current scale: " +
+        contentZoomScrollPane.scaleFactorProperty().get());
+    contentZoomScrollPane.zoomOut();
+  }
+
+  public double getZoomLevel() {
+    return contentZoomScrollPane.scaleFactorProperty().get();
   }
 
   public PetriNetCreationPane(String name, String description, boolean testMode) {
@@ -141,7 +206,7 @@ public class PetriNetCreationPane extends Pane {
     // Handle mode toggle actions
     createModeButton.setOnAction(e -> {
       if (createModeButton.isSelected()) {
-        currentMode = "CREATE";
+        currentMode = MODE.CREATE;
         firstSelectedVertex = null; // Reset selection
         System.out.println("Mode: Create");
       }
@@ -149,7 +214,7 @@ public class PetriNetCreationPane extends Pane {
 
     connectModeButton.setOnAction(e -> {
       if (connectModeButton.isSelected()) {
-        currentMode = "CONNECT";
+        currentMode = MODE.CONNECT;
         firstSelectedVertex = null; // Reset selection
         System.out.println("Mode: Connection");
       }
@@ -157,7 +222,7 @@ public class PetriNetCreationPane extends Pane {
 
     selectionModeButton.setOnAction(e -> {
       if (selectionModeButton.isSelected()) {
-        currentMode = "SELECTION";
+        currentMode = MODE.SELECTION;
         firstSelectedVertex = null; // Reset selection
         System.out.println("Mode: Selection");
       }
@@ -165,7 +230,7 @@ public class PetriNetCreationPane extends Pane {
 
     deletionModeButton.setOnAction(e -> {
       if (deletionModeButton.isSelected()) {
-        currentMode = "DELETION";
+        currentMode = MODE.DELETION;
         firstSelectedVertex = null; // Reset selection
         System.out.println("Mode: Deletion");
       }
@@ -188,14 +253,14 @@ public class PetriNetCreationPane extends Pane {
     // Handle toggle button actions
     placeButton.setOnAction(e -> {
       if (placeButton.isSelected()) {
-        currentNodeType = "circle";
+        currentNodeType = NODE_TYPE.PLACE;
         System.out.println("Node Type: Place");
       }
     });
 
     transitionButton.setOnAction(e -> {
       if (transitionButton.isSelected()) {
-        currentNodeType = "transition";
+        currentNodeType = NODE_TYPE.TRANSITION;
         System.out.println("Node Type: Transition");
       }
     });
@@ -219,10 +284,10 @@ public class PetriNetCreationPane extends Pane {
     graphView.setCanvasSingleClickAction(point -> {
       System.out.println("Canvas clicked at: " + point + ", Transformed: "
           + contentZoomScrollPane.transformFromContentToScaled(point));
-      if (currentMode.equals("CREATE")) {
+      if (currentMode.equals(MODE.CREATE)) {
         // Create a new vertex at the clicked point using current node type
         // Prompt user for a unique node label using JavaFX
-        String baseLabel = !currentNodeType.equals("transition") ? "New Place" : "New Transition";
+        String baseLabel = !currentNodeType.equals(NODE_TYPE.TRANSITION) ? "New Place" : "New Transition";
         boolean unique = false;
         String nodeLabel = baseLabel;
 
@@ -248,14 +313,14 @@ public class PetriNetCreationPane extends Pane {
         // TODO: consider also panning
         Point2D transformedPoint = contentZoomScrollPane.transformFromContentToScaled(point);
         Vertex<Node> newVertex = g
-            .insertVertex(createNode(nodeLabel, currentNodeType,
+            .insertVertex(createNode(nodeLabel, currentNodeType.toString(),
                 transformedPoint));
         graphView.updateAndWait();
 
         Vertex<Node> v = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == newVertex).findFirst().orElse(null);
 
-        if (currentNodeType.equals("transition")) {
+        if (currentNodeType.equals(NODE_TYPE.TRANSITION)) {
           graphView.getStylableVertex(v).setStyleClass("userTransition");
         }
         graphView.setVertexPosition(v, transformedPoint.getX(), transformedPoint.getY());
@@ -267,7 +332,7 @@ public class PetriNetCreationPane extends Pane {
 
     // Set up edge click action for deletion mode
     graphView.setEdgeSingleClickAction(edge -> {
-      if (currentMode.equals("DELETION")) {
+      if (currentMode.equals(MODE.DELETION)) {
         var element = graphView.getModel().edges().stream()
             .filter(e -> e == edge.getUnderlyingEdge()).findFirst().orElse(null);
         if (element != null) {
@@ -285,7 +350,7 @@ public class PetriNetCreationPane extends Pane {
     // Set up vertex right click action for selection mode
     graphView.setVertexRightClickAction(vertex -> {
       // If u are in create mode, u delete the vertex
-      if (currentMode.equals("CREATE")) {
+      if (currentMode.equals(MODE.CREATE)) {
         Vertex<Node> element = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
         if (element != null) {
@@ -295,7 +360,7 @@ public class PetriNetCreationPane extends Pane {
         }
         return; // Exit early if in CREATE mode
       }
-      if (currentMode.equals("SELECTION")) {
+      if (currentMode.equals(MODE.SELECTION)) {
         Vertex<Node> element = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
 
@@ -434,7 +499,7 @@ public class PetriNetCreationPane extends Pane {
 
     // Set up vertex click action for connections
     graphView.setVertexSingleClickAction(vertex -> {
-      if (currentMode.equals("CONNECT")) {
+      if (currentMode.equals(MODE.CONNECT)) {
         Vertex<Node> element = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
         if (firstSelectedVertex == null) {
@@ -479,11 +544,11 @@ public class PetriNetCreationPane extends Pane {
           }
           firstSelectedVertex = null; // Reset selection
         }
-      } else if (currentMode.equals("SELECTION")) {
+      } else if (currentMode.equals(MODE.SELECTION)) {
         // In SELECTION mode, show vertex info on left click
         System.out.println("Selected: " + vertex.getStylableLabel());
         System.out.println("------");
-      } else if (currentMode.equals("DELETION")) {
+      } else if (currentMode.equals(MODE.DELETION)) {
         // In DELETION mode, delete the vertex on left click
         Vertex<Node> element = graphView.getModel().vertices().stream()
             .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
@@ -532,45 +597,6 @@ public class PetriNetCreationPane extends Pane {
     vBox.prefWidthProperty().bind(this.widthProperty());
     vBox.prefHeightProperty().bind(this.heightProperty());
     this.getChildren().add(vBox);
-  }
-
-  public void saveNetAction() {
-    showMessage(AlertType.CONFIRMATION, "Save Petri Net",
-        "Save Confirmation", "Do you want to save the Petri Net?").ifPresent((response) -> {
-          if (response.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-            System.out.println("Saving Petri Net...");
-          } else {
-            System.out.println("Save cancelled.");
-            return; // Exit if user cancels
-          }
-        });
-    PetriNetModel model = null;
-    try {
-      prepareNodes(); // Ensure all nodes have their positions set
-      model = petriNetBuilder.build();
-      serializePetriNet(model);
-      if (onPetriNetSaved != null)
-        onPetriNetSaved.accept(model.getName());
-    } catch (IllegalConnectionException e1) {
-      System.out.println("Error building model");
-
-      e1.printStackTrace();
-      String errorMessage = e1.getMessage();
-      showMessage(AlertType.ERROR, "Error", "Connection Error", errorMessage);
-      System.out.println("Error building model: " + errorMessage);
-    }
-  }
-
-  public void zoomInAction() {
-    System.out.println("Zoom in, current scale: " +
-        contentZoomScrollPane.scaleFactorProperty().get());
-    contentZoomScrollPane.zoomIn();
-  }
-
-  public void zoomOutAction() {
-    System.out.println("Zoom out, current scale: " +
-        contentZoomScrollPane.scaleFactorProperty().get());
-    contentZoomScrollPane.zoomOut();
   }
 
   public void init() {
