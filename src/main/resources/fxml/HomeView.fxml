@@ -1,30 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import it.petrinet.view.components.NavBar?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="it.petrinet.controller.HomeController"
-            maxHeight="Infinity" maxWidth="Infinity">
+            style="-fx-background-color: #1E1E2E;">
 
+    <!-- Top: Header with welcome and New Net button -->
     <top>
-        <NavBar />
+        <HBox spacing="10"
+              style="-fx-padding: 20; -fx-background-color: #313244; -fx-background-radius: 12;">
+            <Label fx:id="userNameLabel"
+                   text="Welcome, Guest!"
+                   style="-fx-text-fill: #cdd6f4; -fx-font-size: 30; -fx-font-weight: bold;"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+        </HBox>
     </top>
 
+    <!-- Center: Modern Layout -->
     <center>
-        <VBox alignment="CENTER" spacing="20.0">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+        <VBox spacing="24" style="-fx-padding: 50 70 10 30;">
 
-            <Label text="Benvenuto nella Home Page"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <Label text="Seleziona un'opzione dalla barra di navigazione per iniziare"
-                   style="-fx-font-size: 16px;"/>
+            <!-- Table Section Header -->
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Recent Nets"
+                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <!-- Table Container - The PetriNetTableComponent will be added here programmatically -->
+        <VBox styleClass="modern-table-container" maxWidth="Infinity" prefHeight="272">
+            <VBox fx:id="tableContainer"/>
+        </VBox>
+
+            <!-- Quick Stats Section -->
+<Label text="Quick Stats"
+              style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold; -fx-padding: 25 0 0 0"/>
+
+            <HBox spacing="20">
+                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleOwnedNetsClick"
+                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
+                    <Label text="Owned Nets"
+                           style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
+                    <Label fx:id="ownedNetsLabel"
+                           style="-fx-text-fill: #cdd6f4; -fx-font-size: 32; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleSubscribedNetsClick"
+                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
+                    <Label text="Subscribed Nets"
+                           style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
+                    <Label fx:id="subscribedNetsLabel"
+                           style="-fx-text-fill: #cdd6f4; -fx-font-size: 32; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleDiscoverableNetsClick"
+                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
+                    <Label text="Discoverable Nets"
+                           style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
+                    <Label fx:id="discoverableNetsLabel"
+                           style="-fx-text-fill: #cdd6f4; -fx-font-size: 32; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- TODO: lista notifiche-->
+
+            <!-- Activity Feed Section -->
+            <Label text="Activity Feed"
+                   style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold;"/>
+            <VBox style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
+                <VBox.margin>
+                    <Insets bottom="16"/>
+                </VBox.margin>
+
+                <ScrollPane fitToWidth="true"
+                            prefHeight="200"
+                            style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox fx:id="activityFeedContainer" spacing="12">
+
+                        <!-- Sample Activity Items -->
+                        <HBox spacing="12" style="-fx-padding: 12; -fx-background-color: #45475a; -fx-background-radius: 8;">
+                            <Region style="-fx-background-color: #89b4fa; -fx-background-radius: 8; -fx-pref-width: 32; -fx-pref-height: 32;"/>
+                            <VBox spacing="2">
+                                <Label text="Net Manufacturing Process Flow modified"
+                                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 14; -fx-font-weight: 500;"/>
+                                <Label text="2024-03-10, 10:32 AM"
+                                       style="-fx-text-fill: #bac2de; -fx-font-size: 12;"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="12" style="-fx-padding: 12; -fx-background-color: #45475a; -fx-background-radius: 8;">
+                            <Region style="-fx-background-color: #a6e3a1; -fx-background-radius: 8; -fx-pref-width: 32; -fx-pref-height: 32;"/>
+                            <VBox spacing="2">
+                                <Label text="Simulation run on Net Supply Chain Logistics"
+                                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 14; -fx-font-weight: 500;"/>
+                                <Label text="2024-03-09, 03:15 PM"
+                                       style="-fx-text-fill: #bac2de; -fx-font-size: 12;"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="12" style="-fx-padding: 12; -fx-background-color: #45475a; -fx-background-radius: 8;">
+                            <Region style="-fx-background-color: #f9e2af; -fx-background-radius: 8; -fx-pref-width: 32; -fx-pref-height: 32;"/>
+                            <VBox spacing="2">
+                                <Label text="Analysis performed on Net Server Request Model"
+                                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 14; -fx-font-weight: 500;"/>
+                                <Label text="2024-03-07, 09:00 AM"
+                                       style="-fx-text-fill: #bac2de; -fx-font-size: 12;"/>
+                            </VBox>
+                        </HBox>
+
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+
         </VBox>
     </center>
+
 </BorderPane>

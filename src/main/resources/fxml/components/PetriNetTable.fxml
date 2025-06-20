@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml">
+
+    <!-- Modern TableView Container -->
+    <VBox>
+        <TableView fx:id="tableView"
+                   VBox.vgrow="ALWAYS"
+                     prefHeight="1220"
+                   style="-fx-background-color: transparent;">
+
+            <columns>
+                <!-- Type Column -->
+                <TableColumn fx:id="typeCol" text="TYPE" prefWidth="120" minWidth="100" reorderable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="type"/>
+                    </cellValueFactory>
+                </TableColumn>
+
+                <!-- Name Column -->
+                <TableColumn fx:id="nameCol" text="NOME" prefWidth="250" minWidth="200" reorderable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="Name"/>
+                    </cellValueFactory>
+                </TableColumn>
+
+                <!-- Author Column -->
+                <TableColumn fx:id="authorCol" text="AUTHOR" prefWidth="150" minWidth="120" reorderable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="author"/>
+                    </cellValueFactory>
+                </TableColumn>
+
+                <!-- Last Modified Column -->
+                <TableColumn fx:id="dateCol" text="LAST MODIFIED" prefWidth="140" minWidth="120" reorderable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="lastModified"/>
+                    </cellValueFactory>
+                </TableColumn>
+
+                <!-- Status Column -->
+                <TableColumn fx:id="statusCol" text="STATUS" prefWidth="120" minWidth="100" reorderable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="status"/>
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+
+            <!-- Remove table menu -->
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+
+        </TableView>
+    </VBox>
+
+</fx:root>

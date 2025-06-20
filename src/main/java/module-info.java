@@ -1,5 +1,6 @@
 module it.petrinet {
   requires javafx.fxml;
+  requires javafx.controls;
 
   requires org.controlsfx.controls;
   // requires smartgraph;
@@ -9,9 +10,9 @@ module it.petrinet {
   requires java.sql;
   requires javafx.graphics;
   requires java.xml;
-  requires javafx.controls;
   requires javafx.base;
   requires java.desktop;
+    requires org.slf4j;
 
   opens it.petrinet to javafx.fxml;
 
@@ -27,5 +28,6 @@ module it.petrinet {
   opens it.petrinet.model;
   opens it.petrinet.view.components;
   opens it.petrinet.utils;
+
 
 }

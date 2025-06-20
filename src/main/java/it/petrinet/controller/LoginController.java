@@ -1,31 +1,24 @@
 package it.petrinet.controller;
 
-import it.petrinet.Main;
+import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.database.UserDAO;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Optional;
+import java.util.Objects;
 
 import static it.petrinet.utils.Validation.isValidInput;
 
 public class LoginController {
     private static final String LOGO_PATH      = "/assets/images/logo.png";
-    private static final String FXML_HOME_PATH = "/fxml/Home.fxml";
-    private static final String CSS_PATH       = "/styles/style.css";
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -33,9 +26,9 @@ public class LoginController {
     @FXML private ImageView logoView;
     @FXML private Button loginButton;
 
-    private final DB database = new DB(); // TODO: replace with DI
 
     @FXML
+    // inizializza lo statuslabel (il messaggio di errore in caso di login fallito) e l'immagine del logo
     public void initialize() {
         // Hide error message initially
         statusLabel.setVisible(false);
@@ -48,7 +41,7 @@ public class LoginController {
     }
 
     @FXML
-    private void handleLogin(ActionEvent event) {
+    private void handleLogin(ActionEvent event) throws InputTypeException{
         clearError();
 
         String username = usernameField.getText();
@@ -59,16 +52,17 @@ public class LoginController {
             return;
         }
 
-        Optional<User> userOpt = database.getUsers().stream()
-                .filter(u -> u.getUsername().equals(username))
-                .findFirst();
+        if (UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password)) !=null){
 
-        if (userOpt.isPresent() && userOpt.get().checkPassword(password)) {
-            proceedToMainView(event, userOpt.get());
-        } else {
+                //Login successful
+                User user = UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password));
+                ViewNavigator.setAuthenticatedUser(user);
+                System.out.println("login successful for user: "+ user.getUsername());
+                proceedToMainView(event, user);
+        }
+        else{
             showError("Invalid username or password");
         }
-
     }
 
     @FXML
@@ -78,7 +72,7 @@ public class LoginController {
 
     private void loadLogoImage() {
         try {
-            Image img = new Image(getClass().getResourceAsStream(LOGO_PATH));
+            Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(LOGO_PATH)));
             logoView.setImage(img);
         } catch (Exception e) {
             System.err.println("Unable to load logo: " + LOGO_PATH);
@@ -88,15 +82,6 @@ public class LoginController {
     private void proceedToMainView(ActionEvent event, User user) {
         ViewNavigator.setAuthenticatedUser(user);
         ViewNavigator.HomeScene();
-    }
-
-    private void applyStyles(Scene scene, String cssPath) {
-        URL cssUrl = getClass().getResource(cssPath);
-        if (cssUrl != null) {
-            scene.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Unable to find stylesheet: " + cssPath);
-        }
     }
 
     private void showError(String message) {

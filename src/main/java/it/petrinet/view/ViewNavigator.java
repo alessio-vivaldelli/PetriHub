@@ -2,7 +2,10 @@ package it.petrinet.view;
 
 import it.petrinet.Main;
 import it.petrinet.controller.MainController;
+import it.petrinet.controller.ShowAllController;
 import it.petrinet.model.User;
+import it.petrinet.view.components.NavBar;
+import it.petrinet.model.NetCategory;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -32,12 +35,15 @@ public final class ViewNavigator {
 
     // Navigation methods
     public static void LoginScene() {
+        mainController.setNavBar(null);
         resizeStage(500, 400, "PH - Login");
         loadView("LoginView.fxml");
     }
 
     public static void HomeScene() {
+        mainController.setNavBar(new NavBar());
         resizeStage(0, 0, "Home");
+        Main.getPrimaryStage().setTitle(" ");
         loadView("HomeView.fxml");
     }
 
@@ -49,6 +55,25 @@ public final class ViewNavigator {
     public static void navigateToRegister() {
         Main.getPrimaryStage().setTitle("PH - Registration");
         loadView("RegisterView.fxml");
+    }
+
+    public static void navigateToMyNets() { navigateToShowAll(NetCategory.OWNED);}
+
+    public static void navigateToSubNets() { navigateToShowAll(NetCategory.SUBSCRIBED);}
+
+    //TODO: implement this method
+
+
+    public static void navigateToCreateNet() {
+        System.out.println("Navigating to create net view");
+    }
+    //---------------------------
+
+    public static void navigateToDiscover() { navigateToShowAll(NetCategory.DISCOVER);}
+
+    private static void navigateToShowAll(NetCategory type) {
+        ShowAllController.setType(type);
+        loadView("ShowAllView.fxml");
     }
 
     public static void navigateToHome() {
@@ -64,8 +89,8 @@ public final class ViewNavigator {
         return authenticatedUser;
     }
 
-    public static boolean isAuthenticated() {
-        return authenticatedUser != null;
+    public static boolean userIsAdmin() {
+        return authenticatedUser.isAdmin();
     }
 
     public static void logout() {
@@ -131,7 +156,6 @@ public final class ViewNavigator {
 
         // Apply changes during pause
         pause.setOnFinished(e -> {
-            stage.setTitle(title);
             stage.setWidth(targetWidth);
             stage.setHeight(targetHeight);
 
@@ -154,4 +178,5 @@ public final class ViewNavigator {
         // Play animation sequence
         new SequentialTransition(fadeOut, pause, fadeIn).play();
     }
+
 }
