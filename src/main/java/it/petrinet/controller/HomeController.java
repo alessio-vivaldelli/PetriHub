@@ -1,9 +1,9 @@
 package it.petrinet.controller;
 
 import it.petrinet.view.components.PetriNetTableComponent;
-import it.petrinet.model.NetCategory;
-import it.petrinet.model.PetriNetRow;
-import it.petrinet.model.PetriNetRow.Status;
+import it.petrinet.model.TableRow.NetCategory;
+import it.petrinet.model.TableRow.PetriNetRow;
+import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.User;
 import it.petrinet.view.ViewNavigator;
 import javafx.event.ActionEvent;
@@ -30,6 +30,7 @@ public class HomeController {
     @FXML private Label discoverableNetsLabel;
     @FXML private Label subscribedNetsLabel;
 
+    @FXML private Button newNetButton;
 
     @FXML private VBox activityFeedContainer;
 
@@ -41,6 +42,7 @@ public class HomeController {
 
     // === Component ===
     private PetriNetTableComponent petriNetTable;
+
 
     // === Initialization ===
 
@@ -103,15 +105,16 @@ public class HomeController {
      * Handle table row clicks
      */
     private void handleTableRowClick(PetriNetRow selectedNet) {
-        navigateToNetDetails(selectedNet);
-    }
-
-    /**
-     * Handle navigation to net details
-     */
-    private void navigateToNetDetails(PetriNetRow selectedNet) {
-        // TODO: Pass selected net information to the destination view
-        ViewNavigator.navigateToMyNets();
+        NetCategory category = selectedNet.typeProperty().get();
+        switch (category) {
+            case OWNED -> ViewNavigator.navigateToUserList(selectedNet.nameProperty().get());
+            case SUBSCRIBED -> ViewNavigator.navigateToSubNets();
+            case DISCOVER -> ViewNavigator.navigateToDiscover();
+            default -> {
+                // Handle other categories or do nothing
+                System.out.println("Clicked on net: " + selectedNet.nameProperty().get());
+            }
+        }
     }
 
     /**
@@ -124,7 +127,6 @@ public class HomeController {
     }
 
     // === Data Management ===
-
     /**
      * Populate the recent nets table with sample data
      * TODO: Replace with actual data service calls
@@ -156,14 +158,18 @@ public class HomeController {
     }
 
     public void handleSubscribedNetsClick(MouseEvent mouseEvent) {
-        ViewNavigator.navigateToSubNets();
+        ViewNavigator.navigateToMyNets();
+    }
+
+    public void handleDiscoverableNetsClick(MouseEvent mouseEvent) {
+        ViewNavigator.navigateToDiscover();
     }
 
     public void handleOwnedNetsClick(MouseEvent mouseEvent) {
         ViewNavigator.navigateToMyNets();
     }
 
-    public void handleDiscoverableNetsClick(MouseEvent mouseEvent) {
-        ViewNavigator.navigateToDiscover();
+    public void handleNewNetClick(ActionEvent event) {
+        ViewNavigator.navigateToNetCreation();
     }
 }

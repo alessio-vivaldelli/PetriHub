@@ -28,6 +28,8 @@ module it.petrinet {
   opens it.petrinet.model;
   opens it.petrinet.view.components;
   opens it.petrinet.utils;
+    exports it.petrinet.model.TableRow;
+    opens it.petrinet.model.TableRow;
 
 
 }

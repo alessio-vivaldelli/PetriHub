@@ -3,9 +3,10 @@ package it.petrinet.view;
 import it.petrinet.Main;
 import it.petrinet.controller.MainController;
 import it.petrinet.controller.ShowAllController;
+import it.petrinet.controller.UserListController;
 import it.petrinet.model.User;
 import it.petrinet.view.components.NavBar;
-import it.petrinet.model.NetCategory;
+import it.petrinet.model.TableRow.NetCategory;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -74,6 +75,11 @@ public final class ViewNavigator {
     private static void navigateToShowAll(NetCategory type) {
         ShowAllController.setType(type);
         loadView("ShowAllView.fxml");
+    }
+
+    public static void navigateToUserList(String id) {
+        UserListController.setNetID(id);
+        loadView("UserListView.fxml");
     }
 
     public static void navigateToHome() {
@@ -179,4 +185,8 @@ public final class ViewNavigator {
         new SequentialTransition(fadeOut, pause, fadeIn).play();
     }
 
+    public static void navigateToNetCreation() {
+        mainController.setNavBar(null);
+        loadView("NetCreationView.fxml");
+    }
 }

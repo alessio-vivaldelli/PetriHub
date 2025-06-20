@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml">
+
+    <!-- Modern TableView Container -->
+    <VBox>
+        <TableView fx:id="tableView"
+                   VBox.vgrow="ALWAYS"
+                   prefHeight="1220"
+                   style="-fx-background-color: transparent;">
+
+            <columns>
+                <!-- ID Column -->
+                <TableColumn fx:id="IDCol" text="ID" prefWidth="150" minWidth="120" reorderable="false"/>
+
+                <!-- Username Column -->
+                <TableColumn fx:id="usernameCol" text="Username" prefWidth="250" minWidth="200" reorderable="false"/>
+
+                <!-- Start Date Column -->
+                <TableColumn fx:id="initTimeCol" text="Start Date" prefWidth="140" minWidth="120" reorderable="false"/>
+
+                <!-- End Date Column -->
+                <TableColumn fx:id="endTimeCol" text="End Date" prefWidth="140" minWidth="120" reorderable="false"/>
+
+                <!-- Status Column -->
+                <TableColumn fx:id="statusCol" text="Status" prefWidth="120" minWidth="100" reorderable="false"/>
+            </columns>
+
+            <!-- Remove table menu -->
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+
+        </TableView>
+    </VBox>
+
+</fx:root>

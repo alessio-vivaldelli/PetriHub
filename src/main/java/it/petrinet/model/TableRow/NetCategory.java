@@ -1,4 +1,4 @@
-package it.petrinet.model;
+package it.petrinet.model.TableRow;
 
 public enum NetCategory {
     OWNED("Creations"),
