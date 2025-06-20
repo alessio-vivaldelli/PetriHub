@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO implements DataAccessObject{
+    public static void main(String args[]) throws InputTypeException {
+        User admin = new User("davide", "sala", true);
+        insertUser(admin);
+    }
 
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS users (" +
@@ -132,9 +136,9 @@ public class UserDAO implements DataAccessObject{
 
             while(result.next()) {
                  filteredUsers.add(new User(
-                        result.getString("username"),
-                        password,
-                        result.getBoolean("isAdmin")
+                        result.getString(1),
+                        result.getString(2),
+                        result.getBoolean(3)
                 ));
             }
         } catch (SQLException e) {

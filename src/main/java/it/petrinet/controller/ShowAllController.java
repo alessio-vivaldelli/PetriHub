@@ -62,6 +62,7 @@ public class ShowAllController {
     //TODO
     private List<PetriNetRow> DisSet() {
         return Arrays.asList(
+
                 new PetriNetRow("Discover Net 1", "Alice", LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.DISCOVER),
                 new PetriNetRow("Discover Net 2", "Bob", LocalDateTime.now().minusDays(1), PetriNetRow.Status.STARTED, NetCategory.DISCOVER),
                 new PetriNetRow("Discover Net 3", "Charlie", LocalDateTime.now().minusDays(2), PetriNetRow.Status.STARTED, NetCategory.DISCOVER),

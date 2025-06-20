@@ -6,9 +6,9 @@ public class ComputationStep {
     private String netId;
     private String transition;
     private String markingLocation;
-    private String timestamp;
+    private int timestamp;
 
-    public ComputationStep(int id, int computationId, String netId, String transition, String markingLocation, String timestamp) {
+    public ComputationStep(int id, int computationId, String netId, String transition, String markingLocation, int timestamp) {
         this.id = id;
         this.computationId = computationId;
         this.netId = netId;
@@ -37,7 +37,7 @@ public class ComputationStep {
         return markingLocation;
     }
 
-    public String getTimestamp() {
+    public int getTimestamp() {
         return timestamp;
     }
 

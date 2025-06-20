@@ -45,7 +45,7 @@ public class ComputationStepDAO implements DataAccessObject{
                     p_statement.setString(3, s.getNetId());
                     p_statement.setString(4, s.getTransition());
                     p_statement.setString(5, s.getMarkingLocation());
-                    p_statement.setString(6, s.getTimestamp());
+                    p_statement.setInt(6, s.getTimestamp());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -99,7 +99,7 @@ public class ComputationStepDAO implements DataAccessObject{
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getString(6)
+                                result.getInt(6)
                         );
                     }
                 }
@@ -140,7 +140,7 @@ public class ComputationStepDAO implements DataAccessObject{
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getString(6)
+                                result.getInt(6)
                         );
                     }
                 } catch (SQLException ex) {
@@ -176,7 +176,7 @@ public class ComputationStepDAO implements DataAccessObject{
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getString(6)
+                                result.getInt(6)
                         ));
                     }
                 } catch (SQLException ex) {

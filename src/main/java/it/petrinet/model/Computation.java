@@ -17,14 +17,6 @@ public class Computation {
         this(netId,creatorId,userId,startDate);
         this.endDate = endDate;
     }
-
-    public Computation() {
-        this.netId = "s";
-
-
-
-    }
-
     public String getNetId() {
         return netId;
     }

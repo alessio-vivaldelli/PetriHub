@@ -13,10 +13,6 @@ import java.util.List;
 
 public class ComputationsDAO implements DataAccessObject{
 
-    public static void main(String args[]) throws InputTypeException {
-        Computation c = new Computation("piero", "davide", "ddd", 2);
-        insertComputation(c);
-    }
 
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS computations (" +
