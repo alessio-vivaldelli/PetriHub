@@ -1,5 +1,6 @@
 package it.petrinet.controller;
 
+import it.petrinet.utils.IconUtils;
 import it.petrinet.view.components.PetriNetTableComponent;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
@@ -11,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -58,7 +60,17 @@ public class HomeController {
      */
     private void initializeUserInterface() {
         User authenticatedUser = ViewNavigator.getAuthenticatedUser();
+        setNewNetButton(authenticatedUser.isAdmin());
         updateWelcomeMessage(authenticatedUser);
+    }
+
+    private void setNewNetButton(boolean isEnabled) {
+        newNetButton.setText("New Net ");
+        IconUtils.setIcon(newNetButton, "add.png", 30, 30 , Color.BLACK, ContentDisplay.RIGHT);
+
+        newNetButton.setVisible(isEnabled);
+        newNetButton.setManaged(isEnabled);
+
     }
 
     /**
@@ -115,15 +127,6 @@ public class HomeController {
                 System.out.println("Clicked on net: " + selectedNet.nameProperty().get());
             }
         }
-    }
-
-    /**
-     * Handle new net creation button click
-     */
-    @FXML
-    public void handleNewNet(ActionEvent event) {
-        // TODO: Implement net creation logic
-        // ViewNavigator.navigateToNetCreation();
     }
 
     // === Data Management ===

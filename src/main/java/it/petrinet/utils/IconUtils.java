@@ -1,5 +1,6 @@
 package it.petrinet.utils;
 
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Labeled;
 import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
@@ -30,40 +31,39 @@ public final class IconUtils {
     // --- METODI PUBBLICI PRINCIPALI ---
 
     /**
-     * Imposta un'icona su un controllo Labeled (Button, Label, etc.) con dimensioni di default.
+     * Imposta un'icona su un controllo Labeled (Button, Label, etc.) con dimensioni di default e posizione standard (sinistra).
      *
      * @param node Il controllo su cui impostare l'icona.
      * @param iconName Il nome del file dell'icona (es. "home.png").
      */
     public static void setIcon(Labeled node, String iconName) {
-        setIcon(node, iconName, DEFAULT_ICON_SIZE, DEFAULT_ICON_SIZE, null);
+        setIcon(node, iconName, DEFAULT_ICON_SIZE, DEFAULT_ICON_SIZE, null, ContentDisplay.LEFT);
     }
 
     /**
-     * Imposta un'icona su un controllo Labeled con una dimensione personalizzata (quadrata).
+     * Imposta un'icona su un controllo Labeled con una dimensione personalizzata (quadrata) e posizione standard (sinistra).
      *
      * @param node Il controllo su cui impostare l'icona.
      * @param iconName Il nome del file dell'icona.
      * @param size La larghezza e l'altezza desiderate per l'icona.
      */
     public static void setIcon(Labeled node, String iconName, double size) {
-        setIcon(node, iconName, size, size, null);
+        setIcon(node, iconName, size, size, null, ContentDisplay.LEFT);
     }
 
     /**
-     * Imposta un'icona su un controllo Labeled, ricolorandola.
+     * Imposta un'icona su un controllo Labeled, ricolorandola e con posizione standard (sinistra).
      *
      * @param node Il controllo su cui impostare l'icona.
      * @param iconName Il nome del file dell'icona.
      * @param color Il colore con cui tingere l'icona.
      */
     public static void setIcon(Labeled node, String iconName, Color color) {
-        setIcon(node, iconName, DEFAULT_ICON_SIZE, DEFAULT_ICON_SIZE, color);
+        setIcon(node, iconName, DEFAULT_ICON_SIZE, DEFAULT_ICON_SIZE, color, ContentDisplay.LEFT);
     }
 
     /**
-     * Imposta un'icona su un controllo Labeled con dimensioni e colore personalizzati.
-     * Questo è il metodo più specifico che viene richiamato dagli altri.
+     * Imposta un'icona su un controllo Labeled con dimensioni e colore personalizzati, e posizione standard (sinistra).
      *
      * @param node Il controllo su cui impostare l'icona.
      * @param iconName Il nome del file dell'icona.
@@ -72,12 +72,27 @@ public final class IconUtils {
      * @param color Il colore con cui tingere l'icona (null per non applicare alcun colore).
      */
     public static void setIcon(Labeled node, String iconName, double width, double height, Color color) {
+        setIcon(node, iconName, width, height, color, ContentDisplay.LEFT);
+    }
+
+    /**
+     * Imposta un'icona su un controllo Labeled con dimensioni, colore e posizione personalizzati.
+     * Questo è il metodo più specifico che viene richiamato dagli altri.
+     *
+     * @param node Il controllo su cui impostare l'icona.
+     * @param iconName Il nome del file dell'icona.
+     * @param width La larghezza desiderata per l'icona.
+     * @param height L'altezza desiderata per l'icona.
+     * @param color Il colore con cui tingere l'icona (null per non applicare alcun colore).
+     * @param contentDisplay La posizione dell'icona rispetto al testo (es. ContentDisplay.LEFT, ContentDisplay.RIGHT).
+     */
+    public static void setIcon(Labeled node, String iconName, double width, double height, Color color, ContentDisplay contentDisplay) {
         createIconView(iconName, width, height, color).ifPresent(iconView -> {
             node.setGraphic(iconView);
             node.setGraphicTextGap(DEFAULT_TEXT_GAP);
+            node.setContentDisplay(contentDisplay); // Imposta la posizione dell'icona
         });
     }
-
 
     // --- LOGICA INTERNA ---
 
