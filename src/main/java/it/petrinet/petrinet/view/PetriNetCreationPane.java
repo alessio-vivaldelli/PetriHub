@@ -85,26 +85,67 @@ public class PetriNetCreationPane extends Pane {
   private boolean initialized;
   private boolean testMode;
 
+  /**
+   * Sets the callback to be invoked when a Petri Net is saved correctly.
+   *
+   * @param onPetriNetSaved Consumer that accepts the name of the saved Petri Net.
+   */
   public void setOnPetriNetSaved(Consumer<String> onPetriNetSaved) {
     this.onPetriNetSaved = onPetriNetSaved;
   }
 
+  /**
+   * Sets the current mode of the Petri Net creation pane.
+   * This method allows switching between different modes such as:
+   * - CREATE: For creating new nodes.
+   * - CONNECT: For connecting existing nodes.
+   * - SELECTION: For selecting nodes and viewing their properties.
+   * - DELETION: For deleting nodes or edges.
+   * The mode affects how user interactions are handled within the pane.
+   * For example, in CREATE mode, clicking on the canvas will create a new node,
+   * while in CONNECT mode, it will allow connecting two existing nodes.
+   *
+   * @param mode The mode to set.
+   */
   public void setCurrentMode(MODE mode) {
     this.currentMode = mode;
   }
 
+  /**
+   * Gets the current mode of the Petri Net creation pane.
+   *
+   * @return The current mode.
+   */
   public MODE getCurrentMode() {
     return currentMode;
   }
 
+  /**
+   * Gets the current node type being used.
+   *
+   * @return The current node type.
+   */
   public NODE_TYPE getCurrentNodeType() {
     return currentNodeType;
   }
 
+  /**
+   * Sets the current node type to be used when creating new nodes.
+   * Possible types include:
+   * - PLACE: Represents a place in the Petri Net.
+   * - TRANSITION: Represents a transition in the Petri Net.
+   *
+   * @param currentNodeType The node type to set.
+   */
   public void setCurrentNodeType(NODE_TYPE currentNodeType) {
     this.currentNodeType = currentNodeType;
   }
 
+  /**
+   * Handles the action of saving the Petri Net.
+   * Shows a confirmation dialog, builds the model, serializes it, and invokes the
+   * save callback if saved successfully and the callback is set.
+   */
   public void saveNetAction() {
     showMessage(AlertType.CONFIRMATION, "Save Petri Net",
         "Save Confirmation", "Do you want to save the Petri Net?").ifPresent((response) -> {
@@ -132,22 +173,43 @@ public class PetriNetCreationPane extends Pane {
     }
   }
 
+  /**
+   * When this method is called, it zooms in the canvas by a factor of 1.2.
+   */
   public void zoomInAction() {
     System.out.println("Zoom in, current scale: " +
         contentZoomScrollPane.scaleFactorProperty().get());
     contentZoomScrollPane.zoomIn();
   }
 
+  /**
+   * When this method is called, it zooms out the canvas by a factor of 1.2.
+   */
   public void zoomOutAction() {
     System.out.println("Zoom out, current scale: " +
         contentZoomScrollPane.scaleFactorProperty().get());
     contentZoomScrollPane.zoomOut();
   }
 
+  /**
+   * Gets the current zoom level of the Petri Net view.
+   *
+   * @return The current zoom level.
+   */
   public double getZoomLevel() {
     return contentZoomScrollPane.scaleFactorProperty().get();
   }
 
+  /**
+   * Constructor for PetriNetCreationPane.
+   * Initializes the pane with a petri name, description, and test mode flag.
+   * Sets up the scene and starts the Petri Net creation process.
+   * By default canvas will expand to fill all the available space.
+   *
+   * @param name        The name of the Petri Net.
+   * @param description A description of the Petri Net.
+   * @param testMode    If true, enables test mode with additional controls.
+   */
   public PetriNetCreationPane(String name, String description, boolean testMode) {
     this.name = name;
     this.description = description;
