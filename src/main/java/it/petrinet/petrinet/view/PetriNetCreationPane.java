@@ -61,6 +61,7 @@ public class PetriNetCreationPane extends Pane {
 
   private boolean firstStart = true; // To ensure the scene is initialized only IllegalConnectionException
   private boolean initialized;
+  private boolean testMode;
 
   public void setOnPetriNetSaved(Consumer<String> onPetriNetSaved) {
     this.onPetriNetSaved = onPetriNetSaved;
@@ -70,9 +71,22 @@ public class PetriNetCreationPane extends Pane {
     this.currentMode = mode;
   }
 
-  public PetriNetCreationPane(String name, String description) {
+  public String getCurrentMode() {
+    return currentMode;
+  }
+
+  public String getCurrentNodeType() {
+    return currentNodeType;
+  }
+
+  public void setCurrentNodeType(String currentNodeType) {
+    this.currentNodeType = currentNodeType;
+  }
+
+  public PetriNetCreationPane(String name, String description, boolean testMode) {
     this.name = name;
     this.description = description;
+    this.testMode = testMode;
 
     sceneProperty().addListener((_, _, newScene) -> {
       if (newScene != null) {
@@ -88,7 +102,13 @@ public class PetriNetCreationPane extends Pane {
       }
     });
 
+    start();
+
     this.setPrefSize(1920, 1080);
+  }
+
+  public PetriNetCreationPane(String name, String description) {
+    this(name, description, false);
   }
 
   public void start() {
@@ -225,6 +245,7 @@ public class PetriNetCreationPane extends Pane {
             nodeLabel = tmpNodeLabel + " (copy)";
           }
         }
+        // TODO: consider also panning
         Point2D transformedPoint = contentZoomScrollPane.transformFromContentToScaled(point);
         Vertex<Node> newVertex = g
             .insertVertex(createNode(nodeLabel, currentNodeType,
@@ -486,54 +507,70 @@ public class PetriNetCreationPane extends Pane {
     Button zoomOutButton = new Button("-");
 
     zoomInButton.setOnAction(_ -> {
-      System.out.println("Zoom in, current scale: " +
-          contentZoomScrollPane.scaleFactorProperty().get());
-      contentZoomScrollPane.zoomIn();
+      zoomInAction();
     });
     zoomOutButton.setOnAction(_ -> {
-      System.out.println("Zoom out, current scale: " +
-          contentZoomScrollPane.scaleFactorProperty().get());
-      contentZoomScrollPane.zoomOut();
+      zoomOutAction();
     });
 
     HBox actionControls = new HBox(10);
     Button saveNetButton = new Button("Save");
     saveNetButton.setOnAction(_ -> {
-      showMessage(AlertType.CONFIRMATION, "Save Petri Net",
-          "Save Confirmation", "Do you want to save the Petri Net?").ifPresent((response) -> {
-            if (response.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-              System.out.println("Saving Petri Net...");
-            } else {
-              System.out.println("Save cancelled.");
-              return; // Exit if user cancels
-            }
-          });
-      PetriNetModel model = null;
-      try {
-        prepareNodes(); // Ensure all nodes have their positions set
-        model = petriNetBuilder.build();
-        serializePetriNet(model);
-        if (onPetriNetSaved != null)
-          onPetriNetSaved.accept(model.getName());
-      } catch (IllegalConnectionException e1) {
-        System.out.println("Error building model");
-
-        e1.printStackTrace();
-        String errorMessage = e1.getMessage();
-        showMessage(AlertType.ERROR, "Error", "Connection Error", errorMessage);
-        System.out.println("Error building model: " + errorMessage);
-      }
+      saveNetAction();
     });
 
     actionControls.getChildren().addAll(saveNetButton);
 
     zoomControls.getChildren().addAll(zoomInButton, zoomOutButton);
 
-    vBox.getChildren().addAll(contentZoomScrollPane, modeButtons, nodeTypeButtons, zoomControls, actionControls);
+    if (testMode) {
+      vBox.getChildren().addAll(contentZoomScrollPane, modeButtons, nodeTypeButtons, zoomControls, actionControls);
+    } else {
+      vBox.getChildren().addAll(contentZoomScrollPane);
+    }
 
     vBox.prefWidthProperty().bind(this.widthProperty());
     vBox.prefHeightProperty().bind(this.heightProperty());
     this.getChildren().add(vBox);
+  }
+
+  public void saveNetAction() {
+    showMessage(AlertType.CONFIRMATION, "Save Petri Net",
+        "Save Confirmation", "Do you want to save the Petri Net?").ifPresent((response) -> {
+          if (response.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+            System.out.println("Saving Petri Net...");
+          } else {
+            System.out.println("Save cancelled.");
+            return; // Exit if user cancels
+          }
+        });
+    PetriNetModel model = null;
+    try {
+      prepareNodes(); // Ensure all nodes have their positions set
+      model = petriNetBuilder.build();
+      serializePetriNet(model);
+      if (onPetriNetSaved != null)
+        onPetriNetSaved.accept(model.getName());
+    } catch (IllegalConnectionException e1) {
+      System.out.println("Error building model");
+
+      e1.printStackTrace();
+      String errorMessage = e1.getMessage();
+      showMessage(AlertType.ERROR, "Error", "Connection Error", errorMessage);
+      System.out.println("Error building model: " + errorMessage);
+    }
+  }
+
+  public void zoomInAction() {
+    System.out.println("Zoom in, current scale: " +
+        contentZoomScrollPane.scaleFactorProperty().get());
+    contentZoomScrollPane.zoomIn();
+  }
+
+  public void zoomOutAction() {
+    System.out.println("Zoom out, current scale: " +
+        contentZoomScrollPane.scaleFactorProperty().get());
+    contentZoomScrollPane.zoomOut();
   }
 
   public void init() {

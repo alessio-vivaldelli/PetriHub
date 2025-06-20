@@ -3,7 +3,7 @@
 }
 
 .vertex {
-  -fx-stroke-width: 3;
+  -fx-stroke-width: 2;
   -fx-stroke: #61B5F1;
   -fx-stroke-type: inside;
   /* you should keep this for vertex.radius to hold */
@@ -53,7 +53,7 @@
 /*}*/
 
 .svg_elem {
-  -fx-stroke-width: 1;
+  -fx-stroke-width: 2;
   -fx-stroke: green;
   -fx-stroke-type: inside;
   /* you should keep this if using arrows */
@@ -66,3 +66,60 @@
   /*-fx-stroke-type: inside;*/
   /* you should keep this if using arrows */
 }
+
+.userTransition{
+  -fx-stroke-width: 2;
+  -fx-stroke: #00FF00;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: #FFCCCC;
+}
+
+.adminTransition {
+  -fx-stroke-width: 2;
+  -fx-stroke: #FF0000;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: #FFCCCC;
+}
+
+.adminTransition:hover {
+  -fx-stroke-width: 3;
+  -fx-stroke: #FF0000;
+  -fx-fill: #FFCCCC;
+}
+
+.userTransition:hover {
+  -fx-stroke-width: 3;
+  -fx-stroke: #00FF00;
+  -fx-fill: #FFCCCC;
+}
+
+.startVertex {
+  -fx-stroke-width: 2;
+  -fx-stroke: green;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: yellowgreen;
+}
+
+.endVertex {
+  -fx-stroke-width: 2;
+  -fx-stroke: red;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: tomato;
+}
+
+.startVertex:hover {
+  -fx-stroke-width: 3;
+  -fx-stroke: green;
+  -fx-fill: yellowgreen;
+}
+
+.endVertex:hover {
+  -fx-stroke-width: 3;
+  -fx-stroke: red;
+  -fx-fill: tomato;
+}
+

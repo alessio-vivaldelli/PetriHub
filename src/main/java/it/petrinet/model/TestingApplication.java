@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import it.petrinet.petrinet.view.PetriNetCreationPane;
 import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -19,7 +18,7 @@ public class TestingApplication extends Application {
 
     HBox vBox = new HBox();
     vBox.setSpacing(10);
-    petriNetCreationPane = new PetriNetCreationPane("testNet", "description");
+    petriNetCreationPane = new PetriNetCreationPane("testNet", "description", true);
     vBox.getChildren().addAll(petriNetCreationPane);
     Scene scene = new Scene(vBox, 1920, 1020);
 
@@ -28,7 +27,7 @@ public class TestingApplication extends Application {
     stage.setScene(scene);
     stage.show();
 
-    petriNetCreationPane.start();
+    // petriNetCreationPane.start();
     // petriNetCreationPane.init();
   }
 
