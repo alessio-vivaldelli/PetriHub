@@ -1,5 +1,7 @@
 package it.petrinet.petrinet.model;
 
+import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;
+
 import javafx.geometry.Point2D;
 
 /**
@@ -31,8 +33,9 @@ public class Place extends Node {
 
   @Override
   public String toString() {
-    return "Place " + getName() + " at " + getPosition() + " of type " + type
-        + " with tokens: " + tokens;
+    // return "Place " + getName() + " at " + getPosition() + " of type " + type
+    // + " with tokens: " + tokens;
+    return getName();
   }
 
   /**
@@ -69,9 +72,15 @@ public class Place extends Node {
     this(name, new Point2D(-1, -1), PLACE_TYPE.NORMAL, 0);
   }
 
-  @Override
+  /*
+   * Establishes the shape of the vertex to use when representing the net.
+   * 
+   * @return the name of the shape, see {@link
+   * com.brunomnsilva.smartgraph.graphview.ShapeFactory}
+   */
+  @SmartShapeTypeSource
   public String modelShape() {
-    return "%s_%d".formatted(PLACE_SHAPE, getPlaceTokens());
+    return "place";
   }
 
   /**

@@ -1,5 +1,7 @@
 package it.petrinet.petrinet.model;
 
+import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;
+
 import javafx.geometry.Point2D;
 
 /**
@@ -64,16 +66,6 @@ public class Transition extends Node {
   }
 
   /**
-   * Returns a string representing the model shape of this transition.
-   *
-   * @return a string representing the model shape
-   */
-  @Override
-  public String modelShape() {
-    return "%s_transition".formatted(getType().toString());
-  }
-
-  /**
    * Returns the type of this transition.
    *
    * @return the transition type
@@ -93,8 +85,10 @@ public class Transition extends Node {
 
   @Override
   public String toString() {
-    return "Transition [name=" + getName() + ", position=" + getPosition() + ", type=" + type
-        + ", isFirable=" + isFirable + "]";
+    // return "Transition [name=" + getName() + ", position=" + getPosition() + ",
+    // type=" + type
+    // + ", isFirable=" + isFirable + "]";
+    return getName();
   }
 
   /**
@@ -113,5 +107,16 @@ public class Transition extends Node {
    */
   public boolean getIsReadyToFire() {
     return isFirable;
+  }
+
+  /*
+   * Establishes the shape of the vertex to use when representing the net.
+   * 
+   * @return the name of the shape, see {@link
+   * com.brunomnsilva.smartgraph.graphview.ShapeFactory}
+   */
+  @SmartShapeTypeSource
+  public String modelShape() {
+    return "Transition";
   }
 }

@@ -25,47 +25,48 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 /**
- * This class represents a five-point star shape inscribed within a specified radius.
+ * This class represents a five-point star shape inscribed within a specified
+ * radius.
  *
  * @author brunomnsilva
  */
 public class ShapeTransition extends ShapeRegularPolygon {
 
-    /**
-     * Creates a new star shape enclosed in a circle of <code>radius</code>.
-     * @param x the x-center coordinate
-     * @param y the y-center coordinate
-     * @param radius the radius of the enclosed circle
-     */
-    public ShapeTransition(double x, double y, double radius) {
-        super(x, y, radius, 4);
-    }
+  /**
+   * Creates a new star shape enclosed in a circle of <code>radius</code>.
+   * 
+   * @param x      the x-center coordinate
+   * @param y      the y-center coordinate
+   * @param radius the radius of the enclosed circle
+   */
+  public ShapeTransition(double x, double y, double radius) {
+    super(x, y, radius, 4);
+  }
 
-    @Override
-    protected void updatePolygon() {
-        surrogate.getPoints().clear();
+  @Override
+  protected void updatePolygon() {
+    surrogate.getPoints().clear();
 
-        double cx = centerX.doubleValue();
-        double cy = centerY.doubleValue();
+    double cx = centerX.doubleValue();
+    double cy = centerY.doubleValue();
 
+    double radius = getRadius();
 
-        double radius = getRadius();
+    double up_left_x = cx - radius / 2;
+    double up_left_y = cy - radius / 1;
 
-        double up_left_x = cx - radius/2;
-        double up_left_y = cy - radius/2;
+    double up_right_x = cx + radius / 2;
+    double up_right_y = cy - radius / 1;
 
-        double up_right_x = cx + radius/2;
-        double up_right_y = cy - radius/2;
+    double down_left_x = cx - radius / 2;
+    double down_left_y = cy + radius;
 
-        double down_left_x = cx - radius/2;
-        double down_left_y = cy + radius;
+    double down_right_x = cx + radius / 2;
+    double down_right_y = cy + radius;
 
-        double down_right_x = cx + radius/2;
-        double down_right_y = cy + radius;
-
-        surrogate.getPoints().addAll(up_left_x, up_left_y,
-                up_right_x, up_right_y,
-                down_right_x, down_right_y,
-                down_left_x, down_left_y);
-    }
+    surrogate.getPoints().addAll(up_left_x, up_left_y,
+        up_right_x, up_right_y,
+        down_right_x, down_right_y,
+        down_left_x, down_left_y);
+  }
 }

@@ -1,5 +1,5 @@
 .graph {
-  -fx-background-color: #F4FFFB;
+  -fx-background-color: #00FFFB;
 }
 
 .vertex {
@@ -22,11 +22,11 @@
 }
 
 .edge {
-  -fx-stroke-width: 2;
-  -fx-stroke: #FF6D66;
-  -fx-stroke-dash-array: 2 5 2 5;
+  -fx-stroke-width: 4;
+  -fx-stroke: #000000;
+  /*-fx-stroke-dash-array: 2 5 2 5;*/
   /* remove for clean edges */
-  -fx-fill: transparent;
+  /*-fx-fill: transparent;*/
   /*important for curved edges. do not remove */
   -fx-stroke-line-cap: round;
   -fx-opacity: 0.8;
@@ -38,7 +38,7 @@
 
 .arrow {
   -fx-stroke-width: 2;
-  -fx-stroke: #FF6D66;
+  -fx-stroke: #000000;
   -fx-opacity: 0.8;
 }
 
@@ -51,3 +51,21 @@
   /* you should keep this if using arrows */
   -fx-fill: yellowgreen;
 }
+
+.startVertex {
+  -fx-stroke-width: 5;
+  -fx-stroke: green;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: yellowgreen;
+}
+
+.endVertex {
+  -fx-stroke-width: 5;
+  -fx-stroke: red;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: tomato;
+}
+
+

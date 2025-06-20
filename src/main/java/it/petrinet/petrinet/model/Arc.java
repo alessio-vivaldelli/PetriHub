@@ -11,6 +11,15 @@ public class Arc {
     this.to = to;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Arc) {
+      Arc other = (Arc) obj;
+      return this.from.equals(other.from) && this.to.equals(other.to);
+    }
+    return super.equals(obj);
+  }
+
   public String getFrom() {
     return from;
   }

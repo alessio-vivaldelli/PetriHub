@@ -9,6 +9,8 @@ module it.petrinet {
   requires java.sql;
   requires javafx.graphics;
   requires java.xml;
+  requires javafx.controls;
+  requires javafx.base;
   requires java.desktop;
 
   opens it.petrinet to javafx.fxml;
