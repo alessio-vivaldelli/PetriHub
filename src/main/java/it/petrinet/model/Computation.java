@@ -19,6 +19,9 @@ public class Computation {
     }
 
     public Computation() {
+        this.netId = "s";
+
+
 
     }
 

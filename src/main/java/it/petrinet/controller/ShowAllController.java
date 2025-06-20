@@ -59,6 +59,7 @@ public class ShowAllController {
         petriNetTable.setData(allNets);
     }
 
+    //TODO
     private List<PetriNetRow> DisSet() {
         return Arrays.asList(
                 new PetriNetRow("Discover Net 1", "Alice", LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.DISCOVER),
@@ -69,6 +70,7 @@ public class ShowAllController {
         );
     }
 
+    //TODO
     private List<PetriNetRow> SubSet() {
         return Arrays.asList(
                 new PetriNetRow("Subscribed Net 1", "Alice", LocalDateTime.now(), PetriNetRow.Status.WAITING, NetCategory.SUBSCRIBED),
@@ -90,7 +92,7 @@ public class ShowAllController {
         );
     }
 
-
+    //TODO
     private List<PetriNetRow> OwnSet() {
         return Arrays.asList(
                 new PetriNetRow("Owned Net 1", "Alice", LocalDateTime.now(), PetriNetRow.Status.WAITING, NetCategory.OWNED),

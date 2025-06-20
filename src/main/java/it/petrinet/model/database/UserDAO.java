@@ -37,7 +37,7 @@ public class UserDAO implements DataAccessObject{
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, u.getUsername());
                     p_statement.setString(2, u.getPassword());
-                    p_statement.setInt(3, u.isAdmin() ? 1 : 0);
+                    p_statement.setBoolean(3, u.isAdmin());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
