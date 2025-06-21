@@ -66,8 +66,8 @@ public class PetriNetCreationPane extends Pane {
     }
   }
 
-  private NODE_TYPE currentNodeType = NODE_TYPE.TRANSITION; // Default node type
-  private MODE currentMode = MODE.CREATE; // CREATE, CONNECT, SELECTION, or DELETION
+  private NODE_TYPE currentNodeType = NODE_TYPE.TRANSITION;
+  private MODE currentMode = MODE.CREATE;
   private SmartGraphPanel<Node, String> graphView;
   private Vertex<Node> firstSelectedVertex = null; // For connection mode
   private Graph<Node, String> g; // The graph model
