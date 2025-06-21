@@ -374,11 +374,10 @@ public class PetriNetCreationPane extends Pane {
             nodeLabel = tmpNodeLabel + " (copy)";
           }
         }
-        // TODO: consider also panning
-        Point2D transformedPoint = contentZoomScrollPane.transformFromContentToScaled(point);
+
         Vertex<Node> newVertex = g
             .insertVertex(createNode(nodeLabel, currentNodeType.toString(),
-                transformedPoint));
+                point));
         graphView.updateAndWait();
 
         Vertex<Node> v = graphView.getModel().vertices().stream()
@@ -387,7 +386,7 @@ public class PetriNetCreationPane extends Pane {
         if (currentNodeType.equals(NODE_TYPE.TRANSITION)) {
           graphView.getStylableVertex(v).setStyleClass("userTransition");
         }
-        graphView.setVertexPosition(v, transformedPoint.getX(), transformedPoint.getY());
+        graphView.setVertexPosition(v, point.getX(), point.getY());
 
         graphView.updateAndWait();
         graphView.update();

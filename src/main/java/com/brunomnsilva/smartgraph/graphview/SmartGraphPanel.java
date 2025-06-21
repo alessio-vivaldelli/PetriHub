@@ -1425,7 +1425,13 @@ public class SmartGraphPanel<V, E> extends Pane {
           Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
           System.out.println("node is: " + node);
           if (node == SmartGraphPanel.this) {
-            this.canvasSingleClickConsumer.accept(new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY()));
+            System.out.println("Canvas clicked at: " + mouseEvent.getSceneX() + ", " + mouseEvent.getSceneY()
+                + ", in local coordinates: " + this.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY()));
+
+            Point2D localPoint = this.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            // this.canvasSingleClickConsumer.accept(new Point2D(mouseEvent.getSceneX(),
+            // mouseEvent.getSceneY()));
+            this.canvasSingleClickConsumer.accept(localPoint);
 
           }
           if (node == null) {
