@@ -206,8 +206,8 @@ public class ContentZoomScrollPane extends ScrollPane {
     double offsetY = (content.getBoundsInParent().getHeight() - viewport.getHeight()) * getVvalue();
 
     double scale = content.getScaleX(); // Assumendo scala uniforme su X e Y
-    Point2D tmp = new Point2D(point.getX() / scale, point.getY() / scale);
-    return new Point2D(tmp.getX() + offsetX, tmp.getY() + offsetY);
+    Point2D tmp = new Point2D((point.getX() + offsetX) / scale, (point.getY() + offsetY) / scale);
+    return tmp;
   }
 
   public void zoomIn() {

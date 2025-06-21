@@ -3,6 +3,7 @@ package it.petrinet.model;
 import java.io.IOException;
 
 import it.petrinet.petrinet.view.PetriNetCreationPane;
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 public class TestingApplication extends Application {
 
@@ -89,6 +91,13 @@ public class TestingApplication extends Application {
     stage.setTitle("JavaFXGraph Visualization");
     stage.setScene(scene);
     stage.show();
+
+    petriNetCreationPane.start();
+    PauseTransition delay = new PauseTransition(Duration.millis(200));
+    delay.setOnFinished(_ -> {
+      petriNetCreationPane.init();
+    });
+    delay.play();
   }
 
   // start application

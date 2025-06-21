@@ -215,21 +215,23 @@ public class PetriNetCreationPane extends Pane {
     this.description = description;
     this.testMode = testMode;
 
-    sceneProperty().addListener((_, _, newScene) -> {
-      if (newScene != null) {
-        newScene.windowProperty().addListener((_, _, newWindow) -> {
-          if (newWindow != null && !initialized) {
-            PauseTransition delay = new PauseTransition(Duration.millis(200));
-            delay.setOnFinished(event -> {
-              init();
-            });
-            delay.play();
-          }
-        });
-      }
-    });
+    if (testMode) {
+      sceneProperty().addListener((_, _, newScene) -> {
+        if (newScene != null) {
+          newScene.windowProperty().addListener((_, _, newWindow) -> {
+            if (newWindow != null && !initialized) {
+              PauseTransition delay = new PauseTransition(Duration.millis(200));
+              delay.setOnFinished(_ -> {
+                init();
+              });
+              delay.play();
+            }
+          });
+        }
+      });
 
-    start();
+      start();
+    }
 
     this.setPrefSize(1920, 1080);
   }
