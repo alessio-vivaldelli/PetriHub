@@ -94,7 +94,7 @@ public class HomeController {
     //TODO: Replace with actual data service calls
     private void updateDashboardStatistics() {
         //ownedNetsLabel.setText("20");
-        ownedNetsLabel.setText(UserDAO.getNumberOfOwnedNetsByUser().toString());
+        //ownedNetsLabel.setText(UserDAO.getNumberOfOwnedNetsByUser().toString());
         discoverableNetsLabel.setText("15");
         subscribedNetsLabel.setText("10");
     }
