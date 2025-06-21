@@ -3,11 +3,12 @@ package it.petrinet.model.database;
 import java.sql.*;
 
 public class DatabaseManager {
-    private static final String USER_DB_URL = "jdbc:sqlite:database/users.db";
-    private static final String PETRI_NETS_DB_URL = "jdbc:sqlite:database/nets.db";
-    private static final String NOTIFICATIONS_DB_URL = "jdbc:sqlite:database/notifications.db";
-    private static final String COMPUTATIONS_DB_URL = "jdbc:sqlite:database/computations.db";
-//    private static final String COMPUTATION_STEPS_DB_URL = "jdbc:sqlite:steps.db";
+    private static final String globalDir = "jdbc:sqlite:src/main/resources/database/";
+
+    private static final String USER_DB_URL =  globalDir + "users.db";
+    private static final String PETRI_NETS_DB_URL =  globalDir + "nets.db";
+    private static final String NOTIFICATIONS_DB_URL = globalDir + "notifications.db";
+    private static final String COMPUTATIONS_DB_URL =  globalDir + "computations.db";
 
     public static Connection getUserDBConnection() throws SQLException {
         return DriverManager.getConnection(USER_DB_URL);
@@ -25,12 +26,8 @@ public class DatabaseManager {
         return DriverManager.getConnection(COMPUTATIONS_DB_URL);
     }
 
-//    public static Connection getComputationStepsDBConnection() throws SQLException{
-//        return DriverManager.getConnection(COMPUTATION_STEPS_DB_URL);
-//    }
-
     protected static boolean tableExists(String file, String name) {
-        String db_URL = "jdbc:sqlite:database/" + file + ".db";      //TODO SI PUÒ USARE QUESTA STRINGA PER FORZARE I DATABASE IN UNA CARTELLA
+        String db_URL = globalDir + file + ".db";
         if(!db_URL.equals(USER_DB_URL) & !db_URL.equals(PETRI_NETS_DB_URL) &!db_URL.equals(COMPUTATIONS_DB_URL) &!db_URL.equals(NOTIFICATIONS_DB_URL)){
             System.err.println("Unfindable database");
             return true;

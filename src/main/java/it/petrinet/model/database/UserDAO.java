@@ -1,6 +1,5 @@
 package it.petrinet.model.database;
 
-import it.petrinet.exceptions.ExceptionType;
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.User;
 
@@ -10,8 +9,10 @@ import java.util.List;
 
 public class UserDAO implements DataAccessObject{
     public static void main(String args[]) throws InputTypeException {
-        User admin = new User("davide", "sala", true);
-        insertUser(admin);
+//        removeUser(new User("davide", "sala", true));
+//        removeUser(new User("Davide", "sala", false));
+        insertUser(new User("Davide", "sala", true));
+
     }
 
     public void createTable() {                          //metodo per creazione tabelle
@@ -48,7 +49,7 @@ public class UserDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.USER);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
             }
         }
         catch(InputTypeException e){
@@ -73,7 +74,7 @@ public class UserDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.USER);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
             }
         }
         catch (InputTypeException e){
@@ -81,7 +82,7 @@ public class UserDAO implements DataAccessObject{
         }
     }
 
-    public static void deleteUser(Object user){
+    public static void removeUser(Object user){
         try{
             if (user instanceof User u) {
                 String command = "DELETE FROM users WHERE username = ?";
@@ -96,7 +97,7 @@ public class UserDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.USER);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
             }
         }
         catch (InputTypeException e){
@@ -157,7 +158,7 @@ public class UserDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage,ExceptionType.USER);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
             }
         }
         catch(InputTypeException e){

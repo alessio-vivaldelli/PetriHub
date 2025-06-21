@@ -1,9 +1,15 @@
 // src/main/java/it/petrinet/view/ShowAllController.java
 package it.petrinet.controller;
 
+import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.PetriNet;
 import it.petrinet.model.PetriNetRow;
 import it.petrinet.model.NetCategory;
+import it.petrinet.model.User;
+import it.petrinet.model.database.ComputationsDAO;
+import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.utils.IconUtils;
+import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.PetriNetTableComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -11,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +33,7 @@ public class ShowAllController {
     }
 
     @FXML
-    public void initialize() {
+    public void initialize() throws InputTypeException {
         frameTitle.setText(" "+cardType.getDisplayName());
         IconUtils.setIcon(frameTitle, cardType.getDisplayName() + ".png", 30, 30 , Color.WHITE);
 
@@ -49,7 +56,7 @@ public class ShowAllController {
         System.out.println("Row clicked: " + petriNetRow.nameProperty());
     }
 
-    private void loadShowAllData() {
+    private void loadShowAllData() throws InputTypeException {
         List<PetriNetRow> allNets = switch (cardType) {
             case OWNED -> OwnSet();
             case SUBSCRIBED -> SubSet();
@@ -59,52 +66,38 @@ public class ShowAllController {
         petriNetTable.setData(allNets);
     }
 
-    //TODO
-    private List<PetriNetRow> DisSet() {
-        return Arrays.asList(
+    private List<PetriNetRow> DisSet() throws InputTypeException {
+        List<PetriNet> unknownNets = PetriNetsDAO.getUnknownNetsByUser(ViewNavigator.getAuthenticatedUser());
 
-                new PetriNetRow("Discover Net 1", "Alice", LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.DISCOVER),
-                new PetriNetRow("Discover Net 2", "Bob", LocalDateTime.now().minusDays(1), PetriNetRow.Status.STARTED, NetCategory.DISCOVER),
-                new PetriNetRow("Discover Net 3", "Charlie", LocalDateTime.now().minusDays(2), PetriNetRow.Status.STARTED, NetCategory.DISCOVER),
-                new PetriNetRow("Discover Net 4", "David", LocalDateTime.now().minusDays(3), PetriNetRow.Status.STARTED, NetCategory.DISCOVER),
-                new PetriNetRow("Discover Net 5", "Eve", LocalDateTime.now().minusDays(4), PetriNetRow.Status.STARTED, NetCategory.DISCOVER)
-        );
+        List<PetriNetRow> netsToShow= new ArrayList<PetriNetRow>();
+        for(PetriNet net : unknownNets){
+            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.DISCOVER));
+        }
+
+        return netsToShow;
     }
 
-    //TODO
-    private List<PetriNetRow> SubSet() {
-        return Arrays.asList(
-                new PetriNetRow("Subscribed Net 1", "Alice", LocalDateTime.now(), PetriNetRow.Status.WAITING, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 2", "Bob", LocalDateTime.now().minusDays(1), PetriNetRow.Status.COMPLETED, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 3", "Charlie", LocalDateTime.now().minusDays(2), PetriNetRow.Status.STARTED, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 4", "David", LocalDateTime.now().minusDays(3), PetriNetRow.Status.STARTED, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 5", "Eve", LocalDateTime.now().minusDays(4), PetriNetRow.Status.IN_PROGRESS, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 6", "Frank", LocalDateTime.now().minusDays(5), PetriNetRow.Status.IN_PROGRESS, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 7", "Grace", LocalDateTime.now().minusDays(6), PetriNetRow.Status.WAITING, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 8", "Heidi", LocalDateTime.now().minusDays(7), PetriNetRow.Status.WAITING, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 9", "Ivan", LocalDateTime.now().minusDays(8), PetriNetRow.Status.IN_PROGRESS, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 10", "Judy", LocalDateTime.now().minusDays(9), PetriNetRow.Status.COMPLETED, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 11", "Karl", LocalDateTime.now().minusDays(10), PetriNetRow.Status.IN_PROGRESS, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 12", "Leo", LocalDateTime.now().minusDays(11), PetriNetRow.Status.STARTED, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 13", "Mia", LocalDateTime.now().minusDays(12), PetriNetRow.Status.COMPLETED, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 14", "Nina", LocalDateTime.now().minusDays(13), PetriNetRow.Status.WAITING, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 15", "Oscar", LocalDateTime.now().minusDays(14), PetriNetRow.Status.WAITING, NetCategory.SUBSCRIBED),
-                new PetriNetRow("Subscribed Net 16", "Paul", LocalDateTime.now().minusDays(15), PetriNetRow.Status.WAITING, NetCategory.SUBSCRIBED)
-        );
+    private List<PetriNetRow> SubSet() throws InputTypeException {
+        List<PetriNet> subscribedNets = ComputationsDAO.getNetsSubscribedByUser(ViewNavigator.getAuthenticatedUser());
+
+        List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
+        for(PetriNet net : subscribedNets){
+
+            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.SUBSCRIBED));
+        }
+
+        return netsToShow;
     }
 
-    //TODO
-    private List<PetriNetRow> OwnSet() {
-        return Arrays.asList(
-                new PetriNetRow("Owned Net 1", "Alice", LocalDateTime.now(), PetriNetRow.Status.WAITING, NetCategory.OWNED),
-                new PetriNetRow("Owned Net 2", "Bob", LocalDateTime.now().minusDays(1), PetriNetRow.Status.COMPLETED, NetCategory.OWNED),
-                new PetriNetRow("Owned Net 3", "Charlie", LocalDateTime.now().minusDays(2), PetriNetRow.Status.IN_PROGRESS, NetCategory.OWNED),
-                new PetriNetRow("Owned Net 4", "David", LocalDateTime.now().minusDays(3), PetriNetRow.Status.STARTED, NetCategory.OWNED),
-                new PetriNetRow("Owned Net 5", "Eve", LocalDateTime.now().minusDays(4), PetriNetRow.Status.STARTED, NetCategory.OWNED)
-        );
+    private List<PetriNetRow> OwnSet() throws InputTypeException {
+        List<PetriNet> ownNets = PetriNetsDAO.getNetsByCreator(ViewNavigator.getAuthenticatedUser());
+
+        List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
+        for(PetriNet net : ownNets){
+            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.OWNED));
+        }
+
+        return netsToShow;
     }
-
-
-
 
 }
