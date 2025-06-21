@@ -138,6 +138,7 @@ public class PetriNetCreationPane extends Pane {
    * @param currentNodeType The node type to set.
    */
   public void setCurrentNodeType(NODE_TYPE currentNodeType) {
+    setCurrentMode(PetriNetCreationPane.MODE.CREATE);
     this.currentNodeType = currentNodeType;
   }
 

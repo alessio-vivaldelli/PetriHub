@@ -41,9 +41,9 @@ public class TestingApplication extends Application {
     petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.SELECTION);
 
     // Set the button actions to change the mode of the PetriNetCreationPane
-    creation.setOnAction(_ -> {
-      petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.CREATE);
-    });
+    // creation.setOnAction(_ -> {
+    // petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.CREATE);
+    // });
     connect.setOnAction(_ -> {
       petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.CONNECT);
     });
