@@ -1,6 +1,7 @@
 package it.petrinet.model.database;
 
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.Computation;
 import it.petrinet.model.User;
 
 import java.sql.*;
@@ -14,6 +15,48 @@ public class UserDAO implements DataAccessObject{
         insertUser(new User("Davide", "sala", true));
 
     }
+
+    public static int getNumberOfOwnedNetsByUser(Object user) throws InputTypeException {
+        String command = "SELECT COUNT(netName) FROM petri_nets WHERE creatorId = ?";
+        int netsNumber = -1;
+        try{
+            if(user instanceof User u) {
+                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+                    p_statement.setString(1, u.getUsername());
+                    ResultSet result = p_statement.executeQuery();
+
+                    netsNumber = result.getInt(1);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return netsNumber;
+    }
+
+    public static int getNumberOfSubscribedNetsByUser(Object user) throws InputTypeException {
+        int netsNumber = -1;
+        try{
+            if(user instanceof User u) {
+                netsNumber = ComputationsDAO.getNetsSubscribedByUser(user).size();
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return netsNumber;
+    }
+
 
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS users (" +

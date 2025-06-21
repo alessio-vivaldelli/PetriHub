@@ -12,10 +12,8 @@ import java.util.Set;
 
 public class PetriNetsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException{
-        System.out.println(getUnknownNetsByUser(new User("Davide", "sala", false)));
-        //insertNet(new PetriNet("net2", "ale", 101, "XML", "image", true ));
+        insertNet(new PetriNet("net5", "Antony", 404040, "XML", "image", false ));
     }
-
 
     public void createTable() {
         String table = "CREATE TABLE IF NOT EXISTS petri_nets (" +

@@ -1,5 +1,7 @@
 package it.petrinet.controller;
 
+import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.view.components.PetriNetTableComponent;
 import it.petrinet.model.NetCategory;
 import it.petrinet.model.PetriNetRow;
@@ -13,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
+import javax.swing.text.View;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +49,7 @@ public class HomeController {
     // === Initialization ===
 
     @FXML
-    private void initialize() {
+    private void initialize() throws InputTypeException {
         initializeUserInterface();
         initializeTableComponent();
         loadInitialData();
@@ -86,17 +89,36 @@ public class HomeController {
     /**
      * Load initial data into the interface
      */
-    private void loadInitialData() {
+    private void loadInitialData() throws InputTypeException {
         populateRecentNetsTable();
         updateDashboardStatistics();
     }
 
     //TODO: Replace with actual data service calls
-    private void updateDashboardStatistics() {
-        //ownedNetsLabel.setText("20");
-        //ownedNetsLabel.setText(UserDAO.getNumberOfOwnedNetsByUser().toString());
-        discoverableNetsLabel.setText("15");
-        subscribedNetsLabel.setText("10");
+    private void updateDashboardStatistics() throws InputTypeException {
+        int numberOfNets = UserDAO.getNumberOfOwnedNetsByUser(ViewNavigator.getAuthenticatedUser());
+        if(numberOfNets < 0){
+            ownedNetsLabel.setText("Error");
+        }
+        else{
+            ownedNetsLabel.setText(String.valueOf(numberOfNets));
+        }
+        numberOfNets = PetriNetsDAO.getUnknownNetsByUser(ViewNavigator.getAuthenticatedUser()).size();
+        if(numberOfNets < 0){
+            discoverableNetsLabel.setText("Error");
+        }
+        else{discoverableNetsLabel.setText(String.valueOf(numberOfNets));}
+
+        numberOfNets = UserDAO.getNumberOfSubscribedNetsByUser(ViewNavigator.getAuthenticatedUser());
+        if(numberOfNets < 0){
+            subscribedNetsLabel.setText("Error");
+        }
+        else{
+            subscribedNetsLabel.setText(String.valueOf(numberOfNets));
+        }
+
+
+
     }
 
     // === Event Handlers ===
