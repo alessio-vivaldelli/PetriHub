@@ -5,6 +5,7 @@ import it.petrinet.model.NetCategory;
 import it.petrinet.model.PetriNetRow;
 import it.petrinet.model.PetriNetRow.Status;
 import it.petrinet.model.User;
+import it.petrinet.model.database.UserDAO;
 import it.petrinet.view.ViewNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,7 +27,7 @@ public class HomeController {
     private static final String USER_WELCOME_FORMAT = "Welcome, %s!";
 
     // Dashboard statistics //TODO: Update with actual data
-    @FXML private Label ownedNetsLabel;
+    @FXML private Label ownedNetsLabel ;
     @FXML private Label discoverableNetsLabel;
     @FXML private Label subscribedNetsLabel;
 
@@ -92,7 +93,8 @@ public class HomeController {
 
     //TODO: Replace with actual data service calls
     private void updateDashboardStatistics() {
-        ownedNetsLabel.setText("20");
+        //ownedNetsLabel.setText("20");
+        ownedNetsLabel.setText(UserDAO.getNumberOfOwnedNetsByUser().toString());
         discoverableNetsLabel.setText("15");
         subscribedNetsLabel.setText("10");
     }
