@@ -189,4 +189,9 @@ public final class ViewNavigator {
         mainController.setNavBar(null);
         loadView("NetCreationView.fxml");
     }
+
+    public static void exitCreation() {
+        mainController.setNavBar(new NavBar());
+        loadView("HomeView.fxml");
+    }
 }

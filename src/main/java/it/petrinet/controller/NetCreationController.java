@@ -1,14 +1,18 @@
 package it.petrinet.controller;
 
 import it.petrinet.petrinet.view.PetriNetCreationPane;
+import it.petrinet.view.ViewNavigator;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 public class NetCreationController {
 
-    @FXML private VBox CanvasContainer;
+    public Button finishButton;
+    @FXML private HBox CanvasContainer;
     private PetriNetCreationPane Canvas;
 
     @FXML
@@ -22,7 +26,12 @@ public class NetCreationController {
             Canvas.init();
         });
         delay.play();
+
     }
 
+
+    public void exitCreation() {
+        ViewNavigator.exitCreation();
+    }
 
 }

@@ -23,14 +23,14 @@
             </HBox>
 
             <!-- Finish button (right) -->
-            <Button text="Finish"
+            <Button fx:id="finishButton" text="Finish" onAction="#exitCreation"
                     style="-fx-background-color: #7dd3fc; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold;"
-                    prefWidth="100.0" prefHeight="35.0" HBox.hgrow="NEVER"/>
+                    prefWidth="100.0" prefHeight="35.0" HBox.hgrow="NEVER" accessibleText="Finish" />
         </HBox>
     </top>
 
     <center>
-        <VBox fx:id="CanvasContainer" alignment="CENTER" spacing="20.0" style="-fx-padding: 20;">
-        </VBox>
+        <HBox fx:id="CanvasContainer" alignment="CENTER" spacing="20.0" style="-fx-padding: 20;">
+        </HBox>
     </center>
 </BorderPane>
