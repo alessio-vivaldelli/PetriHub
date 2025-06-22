@@ -397,8 +397,9 @@ public class PetriNetCreationPane extends Pane {
     // Set up edge click action for deletion mode
     graphView.setEdgeSingleClickAction(edge -> {
       if (currentMode.equals(MODE.DELETION)) {
-        var element = graphView.getModel().edges().stream()
-            .filter(e -> e == edge.getUnderlyingEdge()).findFirst().orElse(null);
+        // var element = graphView.getModel().edges().stream()
+        // .filter(e -> e == edge.getUnderlyingEdge()).findFirst().orElse(null);
+        var element = edge.getUnderlyingEdge();
         if (element != null) {
           petriNetBuilder.removeArc(edge.getUnderlyingEdge().vertices()[0].element().getName(),
               edge.getUnderlyingEdge().vertices()[1].element().getName());
@@ -564,8 +565,9 @@ public class PetriNetCreationPane extends Pane {
     // Set up vertex click action for connections
     graphView.setVertexSingleClickAction(vertex -> {
       if (currentMode.equals(MODE.CONNECT)) {
-        Vertex<Node> element = graphView.getModel().vertices().stream()
-            .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
+        // Vertex<Node> element = graphView.getModel().vertices().stream()
+        // .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
+        Vertex<Node> element = vertex.getUnderlyingVertex();
         if (firstSelectedVertex == null) {
           // First vertex selected
           firstSelectedVertex = element;
@@ -614,8 +616,10 @@ public class PetriNetCreationPane extends Pane {
         System.out.println("------");
       } else if (currentMode.equals(MODE.DELETION)) {
         // In DELETION mode, delete the vertex on left click
-        Vertex<Node> element = graphView.getModel().vertices().stream()
-            .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
+        // Vertex<Node> element = graphView.getModel().vertices().stream()
+        // .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
+        Vertex<Node> element = vertex.getUnderlyingVertex();
+
         if (element != null) {
           removeNode(element);
           System.out.println("Deleted vertex: " + element.element().getName());
