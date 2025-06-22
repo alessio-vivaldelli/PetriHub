@@ -57,8 +57,8 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
   private NODE_TYPE currentNodeType = NODE_TYPE.TRANSITION;
   private MODE currentMode = MODE.CREATE;
 
-  private final String name;
-  private final String description;
+  private String name = "";
+  private String description = "";
 
   private PetriNetBuilder petriNetBuilder;
   private Consumer<String> onPetriNetSaved = null;
@@ -76,6 +76,10 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
 
   public PetriNetEditorPane(String petriNetName) {
     this(petriNetName, "");
+  }
+
+  public PetriNetEditorPane() {
+    this("", "");
   }
 
   /**
@@ -135,12 +139,24 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     this.currentNodeType = currentNodeType;
   }
 
+  public void saveNetAction() {
+    saveNetAction(name, description);
+  }
+
   /**
    * Handles the action of saving the Petri Net.
    * Shows a confirmation dialog, builds the model, serializes it, and invokes the
    * save callback if saved successfully and the callback is set.
    */
-  public void saveNetAction() {
+  public void saveNetAction(String petriNetName, String petriNetDescription) {
+    this.name = petriNetName;
+    this.description = petriNetDescription;
+
+    if (petriNetName.isEmpty() && petriNetDescription.isEmpty()) {
+      showMessage(AlertType.ERROR, "Error", "Empty Name or Description",
+          "Please provide a valid name and description for the Petri Net.");
+      return; // Exit if name or description is empty
+    }
     showMessage(AlertType.CONFIRMATION, "Save Petri Net",
         "Save Confirmation", "Do you want to save the Petri Net?").ifPresent((response) -> {
           if (response.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
