@@ -34,6 +34,15 @@ public class PetriNetBuilder {
     this.petriName = petriNetName;
   }
 
+  public PetriNetBuilder() {
+    this("");
+  }
+
+  public PetriNetBuilder setPetriName(String name) {
+    this.petriName = name;
+    return this;
+  }
+
   public PetriNetBuilder setNodePosition(String name, double x, double y) {
     Node node = getNodeByName(name);
     if (node instanceof Place place) {

@@ -157,6 +157,9 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
           "Please provide a valid name and description for the Petri Net.");
       return; // Exit if name or description is empty
     }
+
+    petriNetBuilder.setPetriName(name);
+
     showMessage(AlertType.CONFIRMATION, "Save Petri Net",
         "Save Confirmation", "Do you want to save the Petri Net?").ifPresent((response) -> {
           if (response.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
