@@ -11,16 +11,16 @@
             <place id="p1" type="start">
                 <name>p1</name>
                 <graphics>
-                    <offset x="139.0" y="542.0"/>
+                    <offset x="86.0" y="474.0"/>
                 </graphics>
             </place>
-            <place id="p2" type="end">
-                <name>p2</name>
+            <place id="pend" type="normal">
+                <name>pend</name>
                 <graphics>
-                    <offset x="335.0" y="334.0"/>
+                    <offset x="319.0" y="344.0"/>
                 </graphics>
             </place>
-            <arc id="t1_p2" source="t1" target="p2"/>
+            <arc id="t1_pend" source="t1" target="pend"/>
             <arc id="p1_t1" source="p1" target="t1"/>
         </page>
     </net>

@@ -36,7 +36,7 @@ public class TestingApplication extends Application {
     buttonBox.getChildren().addAll(creation, connect, delete, save, select);
 
     // Initialize the PetriNetEditorPane with a name and description
-    petriNetCreationPane = new PetriNetEditorPane("testNet", "description");
+    petriNetCreationPane = new PetriNetEditorPane();
 
     // Set the initial mode to Select
     petriNetCreationPane.setCurrentMode(PetriNetEditorPane.MODE.SELECTION);
@@ -52,7 +52,7 @@ public class TestingApplication extends Application {
       petriNetCreationPane.setCurrentMode(PetriNetEditorPane.MODE.DELETION);
     });
     save.setOnAction(_ -> {
-      petriNetCreationPane.saveNetAction();
+      petriNetCreationPane.saveNetAction("testing_petri_net", "description");
     });
     select.setOnAction(_ -> {
       petriNetCreationPane.setCurrentMode(PetriNetEditorPane.MODE.SELECTION);

@@ -158,6 +158,9 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       return; // Exit if name or description is empty
     }
 
+    System.out.println("Saving Petri Net with name: " + petriNetName +
+        " and description: " + petriNetDescription);
+
     petriNetBuilder.setPetriName(name);
 
     showMessage(AlertType.CONFIRMATION, "Save Petri Net",
