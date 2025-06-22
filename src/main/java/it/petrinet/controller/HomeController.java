@@ -1,7 +1,7 @@
 package it.petrinet.controller;
 
 import it.petrinet.utils.IconUtils;
-import it.petrinet.view.components.PetriNetTableComponent;
+import it.petrinet.view.components.table.PetriNetTableComponent;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.TableRow.Status;

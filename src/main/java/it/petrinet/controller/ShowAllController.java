@@ -6,7 +6,7 @@ import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.Status;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
-import it.petrinet.view.components.PetriNetTableComponent;
+import it.petrinet.view.components.table.PetriNetTableComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;

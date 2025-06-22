@@ -62,14 +62,6 @@ public final class ViewNavigator {
 
     public static void navigateToSubNets() { navigateToShowAll(NetCategory.SUBSCRIBED);}
 
-    //TODO: implement this method
-
-
-    public static void navigateToCreateNet() {
-        System.out.println("Navigating to create net view");
-    }
-    //---------------------------
-
     public static void navigateToDiscover() { navigateToShowAll(NetCategory.DISCOVER);}
 
     private static void navigateToShowAll(NetCategory type) {

@@ -3,7 +3,7 @@ package it.petrinet.controller;
 import it.petrinet.model.TableRow.ComputationRow;
 import it.petrinet.model.TableRow.Status;
 import it.petrinet.utils.IconUtils;
-import it.petrinet.view.components.UserSelectComponent;
+import it.petrinet.view.components.table.UserSelectComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;

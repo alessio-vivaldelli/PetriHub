@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="it.petrinet.controller.NetCreationController" >
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.petrinet.controller.NetCreationController">
+
     <top>
-        <!-- Top toolbar like the image -->
-        <HBox alignment="CENTER" prefHeight="60.0" spacing="20.0" style="-fx-background-color: transparent;">
-            <padding>
-                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0"/>
-            </padding>
+        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10;">
+            <!-- Left spacer with fixed width matching finish button area -->
+            <Region prefWidth="100" HBox.hgrow="NEVER"/>
 
-            <!-- Center toolbar with icons -->
-            <HBox alignment="CENTER" spacing="15.0" style="-fx-background-color: #2a2a33; -fx-background-radius: 25; width: 70%;"
-                  prefHeight="40.0" HBox.hgrow="ALWAYS">
-                <padding>
-                    <Insets bottom="5.0" left="150.0" right="150.0" top="5.0"/>
-                </padding>
-            </HBox>
+            <!-- Centered toolbar container -->
+            <HBox fx:id="toolbarContainer" alignment="CENTER" HBox.hgrow="ALWAYS"
+                  style="-fx-padding: 0;"/>
 
-            <!-- Finish button (right) -->
-            <Button fx:id="finishButton" text="Finish" onAction="#exitCreation"
-                    style="-fx-background-color: #7dd3fc; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold;"
-                    prefWidth="100.0" prefHeight="35.0" HBox.hgrow="NEVER" accessibleText="Finish" />
+            <!-- Finish button with fixed width -->
+<Button fx:id="finishButton" mnemonicParsing="false" onAction="#onFinishAction"
+        style="-fx-background-color: #89b4fa; -fx-text-fill: #1E1E2E; -fx-font-size: 16; -fx-padding: 10 10 10 15; -fx-background-radius: 8;"
+        text="Finish" prefWidth="100" HBox.hgrow="NEVER">
+    <HBox.margin>
+        <Insets right="25" />
+    </HBox.margin>
+</Button>
         </HBox>
     </top>
 
     <center>
-        <HBox fx:id="CanvasContainer" alignment="CENTER" spacing="20.0" style="-fx-padding: 20;">
-        </HBox>
+        <Pane fx:id="canvasContainer" style="-fx-background-color: transparent;"/>
     </center>
 </BorderPane>

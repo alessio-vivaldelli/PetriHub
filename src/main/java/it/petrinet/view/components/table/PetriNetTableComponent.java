@@ -1,4 +1,4 @@
-package it.petrinet.view.components;
+package it.petrinet.view.components.table;
 
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;

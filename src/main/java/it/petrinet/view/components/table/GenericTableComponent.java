@@ -1,6 +1,6 @@
 
 // Base generic table component
-package it.petrinet.view.components;
+package it.petrinet.view.components.table;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

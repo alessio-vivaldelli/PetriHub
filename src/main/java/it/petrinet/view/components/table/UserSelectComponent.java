@@ -1,4 +1,4 @@
-package it.petrinet.view.components;
+package it.petrinet.view.components.table;
 
 import it.petrinet.model.TableRow.ComputationRow;
 import it.petrinet.model.TableRow.Status;
