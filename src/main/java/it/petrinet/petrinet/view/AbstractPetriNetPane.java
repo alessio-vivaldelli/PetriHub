@@ -1,5 +1,7 @@
 package it.petrinet.petrinet.view;
 
+import java.util.Collection;
+
 import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Edge;
@@ -12,11 +14,13 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
 
 import it.petrinet.petrinet.model.Node;
+import it.petrinet.petrinet.model.PLACE_TYPE;
 import it.petrinet.petrinet.model.Place;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
 import it.petrinet.petrinet.model.Transition;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Point2D;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -36,18 +40,16 @@ import javafx.util.Duration;
  */
 public abstract class AbstractPetriNetPane extends Pane {
 
+  private static final String USER_TRANSITION_STYLE = "userTransition";
+  private static final String ADMIN_TRANSITION_STYLE = "adminTransition";
+  private static final String START_VERTEX_STYLE = "startVertex";
+  private static final String END_VERTEX_STYLE = "endVertex";
+  private static final String NORMAL_VERTEX_STYLE = "vertex";
+
   /** The JavaFX component responsible for rendering the graph. */
   private SmartGraphPanel<Node, String> graphView;
-
-  /**
-   * A reference to the first vertex selected during a connection operation.
-   * This is intended to be managed by subclasses that implement a connection
-   * mode.
-   */
-  private Vertex<Node> firstSelectedVertex = null;
-
   /** The underlying data model of the graph, containing vertices and edges. */
-  private Graph<Node, String> g;
+  private DigraphEdgeList<Node, String> g;
 
   /**
    * A wrapper panel for {@link #graphView} that provides zoom and pan
@@ -62,6 +64,8 @@ public abstract class AbstractPetriNetPane extends Pane {
    * Default constructor.
    */
   public AbstractPetriNetPane() {
+    setupGraph();
+    setupInteraction();
     this.setPrefSize(1920, 1080);
   }
 
@@ -75,11 +79,12 @@ public abstract class AbstractPetriNetPane extends Pane {
     graphView = new SmartGraphPanel<>(g, initialPlacement);
     contentZoomScrollPane = new ContentZoomScrollPane(graphView);
 
-    VBox vBox = new VBox(contentZoomScrollPane);
+    graphView.setPrefHeight(1080);
+
+    VBox vBox = new VBox();
+    vBox.getChildren().add(contentZoomScrollPane);
     vBox.prefWidthProperty().bind(this.widthProperty());
     vBox.prefHeightProperty().bind(this.heightProperty());
-
-    this.getChildren().clear();
     this.getChildren().add(vBox);
   }
 
@@ -89,7 +94,7 @@ public abstract class AbstractPetriNetPane extends Pane {
    * "on...Click" hook methods in this class.
    */
   private final void setupInteraction() {
-    graphView.setCanvasSingleClickAction(this::onCanvasSingleClickAction);
+    graphView.setCanvasSingleClickAction(e -> onCanvasSingleClickAction(e));
     graphView.setEdgeSingleClickAction(this::onEdgeSingleClickAction);
     graphView.setVertexSingleClickAction(this::onVertexSingleClickAction);
     graphView.setVertexRightClickAction(this::onVertexRightClickAction);
@@ -179,7 +184,10 @@ public abstract class AbstractPetriNetPane extends Pane {
     graphView.init();
     graphView.setAutomaticLayout(true);
     graphView.setAutomaticLayout(false);
+    graphView.setPrefHeight(1080);
+
     graphView.update();
+
     contentZoomScrollPane.zoomIn();
   }
 
@@ -194,6 +202,7 @@ public abstract class AbstractPetriNetPane extends Pane {
       return null;
     }
     Vertex<Node> newVertex = g.insertVertex(element);
+    graphView.updateAndWait();
 
     Vertex<Node> v = graphView.getModel().vertices().stream()
         .filter(vtx -> vtx == newVertex).findFirst().orElse(null);
@@ -202,10 +211,10 @@ public abstract class AbstractPetriNetPane extends Pane {
       return null;
     if (element instanceof Transition t) {
       graphView.getStylableVertex(v)
-          .setStyleClass((t.getType().equals(TRANSITION_TYPE.USER)) ? "userTransition" : "adminTransition");
+          .setStyleClass((t.getType().equals(TRANSITION_TYPE.USER)) ? USER_TRANSITION_STYLE : ADMIN_TRANSITION_STYLE);
     } else if (element instanceof Place p) {
       if (p.isEndPlace() || p.isStartPlace()) {
-        graphView.getStylableVertex(v).setStyleClass(p.isStartPlace() ? "startVertex" : "endVertex");
+        graphView.getStylableVertex(v).setStyleClass(p.isStartPlace() ? START_VERTEX_STYLE : END_VERTEX_STYLE);
       }
     }
     graphView.setVertexPosition(v, element.getPosition().getX(), element.getPosition().getY());
@@ -223,9 +232,32 @@ public abstract class AbstractPetriNetPane extends Pane {
    * @param to    The destination vertex.
    * @param label The label for the new arc.
    */
-  protected void createArc(Vertex<Node> from, Vertex<Node> to, String label) {
+  protected void addArcToGraph(Vertex<Node> from, Vertex<Node> to, String label) {
     g.insertEdge(from, to, label);
     graphView.update();
+  }
+
+  /**
+   * Creates a directed edge (arc) between two vertices.
+   *
+   * @param from  The source vertex.
+   * @param to    The destination vertex.
+   * @param label The label for the new arc.
+   */
+  protected void addArcToGraph(Node from, Node to, String label) {
+    g.insertEdge(from, to, label);
+    graphView.update();
+  }
+
+  /**
+   * Creates a directed edge (arc) between two vertices.
+   *
+   * @param from  The source vertex.
+   * @param to    The destination vertex.
+   * @param label The label for the new arc.
+   */
+  protected void addArcToGraph(String from, String to, String label) {
+    this.addArcToGraph(getVertexByName(from), getVertexByName(to), label);
   }
 
   /**
@@ -248,6 +280,74 @@ public abstract class AbstractPetriNetPane extends Pane {
     graphView.update();
   }
 
+  protected boolean setNodeLabel(Vertex<Node> node, String newLabel) {
+    if (!newLabel.isEmpty() && !newLabel.equals(node.element().getName()) && isLabelUnique(node, newLabel)) {
+      node.element().setName(newLabel);
+      graphView.update();
+      return true;
+    }
+    return false;
+
+  }
+
+  protected void setTransitionType(TRANSITION_TYPE type, Vertex<Node> transition) {
+    if (transition.element() instanceof Transition t) {
+      t.setType(type);
+      if (type.equals(TRANSITION_TYPE.USER)) {
+        graphView.getStylableVertex(transition.element()).setStyleClass(USER_TRANSITION_STYLE);
+
+      } else {
+        graphView.getStylableVertex(transition.element()).setStyleClass(ADMIN_TRANSITION_STYLE);
+
+      }
+    }
+    graphView.update();
+
+  }
+
+  protected void setPlaceType(PLACE_TYPE type, Vertex<Node> place) {
+    if (place.element() instanceof Place p) {
+      p.setType(type);
+      if (type.equals(PLACE_TYPE.START)) {
+
+        graphView.getStylableVertex(place.element()).setStyleClass(START_VERTEX_STYLE);
+      } else if (type.equals(PLACE_TYPE.END)) {
+
+        graphView.getStylableVertex(place.element()).setStyleClass(END_VERTEX_STYLE);
+      } else {
+
+        graphView.getStylableVertex(place.element()).setStyleClass(NORMAL_VERTEX_STYLE);
+      }
+    }
+    graphView.update();
+  }
+
+  protected final Vertex<Node> getVertexByName(String name) {
+    return getGraphVertices().stream()
+        .filter(
+            vtx -> vtx.element().getName().equals(name))
+        .findFirst().orElse(null);
+  }
+
+  protected final void showContextMenuOnGraph(ContextMenu contextMenu, Vertex<Node> element) {
+    contextMenu.show(graphView, graphView.getScene().getWindow().getX() + graphView.getVertexPositionX(element),
+        graphView.getScene().getWindow().getY() + graphView.getVertexPositionY(element));
+
+  }
+
+  // Checks if the given label is unique among all elements in the graph
+  protected boolean isLabelUnique(Vertex<Node> node, String label) {
+    return getGraphVertices().stream()
+        .noneMatch(e -> e.element().getName().equals(label) && e != node);
+  }
+
+  protected final boolean doesEdgeExist(Vertex<Node> from, Vertex<Node> to) {
+    return getGraphEdges().stream()
+        .anyMatch(edge -> (g.opposite(from, edge) == to) ||
+            (g.opposite(to, edge) == from));
+
+  }
+
   /**
    * Zooms in the canvas view.
    */
@@ -257,6 +357,18 @@ public abstract class AbstractPetriNetPane extends Pane {
     // System.out.println("Zoom in, current scale: " +
     // contentZoomScrollPane.scaleFactorProperty().get());
     contentZoomScrollPane.zoomIn();
+  }
+
+  protected final Collection<Vertex<Node>> getGraphVertices() {
+    return graphView.getModel().vertices();
+  }
+
+  protected final Point2D getVertexPosition(Vertex<Node> node) {
+    return new Point2D(graphView.getVertexPositionX(node), graphView.getVertexPositionY(node));
+  }
+
+  protected final Collection<Edge<String, Node>> getGraphEdges() {
+    return graphView.getModel().edges();
   }
 
   /**
@@ -282,13 +394,10 @@ public abstract class AbstractPetriNetPane extends Pane {
   }
 
   /**
-   * Initializes the entire pane, setting up the graph, interactions, and
-   * components.
    * This is the main entry point to make the component ready for use.
+   * This method must be called after the scene is fully laid out
    */
-  public void init() {
-    setupGraph();
-    setupInteraction();
+  public final void init() {
 
     // Use a short delay to ensure the scene is properly laid out before
     // initializing the graph view

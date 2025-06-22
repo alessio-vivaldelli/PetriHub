@@ -2,7 +2,8 @@ package it.petrinet.model;
 
 import java.io.IOException;
 
-import it.petrinet.petrinet.view.PetriNetCreationPane;
+import it.petrinet.petrinet.view.PetriNetEditorPane;
+import it.petrinet.petrinet.view.PetriNetEditorPane;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -15,7 +16,7 @@ import javafx.util.Duration;
 
 public class TestingApplication extends Application {
 
-  private PetriNetCreationPane petriNetCreationPane;
+  private PetriNetEditorPane petriNetCreationPane;
 
   @Override
   public void start(Stage stage) throws IOException {
@@ -34,37 +35,37 @@ public class TestingApplication extends Application {
     buttonBox.setSpacing(10);
     buttonBox.getChildren().addAll(creation, connect, delete, save, select);
 
-    // Initialize the PetriNetCreationPane with a name and description
-    petriNetCreationPane = new PetriNetCreationPane("testNet", "description");
+    // Initialize the PetriNetEditorPane with a name and description
+    petriNetCreationPane = new PetriNetEditorPane("testNet", "description");
 
     // Set the initial mode to Select
-    petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.SELECTION);
+    petriNetCreationPane.setCurrentMode(PetriNetEditorPane.MODE.SELECTION);
 
-    // Set the button actions to change the mode of the PetriNetCreationPane
+    // Set the button actions to change the mode of the PetriNetEditorPane
     // creation.setOnAction(_ -> {
-    // petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.CREATE);
+    // petriNetCreationPane.setCurrentMode(PetriNetEditorPane.MODE.CREATE);
     // });
     connect.setOnAction(_ -> {
-      petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.CONNECT);
+      petriNetCreationPane.setCurrentMode(PetriNetEditorPane.MODE.CONNECT);
     });
     delete.setOnAction(_ -> {
-      petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.DELETION);
+      petriNetCreationPane.setCurrentMode(PetriNetEditorPane.MODE.DELETION);
     });
     save.setOnAction(_ -> {
       petriNetCreationPane.saveNetAction();
     });
     select.setOnAction(_ -> {
-      petriNetCreationPane.setCurrentMode(PetriNetCreationPane.MODE.SELECTION);
+      petriNetCreationPane.setCurrentMode(PetriNetEditorPane.MODE.SELECTION);
     });
 
     // Set the select button to change the node type to create a new node
     Button place = new Button("Place");
     Button transition = new Button("Transition");
     place.setOnAction(_ -> {
-      petriNetCreationPane.setCurrentNodeType(PetriNetCreationPane.NODE_TYPE.PLACE);
+      petriNetCreationPane.setCurrentNodeType(PetriNetEditorPane.NODE_TYPE.PLACE);
     });
     transition.setOnAction(_ -> {
-      petriNetCreationPane.setCurrentNodeType(PetriNetCreationPane.NODE_TYPE.TRANSITION);
+      petriNetCreationPane.setCurrentNodeType(PetriNetEditorPane.NODE_TYPE.TRANSITION);
     });
     HBox nodeTypeBox = new HBox();
     nodeTypeBox.setSpacing(10);
@@ -92,12 +93,7 @@ public class TestingApplication extends Application {
     stage.setScene(scene);
     stage.show();
 
-    petriNetCreationPane.start();
-    PauseTransition delay = new PauseTransition(Duration.millis(200));
-    delay.setOnFinished(_ -> {
-      petriNetCreationPane.init();
-    });
-    delay.play();
+    petriNetCreationPane.init();
   }
 
   // start application
