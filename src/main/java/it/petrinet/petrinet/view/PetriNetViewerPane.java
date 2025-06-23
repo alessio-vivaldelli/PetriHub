@@ -20,16 +20,29 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
 
   public PetriNetViewerPane(String petriNetPNML, Computation computation) {
     super();
-    this.computation = computation;
     this.petriNetPNML = petriNetPNML;
 
     if (!(new File(petriNetPNML)).exists()) {
       throw new IllegalArgumentException("File does not exist: " + petriNetPNML);
     }
+
+    if (computation == null) {
+      disableInteraction();
+    }
+    setComputation(computation);
   }
 
   public PetriNetViewerPane(String petriNetPNML) {
     this(petriNetPNML, null);
+  }
+
+  public void setComputation(Computation computation) {
+    this.computation = computation;
+    if (computation == null) {
+      disableInteraction();
+    } else {
+      enableInteraction();
+    }
   }
 
   @Override
