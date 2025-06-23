@@ -2,6 +2,8 @@
 // Base generic table component
 package it.petrinet.view.components.table;
 
+import it.petrinet.Main;
+import it.petrinet.view.ViewNavigator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -27,6 +29,7 @@ public abstract class GenericTableComponent<T> extends BaseTableComponent {
     public void initialize() {
         setupTableColumns();
         setupTableBehavior();
+        System.out.println("Initializing GenericTableComponent with FXML: " + getFXMLPath());
         initializeData();
     }
 

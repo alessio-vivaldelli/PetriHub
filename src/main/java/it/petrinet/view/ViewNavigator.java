@@ -37,24 +37,22 @@ public final class ViewNavigator {
     // Navigation methods
     public static void LoginScene() {
         mainController.setNavBar(null);
-        resizeStage(500, 400, "PH - Login");
+        resizeStage(500, 400, "PH - Petri Nets Hub");
+        authenticatedUser = null; // Reset authenticated user
         loadView("LoginView.fxml");
     }
 
     public static void HomeScene() {
         mainController.setNavBar(new NavBar());
-        resizeStage(0, 0, "Home");
-        Main.getPrimaryStage().setTitle(" ");
+        resizeStage(0, 0, " ");
         loadView("HomeView.fxml");
     }
 
     public static void navigateToLogin() {
-        Main.getPrimaryStage().setTitle("PH - Login");
         loadView("LoginView.fxml");
     }
 
     public static void navigateToRegister() {
-        Main.getPrimaryStage().setTitle("PH - Registration");
         loadView("RegisterView.fxml");
     }
 
@@ -91,11 +89,6 @@ public final class ViewNavigator {
         return authenticatedUser.isAdmin();
     }
 
-    public static void logout() {
-        authenticatedUser = null;
-        navigateToLogin();
-    }
-
     // Load FXML view
     private static void loadView(String fxmlName) {
         if (mainController == null) {
@@ -121,6 +114,9 @@ public final class ViewNavigator {
     // Resize window with animation
     private static void resizeStage(double width, double height, String title) {
         Stage stage = Main.getPrimaryStage();
+
+        stage.setMaximized(false);
+
         if (stage == null) {
             throw new IllegalStateException("Primary stage is null");
         }
@@ -173,8 +169,10 @@ public final class ViewNavigator {
             }
         });
 
+        Main.getPrimaryStage().setTitle(title);
         // Play animation sequence
         new SequentialTransition(fadeOut, pause, fadeIn).play();
+
     }
 
     public static void navigateToNetCreation() {
@@ -185,5 +183,26 @@ public final class ViewNavigator {
     public static void exitCreation() {
         mainController.setNavBar(new NavBar());
         loadView("HomeView.fxml");
+    }
+
+    //Message handling
+
+    private static String pendingMessage = null;
+
+    public static void navigateToLoginWithMessage(String message) {
+        setPendingMessage(message);
+        navigateToLogin();
+    }
+
+    public static void setPendingMessage(String message) {
+        pendingMessage = message;
+    }
+
+    public static String getPendingMessage() {
+        return pendingMessage;
+    }
+
+    public static void clearPendingMessage() {
+        pendingMessage = null;
     }
 }

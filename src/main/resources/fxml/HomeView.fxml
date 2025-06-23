@@ -38,14 +38,14 @@
                 <Pane HBox.hgrow="ALWAYS"/>
             </HBox>
 
-            <!-- Table Container - The PetriNetTableComponent will be added here programmatically -->
-        <VBox styleClass="modern-table-container" maxWidth="Infinity" prefHeight="272">
-            <VBox fx:id="tableContainer"/>
-        </VBox>
+            <!-- Table Container - Auto-sizing based on rows -->
+            <VBox styleClass="modern-table-container" maxWidth="Infinity">
+                <VBox fx:id="tableContainer"/>
+            </VBox>
 
             <!-- Quick Stats Section -->
-<Label text="Quick Stats"
-              style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold; -fx-padding: 25 0 0 0"/>
+            <Label text="Quick Stats"
+                   style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold; -fx-padding: 25 0 0 0"/>
 
             <HBox spacing="20">
                 <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleOwnedNetsClick"

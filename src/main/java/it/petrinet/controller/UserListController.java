@@ -6,6 +6,7 @@ import it.petrinet.utils.IconUtils;
 import it.petrinet.view.components.table.UserSelectComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.time.LocalDateTime;
@@ -34,6 +35,7 @@ public class UserListController {
     private  void initializeTableComponent() {
         userTable = new UserSelectComponent();
         userTable.setOnRowClickHandler(this::handleTableRowClick);
+        VBox.setVgrow(userTable, Priority.ALWAYS);
         tableContainer.getChildren().add(userTable);
     }
 

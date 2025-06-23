@@ -71,6 +71,12 @@ public class NetCreationController implements Initializable {
     @FXML
     private void onFinishAction() {
         System.out.println("Finish button clicked - Saving the Petri net");
+
+        // Clean up any resources
+        if (canvas != null) canvas = null;
+        if (toolbar != null) toolbar = null;
+
+        // Navigate back to home
         ViewNavigator.exitCreation();
     }
 

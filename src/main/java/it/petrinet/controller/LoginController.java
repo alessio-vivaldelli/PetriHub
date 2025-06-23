@@ -18,14 +18,13 @@ import java.util.Objects;
 import static it.petrinet.utils.Validation.isValidInput;
 
 public class LoginController {
-    private static final String LOGO_PATH      = "/assets/images/logo.png";
+    private static final String LOGO_PATH = "/assets/images/logo.png";
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private Label statusLabel;
     @FXML private ImageView logoView;
     @FXML private Button loginButton;
-
 
     @FXML
     // inizializza lo statuslabel (il messaggio di errore in caso di login fallito) e l'immagine del logo
@@ -38,6 +37,13 @@ public class LoginController {
 
         // Enable Enter key to trigger login
         loginButton.setDefaultButton(true);
+
+        // Check if there's a pending success message from registration
+        String pendingMessage = ViewNavigator.getPendingMessage();
+        if (pendingMessage != null) {
+            showSuccess(pendingMessage);
+            ViewNavigator.clearPendingMessage();
+        }
     }
 
     @FXML
@@ -54,11 +60,11 @@ public class LoginController {
 
         if (UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password)) !=null){
 
-                //Login successful
-                User user = UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password));
-                ViewNavigator.setAuthenticatedUser(user);
-                System.out.println("login successful for user: "+ user.getUsername());
-                proceedToMainView(event, user);
+            //Login successful
+            User user = UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password));
+            ViewNavigator.setAuthenticatedUser(user);
+            System.out.println("login successful for user: "+ user.getUsername());
+            proceedToMainView(event, user);
         }
         else{
             showError("Invalid username or password");
@@ -87,6 +93,12 @@ public class LoginController {
     private void showError(String message) {
         statusLabel.setText(message);
         statusLabel.setStyle("-fx-text-fill: red;");
+        statusLabel.setVisible(true);
+    }
+
+    private void showSuccess(String message) {
+        statusLabel.setText(message);
+        statusLabel.setStyle("-fx-text-fill: green;");
         statusLabel.setVisible(true);
     }
 

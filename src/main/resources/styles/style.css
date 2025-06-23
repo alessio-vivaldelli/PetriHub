@@ -493,6 +493,12 @@ Modern Catppuccin Mocha TableView Styles
 }
 
 /* Table header corner styling - this is likely the white dot! */
+.table-view .column-header{
+    -fx-max-height: 26;
+    -fx-min-height: 26;
+    -fx-pref-height: 26;
+}
+
 .table-view .column-header-background .filler {
     -fx-background-color: transparent;
     -fx-border-color: transparent;

@@ -58,13 +58,8 @@ public class RegisterController {
 
         UserDAO.insertUser(newUser);
 
-        // Show success message
-        showSuccess("Registration successful! Please log in.");
-
-        // Clear fields
-        usernameField.clear();
-        passwordField.clear();
-        confirmPasswordField.clear();
+        // Navigate to login with success message
+        ViewNavigator.navigateToLoginWithMessage("Registration successful!");
     }
 
     @FXML

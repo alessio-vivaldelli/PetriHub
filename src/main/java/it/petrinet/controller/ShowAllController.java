@@ -3,16 +3,18 @@ package it.petrinet.controller;
 
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.PetriNet;
-import it.petrinet.model.PetriNetRow;
-import it.petrinet.model.NetCategory;
+import it.petrinet.model.TableRow.PetriNetRow;
+import it.petrinet.model.TableRow.NetCategory;
+import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.User;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
-import it.petrinet.view.components.PetriNetTableComponent;
+import it.petrinet.view.components.table.PetriNetTableComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
@@ -52,6 +54,7 @@ public class ShowAllController {
         }
 
         // Add the table component to the container
+        VBox.setVgrow(petriNetTable, Priority.ALWAYS);
         tableContainer.getChildren().add(petriNetTable);
     }
 
@@ -78,7 +81,7 @@ public class ShowAllController {
 
         List<PetriNetRow> netsToShow= new ArrayList<PetriNetRow>();
         for(PetriNet net : unknownNets){
-            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.DISCOVER));
+            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), Status.STARTED, NetCategory.DISCOVER));
         }
 
         return netsToShow;
@@ -90,7 +93,7 @@ public class ShowAllController {
         List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
         for(PetriNet net : subscribedNets){
 
-            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.SUBSCRIBED));
+            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), Status.STARTED, NetCategory.SUBSCRIBED));
         }
 
         return netsToShow;
@@ -101,7 +104,7 @@ public class ShowAllController {
 
         List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
         for(PetriNet net : ownNets){
-            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), PetriNetRow.Status.STARTED, NetCategory.OWNED));
+            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), Status.STARTED, NetCategory.OWNED));
         }
 
         return netsToShow;
