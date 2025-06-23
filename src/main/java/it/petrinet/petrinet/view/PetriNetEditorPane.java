@@ -266,113 +266,111 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
   protected void onVertexRightClickAction(SmartGraphVertex<Node> vertex) {
     super.onVertexRightClickAction(vertex);
 
-    if (currentMode.equals(MODE.SELECTION)) {
-      Vertex<Node> element = vertex.getUnderlyingVertex();
+    Vertex<Node> element = vertex.getUnderlyingVertex();
 
-      if (element != null) {
-        // Create context menu
-        ContextMenu contextMenu = new ContextMenu();
+    if (element != null) {
+      // Create context menu
+      ContextMenu contextMenu = new ContextMenu();
 
-        // Create custom MenuItem with TextField for label editing
-        CustomMenuItem editLabelItem = new CustomMenuItem();
-        VBox editBox = new VBox(5);
-        Label editLabel = new Label("Edit Label:");
-        TextField labelField = new TextField(element.element().getName());
-        labelField.setPrefWidth(150);
+      // Create custom MenuItem with TextField for label editing
+      CustomMenuItem editLabelItem = new CustomMenuItem();
+      VBox editBox = new VBox(5);
+      Label editLabel = new Label("Edit Label:");
+      TextField labelField = new TextField(element.element().getName());
+      labelField.setPrefWidth(150);
 
-        // Handle Enter key and focus lost to apply changes
-        Runnable applyLabelChange = () -> {
-          String newLabel = labelField.getText().trim();
-          if (!setNodeLabel(element, newLabel)) {
-            // If the label is not unique or empty, show an error message
-            showMessage(AlertType.ERROR, "Invalid Label", "Label Change Error",
-                "The label must be unique and cannot be empty.");
+      // Handle Enter key and focus lost to apply changes
+      Runnable applyLabelChange = () -> {
+        String newLabel = labelField.getText().trim();
+        if (!setNodeLabel(element, newLabel)) {
+          // If the label is not unique or empty, show an error message
+          showMessage(AlertType.ERROR, "Invalid Label", "Label Change Error",
+              "The label must be unique and cannot be empty.");
+        }
+        contextMenu.hide();
+      };
+
+      labelField.setOnAction(_ -> applyLabelChange.run());
+
+      editBox.getChildren().addAll(editLabel, labelField);
+      editLabelItem.setContent(editBox);
+      editLabelItem.setHideOnClick(false); // Keep menu open while editing
+
+      MenuItem deleteItem = new MenuItem("Delete Node");
+      deleteItem.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+      deleteItem.setOnAction(_ -> {
+        removeNodeFromGraph(element);
+      });
+
+      String currentType = element.element().getShapeType();
+      // Add user/admin toggle for transitions only
+      MenuItem userTypeItem = null;
+      MenuItem startPlaceItem = null;
+      MenuItem endPlaceItem = null;
+      if (currentType.equals("Transition")) {
+        TRANSITION_TYPE current = ((Transition) element.element()).getType();
+        userTypeItem = new MenuItem(
+            (current.equals(TRANSITION_TYPE.ADMIN)) ? "Change to User"
+                : "Change to Admin"); // Default, since not implemented yet
+        userTypeItem.setOnAction(_ -> {
+          TRANSITION_TYPE newType = (current.equals(TRANSITION_TYPE.ADMIN)) ? TRANSITION_TYPE.USER
+              : TRANSITION_TYPE.ADMIN;
+          setTransitionType(newType, element);
+        });
+      } else {
+        startPlaceItem = new MenuItem("Set as Start Node");
+        startPlaceItem.setOnAction(_ -> {
+
+          if (petriNetBuilder.getStartNode() != null) {
+            Vertex<Node> node = getVertexByName(petriNetBuilder.getStartNode().getName());
+            setPlaceType(PLACE_TYPE.NORMAL, node);
           }
-          contextMenu.hide();
-        };
 
-        labelField.setOnAction(_ -> applyLabelChange.run());
-
-        editBox.getChildren().addAll(editLabel, labelField);
-        editLabelItem.setContent(editBox);
-        editLabelItem.setHideOnClick(false); // Keep menu open while editing
-
-        MenuItem deleteItem = new MenuItem("Delete Node");
-        deleteItem.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
-        deleteItem.setOnAction(_ -> {
-          removeNodeFromGraph(element);
+          setPlaceType(PLACE_TYPE.START, element);
+          if (petriNetBuilder.getFinishNode() != null) {
+            if (petriNetBuilder.getFinishNode().getName().equals(element.element().getName())) {
+              petriNetBuilder.setFinishNode(null);
+            }
+          }
+          petriNetBuilder.setStartNode(element.element().getName());
         });
-
-        String currentType = element.element().getShapeType();
-        // Add user/admin toggle for transitions only
-        MenuItem userTypeItem = null;
-        MenuItem startPlaceItem = null;
-        MenuItem endPlaceItem = null;
-        if (currentType.equals("Transition")) {
-          TRANSITION_TYPE current = ((Transition) element.element()).getType();
-          userTypeItem = new MenuItem(
-              (current.equals(TRANSITION_TYPE.ADMIN)) ? "Change to User"
-                  : "Change to Admin"); // Default, since not implemented yet
-          userTypeItem.setOnAction(_ -> {
-            TRANSITION_TYPE newType = (current.equals(TRANSITION_TYPE.ADMIN)) ? TRANSITION_TYPE.USER
-                : TRANSITION_TYPE.ADMIN;
-            setTransitionType(newType, element);
-          });
-        } else {
-          startPlaceItem = new MenuItem("Set as Start Node");
-          startPlaceItem.setOnAction(_ -> {
-
-            if (petriNetBuilder.getStartNode() != null) {
-              Vertex<Node> node = getVertexByName(petriNetBuilder.getStartNode().getName());
-              setPlaceType(PLACE_TYPE.NORMAL, node);
+        endPlaceItem = new MenuItem("Set as Finish Node");
+        endPlaceItem.setOnAction(_ -> {
+          if (petriNetBuilder.getFinishNode() != null) {
+            Vertex<Node> node = getVertexByName(petriNetBuilder.getFinishNode().getName());
+            setPlaceType(PLACE_TYPE.NORMAL, node);
+          }
+          if (petriNetBuilder.getStartNode() != null) {
+            if (petriNetBuilder.getStartNode().getName().equals(element.element().getName())) {
+              petriNetBuilder.setStartNode(null);
             }
-
-            setPlaceType(PLACE_TYPE.START, element);
-            if (petriNetBuilder.getFinishNode() != null) {
-              if (petriNetBuilder.getFinishNode().getName().equals(element.element().getName())) {
-                petriNetBuilder.setFinishNode(null);
-              }
-            }
-            petriNetBuilder.setStartNode(element.element().getName());
-          });
-          endPlaceItem = new MenuItem("Set as Finish Node");
-          endPlaceItem.setOnAction(_ -> {
-            if (petriNetBuilder.getFinishNode() != null) {
-              Vertex<Node> node = getVertexByName(petriNetBuilder.getFinishNode().getName());
-              setPlaceType(PLACE_TYPE.NORMAL, node);
-            }
-            if (petriNetBuilder.getStartNode() != null) {
-              if (petriNetBuilder.getStartNode().getName().equals(element.element().getName())) {
-                petriNetBuilder.setStartNode(null);
-              }
-            }
-            setPlaceType(PLACE_TYPE.END, element);
-            petriNetBuilder.setFinishNode(element.element().getName());
-          });
-        }
-
-        MenuItem infoItem = new MenuItem("Show Info");
-        infoItem.setOnAction(_ -> {
-          showMessage(AlertType.INFORMATION, "Node Information", "Node Details",
-              "Name: " + element.element().getName() +
-                  "\nType: " + element.element().getShapeType() +
-                  "\nVertex ID: " + element.toString());
+          }
+          setPlaceType(PLACE_TYPE.END, element);
+          petriNetBuilder.setFinishNode(element.element().getName());
         });
-
-        if (userTypeItem != null) {
-          contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(),
-              userTypeItem, new SeparatorMenuItem(), infoItem, deleteItem);
-        } else {
-          contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(), startPlaceItem, endPlaceItem,
-              new SeparatorMenuItem(), infoItem, deleteItem);
-        }
-
-        // Show context menu at cursor position
-        showContextMenuOnGraph(contextMenu, element);
-        // Focus the text field after showing menu
-        labelField.requestFocus();
-        labelField.selectAll();
       }
+
+      MenuItem infoItem = new MenuItem("Show Info");
+      infoItem.setOnAction(_ -> {
+        showMessage(AlertType.INFORMATION, "Node Information", "Node Details",
+            "Name: " + element.element().getName() +
+                "\nType: " + element.element().getShapeType() +
+                "\nVertex ID: " + element.toString());
+      });
+
+      if (userTypeItem != null) {
+        contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(),
+            userTypeItem, new SeparatorMenuItem(), infoItem, deleteItem);
+      } else {
+        contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(), startPlaceItem, endPlaceItem,
+            new SeparatorMenuItem(), infoItem, deleteItem);
+      }
+
+      // Show context menu at cursor position
+      showContextMenuOnGraph(contextMenu, element);
+      // Focus the text field after showing menu
+      labelField.requestFocus();
+      labelField.selectAll();
     }
 
   }
