@@ -1,4 +1,4 @@
-package it.petrinet.model;
+package it.petrinet.model.TableRow;
 
 import javafx.beans.property.*;
 import java.time.LocalDateTime;
@@ -9,18 +9,6 @@ public class PetriNetRow {
     private final ObjectProperty<LocalDateTime> lastModified = new SimpleObjectProperty<>();
     private final ObjectProperty<Status>     status          = new SimpleObjectProperty<>();
     private final ObjectProperty<NetCategory> type           = new SimpleObjectProperty<>();
-
-
-    public enum Status {
-        STARTED("Not Started"),
-        IN_PROGRESS("In Progress"),
-        COMPLETED("Completed"),
-        WAITING("Waiting");
-
-        private final String label;
-        Status(String label) { this.label = label; }
-        @Override public String toString() { return label; }
-    }
 
     public PetriNetRow( String name,
                         String author,
@@ -45,9 +33,9 @@ public class PetriNetRow {
     }
 
     // Property getters
-    public ReadOnlyStringProperty nameProperty()                { return name; }
-    public ReadOnlyStringProperty authorProperty()              { return author; }
-    public ReadOnlyObjectProperty<LocalDateTime> lastModifiedProperty() { return lastModified; }
-    public ReadOnlyObjectProperty<Status> statusProperty()      { return status; }
-    public ReadOnlyObjectProperty<NetCategory> typeProperty()       { return type; }
+    public StringProperty nameProperty()                         { return name; }
+    public StringProperty authorProperty()                       { return author; }
+    public ObjectProperty<LocalDateTime> lastModifiedProperty()  { return lastModified; }
+    public ObjectProperty<Status> statusProperty()               { return status; }
+    public ObjectProperty<NetCategory> typeProperty()            { return type; }
 }

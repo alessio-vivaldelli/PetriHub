@@ -17,6 +17,13 @@
                    text="Welcome, Guest!"
                    style="-fx-text-fill: #cdd6f4; -fx-font-size: 30; -fx-font-weight: bold;"/>
             <Pane HBox.hgrow="ALWAYS"/>
+
+            <Button fx:id="newNetButton"
+                    onAction="#handleNewNetClick"
+                    style="-fx-background-color: #89b4fa; -fx-text-fill: #1E1E2E; -fx-font-size: 14; -fx-padding: 5 8 5 10; -fx-background-radius: 8;"
+                    prefWidth="140"
+                    visible="false"
+                    managed="false"/>
         </HBox>
     </top>
 
@@ -31,14 +38,14 @@
                 <Pane HBox.hgrow="ALWAYS"/>
             </HBox>
 
-            <!-- Table Container - The PetriNetTableComponent will be added here programmatically -->
-        <VBox styleClass="modern-table-container" maxWidth="Infinity" prefHeight="272">
-            <VBox fx:id="tableContainer"/>
-        </VBox>
+            <!-- Table Container - Auto-sizing based on rows -->
+            <VBox styleClass="modern-table-container" maxWidth="Infinity">
+                <VBox fx:id="tableContainer"/>
+            </VBox>
 
             <!-- Quick Stats Section -->
-<Label text="Quick Stats"
-              style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold; -fx-padding: 25 0 0 0"/>
+            <Label text="Quick Stats"
+                   style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold; -fx-padding: 25 0 0 0"/>
 
             <HBox spacing="20">
                 <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleOwnedNetsClick"

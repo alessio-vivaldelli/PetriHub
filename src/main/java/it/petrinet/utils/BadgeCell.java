@@ -1,10 +1,9 @@
 package it.petrinet.utils;
 
-import it.petrinet.model.PetriNetRow;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 
-public class BadgeCell<E extends Enum<E>> extends TableCell<PetriNetRow, E> {
+public class BadgeCell<T, E extends Enum<E>> extends TableCell<T, E> {
     private final Label badge = new Label();
     private final Category category;
 

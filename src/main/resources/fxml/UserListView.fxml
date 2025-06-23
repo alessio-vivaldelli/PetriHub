@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="it.petrinet.controller.UserListController"
+            style="-fx-background-color: #1e1e2e;">
+    <top>
+        <HBox spacing="10"
+              style="-fx-padding: 20; -fx-background-color: #313244; -fx-background-radius: 12;">
+            <Label fx:id="frameTitle"
+                   style="-fx-text-fill: #cdd6f4; -fx-font-size: 30; -fx-font-weight: bold;"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox style="-fx-padding: 30 70 10 30;" prefHeight="1270">
+            <VBox fx:id="tableContainer" />
+        </VBox>
+    </center>
+
+</BorderPane>

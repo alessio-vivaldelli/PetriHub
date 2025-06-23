@@ -66,8 +66,8 @@ public class PetriNetCreationPane extends Pane {
     }
   }
 
-  private NODE_TYPE currentNodeType = NODE_TYPE.TRANSITION;
-  private MODE currentMode = MODE.CREATE;
+  private NODE_TYPE currentNodeType = NODE_TYPE.TRANSITION; // Default node type
+  private MODE currentMode = MODE.CREATE; // CREATE, CONNECT, SELECTION, or DELETION
   private SmartGraphPanel<Node, String> graphView;
   private Vertex<Node> firstSelectedVertex = null; // For connection mode
   private Graph<Node, String> g; // The graph model
@@ -216,23 +216,21 @@ public class PetriNetCreationPane extends Pane {
     this.description = description;
     this.testMode = testMode;
 
-    if (testMode) {
-      sceneProperty().addListener((_, _, newScene) -> {
-        if (newScene != null) {
-          newScene.windowProperty().addListener((_, _, newWindow) -> {
-            if (newWindow != null && !initialized) {
-              PauseTransition delay = new PauseTransition(Duration.millis(200));
-              delay.setOnFinished(_ -> {
-                init();
-              });
-              delay.play();
-            }
-          });
-        }
-      });
+    sceneProperty().addListener((_, _, newScene) -> {
+      if (newScene != null) {
+        newScene.windowProperty().addListener((_, _, newWindow) -> {
+          if (newWindow != null && !initialized) {
+            PauseTransition delay = new PauseTransition(Duration.millis(200));
+            delay.setOnFinished(event -> {
+              init();
+            });
+            delay.play();
+          }
+        });
+      }
+    });
 
-      start();
-    }
+    start();
 
     this.setPrefSize(1920, 1080);
   }
