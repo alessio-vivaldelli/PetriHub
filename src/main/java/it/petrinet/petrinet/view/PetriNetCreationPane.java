@@ -138,6 +138,7 @@ public class PetriNetCreationPane extends Pane {
    * @param currentNodeType The node type to set.
    */
   public void setCurrentNodeType(NODE_TYPE currentNodeType) {
+    setCurrentMode(PetriNetCreationPane.MODE.CREATE);
     this.currentNodeType = currentNodeType;
   }
 
@@ -372,11 +373,10 @@ public class PetriNetCreationPane extends Pane {
             nodeLabel = tmpNodeLabel + " (copy)";
           }
         }
-        // TODO: consider also panning
-        Point2D transformedPoint = contentZoomScrollPane.transformFromContentToScaled(point);
+
         Vertex<Node> newVertex = g
             .insertVertex(createNode(nodeLabel, currentNodeType.toString(),
-                transformedPoint));
+                point));
         graphView.updateAndWait();
 
         Vertex<Node> v = graphView.getModel().vertices().stream()
@@ -385,7 +385,7 @@ public class PetriNetCreationPane extends Pane {
         if (currentNodeType.equals(NODE_TYPE.TRANSITION)) {
           graphView.getStylableVertex(v).setStyleClass("userTransition");
         }
-        graphView.setVertexPosition(v, transformedPoint.getX(), transformedPoint.getY());
+        graphView.setVertexPosition(v, point.getX(), point.getY());
 
         graphView.updateAndWait();
         graphView.update();
@@ -395,8 +395,9 @@ public class PetriNetCreationPane extends Pane {
     // Set up edge click action for deletion mode
     graphView.setEdgeSingleClickAction(edge -> {
       if (currentMode.equals(MODE.DELETION)) {
-        var element = graphView.getModel().edges().stream()
-            .filter(e -> e == edge.getUnderlyingEdge()).findFirst().orElse(null);
+        // var element = graphView.getModel().edges().stream()
+        // .filter(e -> e == edge.getUnderlyingEdge()).findFirst().orElse(null);
+        var element = edge.getUnderlyingEdge();
         if (element != null) {
           petriNetBuilder.removeArc(edge.getUnderlyingEdge().vertices()[0].element().getName(),
               edge.getUnderlyingEdge().vertices()[1].element().getName());
@@ -562,8 +563,9 @@ public class PetriNetCreationPane extends Pane {
     // Set up vertex click action for connections
     graphView.setVertexSingleClickAction(vertex -> {
       if (currentMode.equals(MODE.CONNECT)) {
-        Vertex<Node> element = graphView.getModel().vertices().stream()
-            .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
+        // Vertex<Node> element = graphView.getModel().vertices().stream()
+        // .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
+        Vertex<Node> element = vertex.getUnderlyingVertex();
         if (firstSelectedVertex == null) {
           // First vertex selected
           firstSelectedVertex = element;
@@ -612,8 +614,10 @@ public class PetriNetCreationPane extends Pane {
         System.out.println("------");
       } else if (currentMode.equals(MODE.DELETION)) {
         // In DELETION mode, delete the vertex on left click
-        Vertex<Node> element = graphView.getModel().vertices().stream()
-            .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
+        // Vertex<Node> element = graphView.getModel().vertices().stream()
+        // .filter(vtx -> vtx == vertex.getUnderlyingVertex()).findFirst().orElse(null);
+        Vertex<Node> element = vertex.getUnderlyingVertex();
+
         if (element != null) {
           removeNode(element);
           System.out.println("Deleted vertex: " + element.element().getName());

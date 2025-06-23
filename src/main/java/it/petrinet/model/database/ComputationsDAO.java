@@ -1,9 +1,7 @@
 package it.petrinet.model.database;
 
-import it.petrinet.exceptions.ExceptionType;
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
-import it.petrinet.model.ComputationStep;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
 
@@ -12,10 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ComputationsDAO implements DataAccessObject{
-
-    public static void main(String args[]) throws InputTypeException {
-        Computation c = new Computation("piero", "davide", "ddd", 2);
-        insertComputation(c);
+    public static void main(String[] args) throws InputTypeException {
+        insertComputation(new Computation("net2","ale","davide", 34));
+        insertComputation(new Computation("net3","ale","Davide", 34));
     }
 
     public void createTable() {                          //metodo per creazione tabelle
@@ -24,7 +21,7 @@ public class ComputationsDAO implements DataAccessObject{
                 "netId TEXT NOT NULL, " +
                 "creatorId TEXT NOT NULL, " +
                 "userId TEXT NOT NULL," +
-                "startDate INTEGER NOT NULL, " +
+                "startDate INTEGER, " +
                 "endDate INTEGER," +
                 "UNIQUE (netId, userId, creatorId))";
 
@@ -50,7 +47,9 @@ public class ComputationsDAO implements DataAccessObject{
                     p_Statement.setString(1, c.getNetId());
                     p_Statement.setString(2, c.getCreatorId());
                     p_Statement.setString(3, c.getUserId());
-                    p_Statement.setInt(4, c.getStartDate());
+                    if(c.getStartDate()!= -1){
+                        p_Statement.setInt(4, c.getStartDate());
+                    }
                     if(c.getEndDate()!= -1){
                         p_Statement.setInt(5, c.getEndDate());
                     }
@@ -61,7 +60,7 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -94,7 +93,7 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -103,7 +102,7 @@ public class ComputationsDAO implements DataAccessObject{
         return null;
     }
 
-    public static void deleteComputationById(Object id) throws InputTypeException{
+    public static void removeComputationById(Object id) throws InputTypeException{
         try{
             if(id instanceof Integer i){
                 String command = "DELETE FROM computations WHERE id = ?";
@@ -118,7 +117,7 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -126,7 +125,7 @@ public class ComputationsDAO implements DataAccessObject{
         }
     }
 
-    public static void deleteComputation(Object computation) throws InputTypeException{
+    public static void removeComputation(Object computation) throws InputTypeException{
         try{
             if(computation instanceof Computation c){
                 String command = "DELETE FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
@@ -143,7 +142,7 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -174,13 +173,44 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
             e.ErrorPrinter();
         }
         return false;
+    }
+
+    public static void setAsStarted(Object computation, Object startDate) throws InputTypeException{
+        try{
+            if(computation instanceof Computation c){
+                if(startDate instanceof Integer date){
+                    String command = "UPDATE computations SET startDate = ? WHERE netId = ? AND userId = ? AND creatorId = ?";
+
+                    try (Connection connection = DatabaseManager.getComputationsDBConnection();
+                         PreparedStatement p_Statement = connection.prepareStatement(command)){
+                        p_Statement.setInt(1, date);
+                        p_Statement.setString(2, c.getNetId());
+                        p_Statement.setString(3, c.getUserId());
+                        p_Statement.setString(4, c.getCreatorId());
+                        p_Statement.executeUpdate();
+                    }
+                    catch(SQLException ex){
+                        ex.printStackTrace();
+                    }
+                }
+                else{
+                    throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+                }
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
     }
 
     public static void setAsCompleted(Object computation, Object endDate) throws InputTypeException{
@@ -202,11 +232,11 @@ public class ComputationsDAO implements DataAccessObject{
                     }
                 }
                 else{
-                    throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                    throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -241,7 +271,7 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -269,7 +299,7 @@ public class ComputationsDAO implements DataAccessObject{
                     ex.printStackTrace();
                 }
             } else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -303,7 +333,7 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -338,7 +368,7 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -374,11 +404,11 @@ public class ComputationsDAO implements DataAccessObject{
                     }
                 }
                 else{
-                    throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                    throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
                 }
             }
             else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -407,12 +437,40 @@ public class ComputationsDAO implements DataAccessObject{
                 }
             }
             else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
             e.ErrorPrinter();
         }
         return subscribedUsers;
+    }
+    public static List<PetriNet> getNetsSubscribedByUser(Object user) throws InputTypeException{
+        String command = "SELECT netId FROM computations WHERE userId = ? ";
+        List <PetriNet> wantedNets = new ArrayList<PetriNet>();
+        try{
+            if(user instanceof User u){
+                try (Connection connection = DatabaseManager.getComputationsDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+                    p_statement.setString(1, u.getUsername());
+                    ResultSet result = p_statement.executeQuery();
+
+                    while(result.next()) {
+                        wantedNets.add(PetriNetsDAO.getNetByName(result.getString(1))
+                        );
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch (InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return wantedNets;
+
     }
 }

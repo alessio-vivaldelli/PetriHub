@@ -1,11 +1,8 @@
 package it.petrinet.model.database;
 
-import it.petrinet.exceptions.ExceptionType;
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
-import it.petrinet.model.Notification;
-import it.petrinet.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -45,13 +42,13 @@ public class ComputationStepDAO implements DataAccessObject{
                     p_statement.setString(3, s.getNetId());
                     p_statement.setString(4, s.getTransition());
                     p_statement.setString(5, s.getMarkingLocation());
-                    p_statement.setString(6, s.getTimestamp());
+                    p_statement.setInt(6, s.getTimestamp());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             } else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){
@@ -74,7 +71,7 @@ public class ComputationStepDAO implements DataAccessObject{
                     e.printStackTrace();
                 }
             } else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){
@@ -99,7 +96,7 @@ public class ComputationStepDAO implements DataAccessObject{
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getString(6)
+                                result.getInt(6)
                         );
                     }
                 }
@@ -108,7 +105,7 @@ public class ComputationStepDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -140,7 +137,7 @@ public class ComputationStepDAO implements DataAccessObject{
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getString(6)
+                                result.getInt(6)
                         );
                     }
                 } catch (SQLException ex) {
@@ -148,7 +145,7 @@ public class ComputationStepDAO implements DataAccessObject{
                 }
             }
             else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -176,7 +173,7 @@ public class ComputationStepDAO implements DataAccessObject{
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getString(6)
+                                result.getInt(6)
                         ));
                     }
                 } catch (SQLException ex) {
@@ -184,7 +181,7 @@ public class ComputationStepDAO implements DataAccessObject{
                 }
             }
             else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -211,7 +208,7 @@ public class ComputationStepDAO implements DataAccessObject{
                     e.printStackTrace();
                 }
             } else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){

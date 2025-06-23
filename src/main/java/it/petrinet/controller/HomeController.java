@@ -1,19 +1,21 @@
 package it.petrinet.controller;
 
-import it.petrinet.utils.IconUtils;
-import it.petrinet.view.components.table.PetriNetTableComponent;
-import it.petrinet.model.TableRow.NetCategory;
-import it.petrinet.model.TableRow.PetriNetRow;
-import it.petrinet.model.TableRow.Status;
+import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.database.PetriNetsDAO;
+import it.petrinet.view.components.PetriNetTableComponent;
+import it.petrinet.model.NetCategory;
+import it.petrinet.model.PetriNetRow;
+import it.petrinet.model.PetriNetRow.Status;
 import it.petrinet.model.User;
+import it.petrinet.model.database.UserDAO;
 import it.petrinet.view.ViewNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
+import javax.swing.text.View;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +30,7 @@ public class HomeController {
     private static final String USER_WELCOME_FORMAT = "Welcome, %s!";
 
     // Dashboard statistics //TODO: Update with actual data
-    @FXML private Label ownedNetsLabel;
+    @FXML private Label ownedNetsLabel ;
     @FXML private Label discoverableNetsLabel;
     @FXML private Label subscribedNetsLabel;
 
@@ -49,7 +51,7 @@ public class HomeController {
     // === Initialization ===
 
     @FXML
-    private void initialize() {
+    private void initialize() throws InputTypeException {
         initializeUserInterface();
         initializeTableComponent();
         loadInitialData();
@@ -99,16 +101,36 @@ public class HomeController {
     /**
      * Load initial data into the interface
      */
-    private void loadInitialData() {
+    private void loadInitialData() throws InputTypeException {
         populateRecentNetsTable();
         updateDashboardStatistics();
     }
 
     //TODO: Replace with actual data service calls
-    private void updateDashboardStatistics() {
-        ownedNetsLabel.setText("20");
-        discoverableNetsLabel.setText("15");
-        subscribedNetsLabel.setText("10");
+    private void updateDashboardStatistics() throws InputTypeException {
+        int numberOfNets = UserDAO.getNumberOfOwnedNetsByUser(ViewNavigator.getAuthenticatedUser());
+        if(numberOfNets < 0){
+            ownedNetsLabel.setText("Error");
+        }
+        else{
+            ownedNetsLabel.setText(String.valueOf(numberOfNets));
+        }
+        numberOfNets = PetriNetsDAO.getUnknownNetsByUser(ViewNavigator.getAuthenticatedUser()).size();
+        if(numberOfNets < 0){
+            discoverableNetsLabel.setText("Error");
+        }
+        else{discoverableNetsLabel.setText(String.valueOf(numberOfNets));}
+
+        numberOfNets = UserDAO.getNumberOfSubscribedNetsByUser(ViewNavigator.getAuthenticatedUser());
+        if(numberOfNets < 0){
+            subscribedNetsLabel.setText("Error");
+        }
+        else{
+            subscribedNetsLabel.setText(String.valueOf(numberOfNets));
+        }
+
+
+
     }
 
     // === Event Handlers ===
@@ -130,6 +152,7 @@ public class HomeController {
     }
 
     // === Data Management ===
+
     /**
      * Populate the recent nets table with sample data
      * TODO: Replace with actual data service calls

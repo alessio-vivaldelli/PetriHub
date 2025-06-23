@@ -23,6 +23,7 @@ public class InputTypeException extends CustomException{
         this.type = type;
     }
 
+    @Override
     public void ErrorPrinter(){
         System.err.println("Input Error: " + getType());
         if (getMessage() != null) {
@@ -36,5 +37,14 @@ public class InputTypeException extends CustomException{
 
     public ExceptionType getType() {
         return type;
+    }
+
+    public enum ExceptionType {
+        USER,
+        PETRI_NET,
+        NOTIFICATION,
+        COMPUTATION,
+        COMPUTATION_STEP,
+        PARAM
     }
 }

@@ -1,5 +1,4 @@
 package it.petrinet.model.database;
-import it.petrinet.exceptions.ExceptionType;
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Notification;
 import it.petrinet.model.PetriNet;
@@ -58,7 +57,7 @@ public class NotificationsDAO implements DataAccessObject{
                     e.printStackTrace();
                 }
             } else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){
@@ -79,7 +78,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){
@@ -102,7 +101,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch (InputTypeException e){
@@ -141,7 +140,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch (InputTypeException e){
@@ -179,7 +178,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){
@@ -214,7 +213,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){
@@ -249,7 +248,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){
@@ -275,7 +274,7 @@ public class NotificationsDAO implements DataAccessObject{
                     e.printStackTrace();
                 }
             } else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){
@@ -304,7 +303,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
 
             } else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.NOTIFICATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
             }
         }
         catch(InputTypeException e){

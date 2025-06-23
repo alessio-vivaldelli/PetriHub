@@ -1,17 +1,19 @@
 package it.petrinet.model.database;
 
-import it.petrinet.exceptions.ExceptionType;
 import it.petrinet.exceptions.InputTypeException;
-import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.jar.Manifest;
+import java.util.Set;
 
 public class PetriNetsDAO implements DataAccessObject{
+    public static void main(String[] args) throws InputTypeException{
+        insertNet(new PetriNet("net5", "Antony", 404040, "XML", "image", false ));
+    }
 
     public void createTable() {
         String table = "CREATE TABLE IF NOT EXISTS petri_nets (" +
@@ -52,7 +54,7 @@ public class PetriNetsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.PETRI_NET);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
             }
         }
         catch(InputTypeException e) {
@@ -73,7 +75,7 @@ public class PetriNetsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.PETRI_NET);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
             }
         }
         catch(InputTypeException e){
@@ -97,7 +99,7 @@ public class PetriNetsDAO implements DataAccessObject{
                 }
             }
             else{
-                throw new InputTypeException(typeErrorMessage, ExceptionType.PETRI_NET);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
             }
         }
         catch(InputTypeException e){
@@ -119,12 +121,52 @@ public class PetriNetsDAO implements DataAccessObject{
                     e.printStackTrace();
                 }
             } else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.PETRI_NET);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
             }
         }
         catch(InputTypeException e){
                 e.ErrorPrinter();
         }
+    }
+
+    public static List<PetriNet> getUnknownNetsByUser(Object user) throws InputTypeException{
+        List<PetriNet> wantedNets = new ArrayList<PetriNet>();
+        String command = "SELECT * FROM petri_nets WHERE creatorId <> ?";
+
+        try {
+            if (user instanceof User u) {
+                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+
+                    p_statement.setString(1, u.getUsername());
+                    ResultSet result = p_statement.executeQuery();
+                    while(result.next()){
+                        wantedNets.add(new PetriNet(
+                                result.getString(1),
+                                result.getString(2),
+                                result.getInt(3),
+                                result.getString(4),
+                                result.getString(5),
+                                result.getBoolean(6)
+                        ));
+                    }
+
+                    List<PetriNet> toRemove = ComputationsDAO.getNetsSubscribedByUser(u);
+                    for(PetriNet removableNet : toRemove){
+                        wantedNets.removeIf(pNet -> removableNet.getNetName().equals(pNet.getNetName()));
+                    }
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return wantedNets;
     }
 
     public static List<PetriNet> getNetsByCreator(Object admin) throws InputTypeException{
@@ -152,7 +194,7 @@ public class PetriNetsDAO implements DataAccessObject{
                 }
             }
             else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
@@ -186,7 +228,7 @@ public class PetriNetsDAO implements DataAccessObject{
                 }
             }
             else {
-                throw new InputTypeException(typeErrorMessage, ExceptionType.COMPUTATION);
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
             }
         }
         catch(InputTypeException e){
