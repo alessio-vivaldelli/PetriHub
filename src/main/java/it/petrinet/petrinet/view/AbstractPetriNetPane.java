@@ -13,12 +13,14 @@ import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
 
+import atlantafx.base.theme.PrimerLight;
 import it.petrinet.petrinet.model.Node;
 import it.petrinet.petrinet.model.PLACE_TYPE;
 import it.petrinet.petrinet.model.Place;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
 import it.petrinet.petrinet.model.Transition;
 import javafx.animation.PauseTransition;
+import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.layout.Pane;
@@ -100,11 +102,19 @@ public abstract class AbstractPetriNetPane extends Pane {
     graphView.setVertexRightClickAction(this::onVertexRightClickAction);
   }
 
+  private final void removeInteraction() {
+    graphView.setCanvasSingleClickAction(null);
+    graphView.setEdgeSingleClickAction(null);
+    graphView.setVertexSingleClickAction(null);
+    graphView.setVertexRightClickAction(null);
+  }
+
   /**
    * Enables user interactions with the graph.
    */
   protected final void enableInteraction() {
     isInteractionEnabled = true;
+    setupInteraction();
   }
 
   /**
@@ -112,6 +122,7 @@ public abstract class AbstractPetriNetPane extends Pane {
    */
   protected final void disableInteraction() {
     isInteractionEnabled = false;
+    removeInteraction();
   }
 
   /**

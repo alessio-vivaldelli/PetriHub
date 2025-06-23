@@ -1,7 +1,10 @@
 package it.petrinet.model;
 
 import java.io.IOException;
+import java.util.List;
 
+import it.petrinet.petrinet.model.TRANSITION_TYPE;
+import it.petrinet.petrinet.model.Transition;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
 import javafx.animation.PauseTransition;

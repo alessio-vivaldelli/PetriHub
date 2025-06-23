@@ -14,7 +14,7 @@ public class ComputationStep {
         this.netId = netId;
         this.transition = transition;
         this.markingLocation = markingLocation;
-        this.timestamp =timestamp;
+        this.timestamp = timestamp;
     }
 
     public int getId() {
