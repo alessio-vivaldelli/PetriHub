@@ -152,14 +152,11 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     this.name = petriNetName;
     this.description = petriNetDescription;
 
-    if (petriNetName.isEmpty() && petriNetDescription.isEmpty()) {
-      showMessage(AlertType.ERROR, "Error", "Empty Name or Description",
-          "Please provide a valid name and description for the Petri Net.");
+    if (petriNetName.isEmpty()) {
+      showMessage(AlertType.ERROR, "Error", "Empty Name",
+          "Please provide a valid name for the Petri Net.");
       return; // Exit if name or description is empty
     }
-
-    System.out.println("Saving Petri Net with name: " + petriNetName +
-        " and description: " + petriNetDescription);
 
     petriNetBuilder.setPetriName(name);
 

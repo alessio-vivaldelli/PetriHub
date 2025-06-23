@@ -1,0 +1,68 @@
+classDiagram
+
+    direction TB
+
+
+class PetriNetViewerPane {
+
++fireTransition(Computation computation, String transitionId) ComputationStep
+
+}
+
+
+class Computation {
+
++UUID computationId
+
++UUID userId
+
++Instant startedAt
+
++List~ComputationStep~ steps
+
++addStep(ComputationStep step) void
+
+}
+
+
+class ComputationStep {
+
++int index
+
++String transitionId
+
++Instant timestamp
+
++MarkingSnapshot marking
+
+}
+
+
+class PetriNetModel {
+
++UUID netId
+
+}
+
+
+class MarkingSnapshot {
+
++Map~String, Integer~ tokensByPlaceId
+
+}
+
+
+
+User --> PetriNetViewerPane : "fire a transition"
+
+
+PetriNetViewerPane ..> Computation : "operates on"
+
+PetriNetViewerPane --> PetriNetModel
+
+PetriNetViewerPane ..> ComputationStep : "creates"
+
+
+Computation "1" *-- "*" ComputationStep : steps
+
+ComputationStep "1" *-- "1" MarkingSnapshot : marking
