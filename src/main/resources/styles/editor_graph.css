@@ -10,6 +10,7 @@
   -fx-fill: #B1DFF7;
 }
 
+
 .vertex:hover {
   /* pseudo-classes also work */
   /*-fx-cursor: default; */

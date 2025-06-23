@@ -83,6 +83,7 @@
   -fx-fill: #FFCCCC;
 }
 
+
 .adminTransition:hover {
   -fx-stroke-width: 3;
   -fx-stroke: #FF0000;

@@ -21,6 +21,12 @@
   -fx-font: bold 8pt "sans-serif";
 }
 
+.firable {
+    -fx-fill: yellow;
+    -fx-stroke: red;
+    -fx-stroke-width: 4;
+}
+
 .edge {
   -fx-stroke-width: 2;
   -fx-stroke: #1e2030;

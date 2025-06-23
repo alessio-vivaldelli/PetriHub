@@ -84,8 +84,6 @@ public abstract class AbstractPetriNetPane extends Pane {
    */
   private final void setupGraph() {
 
-    System.out.println("Setting up graph for class: " + this.getClass().getSimpleName());
-
     String propertiesPath = System.getProperty("user.dir") +
         "/src/main/resources/properties/";
     String stylePath = System.getProperty("user.dir") +
@@ -187,6 +185,23 @@ public abstract class AbstractPetriNetPane extends Pane {
     return isInteractionEnabled;
   }
 
+  protected Collection<Edge<String, Node>> incidentEdges(Vertex<Node> node) {
+    return g.incidentEdges(node);
+  }
+
+  protected void addNodeStyle(Vertex<Node> node, String style) {
+    graphView.getStylableVertex(node).addStyleClass(style);
+    graphView.update();
+    graphView.updateAndWait();
+  }
+
+  protected void removeNodeStyle(Vertex<Node> node, String style) {
+    graphView.getStylableVertex(node).removeStyleClass(style);
+    graphView.update();
+    graphView.updateAndWait();
+
+  }
+
   /**
    * Hook method called on a vertex right-click. Subclasses should override this
    * to implement specific logic (e.g., show a context menu).
@@ -282,7 +297,6 @@ public abstract class AbstractPetriNetPane extends Pane {
       }
     }
     graphView.setVertexPosition(v, element.getPosition().getX(), element.getPosition().getY());
-
     graphView.updateAndWait();
     graphView.update();
 

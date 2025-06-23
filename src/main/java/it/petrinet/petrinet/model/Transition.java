@@ -96,8 +96,8 @@ public class Transition extends Node {
    *
    * @return true if the transition is firable, false otherwise
    */
-  public boolean setIsFirable() {
-    return isFirable;
+  public void setIsFirable(boolean newValue) {
+    isFirable = newValue;
   }
 
   /**

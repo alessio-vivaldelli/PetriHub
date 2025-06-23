@@ -45,9 +45,13 @@ public class TestingApplication extends Application {
     VBox vBox = new VBox();
     vBox.setSpacing(10);
 
+    Computation computation = new Computation("testnet", "creatorID", "userID");
+    computation.addStep(new ComputationStep(1, "1", "testnet", "", "start_e:1", 123456));
+    computation.addStep(new ComputationStep(2, "2", "testnet", "t1", "p1:2,start_e:1,p2:1", 1234567));
+
     String path = System.getProperty("user.dir") +
         "/src/main/resources/data/pnml/testing_petri_net.pnml";
-    petriNetViewerPane = new PetriNetViewerPane(path);
+    petriNetViewerPane = new PetriNetViewerPane(path, computation);
 
     vBox.getChildren().add(petriNetViewerPane);
     return vBox;
