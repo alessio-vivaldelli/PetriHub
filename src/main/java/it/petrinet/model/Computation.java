@@ -1,7 +1,7 @@
 package it.petrinet.model;
 
 public class Computation {
-    private String netId;
+    private String netId; //Computation ID
     private String creatorId;
     private String userId;
     private int startDate;

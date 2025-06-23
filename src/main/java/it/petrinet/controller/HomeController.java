@@ -227,22 +227,6 @@ public class HomeController implements Initializable {
     }
 
     /**
-     * Creates sample data for the Petri nets table
-     */
-    private List<PetriNetRow> createSampleNetData() throws InputTypeException {
-        return Arrays.asList(
-                PetriNetRow.of("Manufacturing Process Flow", "Alice Johnson",
-                        LocalDateTime.now().minusDays(1), Status.COMPLETED, NetCategory.SUBSCRIBED),
-                PetriNetRow.of("Supply Chain Logistics", "Bob Smith",
-                        LocalDateTime.now().minusDays(2), Status.IN_PROGRESS, NetCategory.OWNED),
-                PetriNetRow.of("Server Request Model", "Charlie Brown",
-                        LocalDateTime.now().minusDays(3), Status.STARTED, NetCategory.SUBSCRIBED),
-                PetriNetRow.of("Inventory Management", "David Wilson",
-                        LocalDateTime.now().minusDays(4), Status.WAITING, NetCategory.OWNED)
-        );
-    }
-
-    /**
      * Handles clicks on table rows with appropriate navigation
      */
     private void handleTableRowClick(PetriNetRow selectedNet) {
