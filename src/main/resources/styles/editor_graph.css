@@ -1,0 +1,125 @@
+.graph {
+  -fx-background-color: #F4FFFB;
+}
+
+.vertex {
+  -fx-stroke-width: 2;
+  -fx-stroke: #61B5F1;
+  -fx-stroke-type: inside;
+  /* you should keep this for vertex.radius to hold */
+  -fx-fill: #B1DFF7;
+}
+
+.vertex:hover {
+  /* pseudo-classes also work */
+  /*-fx-cursor: default; */
+  /* You can use this style to override the hand/move cursors while hovering. */
+  -fx-stroke-width: 3;
+}
+
+.vertex-label {
+  -fx-font: bold 8pt "sans-serif";
+}
+
+.edge {
+  -fx-stroke-width: 2;
+  -fx-stroke: #1e2030;
+  /*-fx-stroke-dash-array: 2 5 2 5;*/
+  /* remove for clean edges */
+  -fx-fill: transparent;
+  /*important for curved edges. do not remove */
+  -fx-stroke-line-cap: round;
+  -fx-opacity: 0.8;
+}
+
+.edge-label {
+  -fx-font: normal 5pt "sans-serif";
+}
+
+.arrow {
+  -fx-stroke-width: 3;
+  -fx-stroke: #1e2030;
+  -fx-opacity: 0.8;
+}
+
+/*/* Custom vertex. You should revert any unwanted styling in the default element, */
+/*   style, since custom styles will be appended to the default style */*/
+/*.myVertex {*/
+/*  -fx-stroke-width: 5;*/
+/*  -fx-stroke: green;*/
+/*  -fx-stroke-type: inside;*/
+/*  /* you should keep this if using arrows */*/
+/*  -fx-fill: yellowgreen;*/
+/*}*/
+
+.svg_elem {
+  -fx-stroke-width: 2;
+  -fx-stroke: green;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: yellowgreen;
+}
+
+.marker {
+  /*-fx-stroke-width: 5;*/
+  /*-fx-stroke: green;*/
+  /*-fx-stroke-type: inside;*/
+  /* you should keep this if using arrows */
+}
+
+.userTransition{
+  -fx-stroke-width: 2;
+  -fx-stroke: #00FF00;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: #FFCCCC;
+}
+
+.adminTransition {
+  -fx-stroke-width: 2;
+  -fx-stroke: #FF0000;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: #FFCCCC;
+}
+
+.adminTransition:hover {
+  -fx-stroke-width: 3;
+  -fx-stroke: #FF0000;
+  -fx-fill: #FFCCCC;
+}
+
+.userTransition:hover {
+  -fx-stroke-width: 3;
+  -fx-stroke: #00FF00;
+  -fx-fill: #FFCCCC;
+}
+
+.startVertex {
+  -fx-stroke-width: 2;
+  -fx-stroke: green;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: yellowgreen;
+}
+
+.endVertex {
+  -fx-stroke-width: 2;
+  -fx-stroke: red;
+  -fx-stroke-type: inside;
+  /* you should keep this if using arrows */
+  -fx-fill: tomato;
+}
+
+.startVertex:hover {
+  -fx-stroke-width: 3;
+  -fx-stroke: green;
+  -fx-fill: yellowgreen;
+}
+
+.endVertex:hover {
+  -fx-stroke-width: 3;
+  -fx-stroke: red;
+  -fx-fill: tomato;
+}
+
