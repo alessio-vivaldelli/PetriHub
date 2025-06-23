@@ -7,6 +7,7 @@ import it.petrinet.utils.BadgeCell;
 import it.petrinet.utils.TableColumnUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDateTime;
 
@@ -36,6 +37,7 @@ public class PetriNetTableComponent extends GenericTableComponent<PetriNetRow> {
         TableColumnUtils.setupDateColumn(dateCol);
 
         // Badge columns for status and type
+        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
         statusCol.setCellFactory(column -> new BadgeCell<>(BadgeCell.Category.STATUS));
         typeCol.setCellFactory(column -> new BadgeCell<>(BadgeCell.Category.TYPE));
     }

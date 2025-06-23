@@ -6,6 +6,7 @@ import it.petrinet.utils.BadgeCell;
 import it.petrinet.utils.TableColumnUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDateTime;
 
@@ -39,6 +40,7 @@ public class UserSelectComponent extends GenericTableComponent<ComputationRow> {
         TableColumnUtils.setupDateColumn(endTimeCol);
 
         // Status badge column
+        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
         statusCol.setCellFactory(column -> new BadgeCell<>(BadgeCell.Category.STATUS));
     }
 }

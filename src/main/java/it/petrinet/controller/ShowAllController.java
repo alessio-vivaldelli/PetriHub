@@ -82,7 +82,7 @@ public class ShowAllController {
     //TODO
     private List<PetriNetRow> SubSet() {
         return Arrays.asList(
-                new PetriNetRow("Subscribed Net 1", "Alice", LocalDateTime.now(), Status.WAITING, NetCategory.SUBSCRIBED),
+                new PetriNetRow("Subscribed Net 1", "Alice", LocalDateTime.now(), Status.COMPLETED, NetCategory.SUBSCRIBED),
                 new PetriNetRow("Subscribed Net 2", "Bob", LocalDateTime.now().minusDays(1), Status.COMPLETED, NetCategory.SUBSCRIBED),
                 new PetriNetRow("Subscribed Net 3", "Charlie", LocalDateTime.now().minusDays(2), Status.STARTED, NetCategory.SUBSCRIBED),
                 new PetriNetRow("Subscribed Net 4", "David", LocalDateTime.now().minusDays(3), Status.STARTED, NetCategory.SUBSCRIBED),

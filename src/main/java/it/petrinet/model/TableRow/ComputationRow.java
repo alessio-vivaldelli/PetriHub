@@ -1,7 +1,7 @@
 package it.petrinet.model.TableRow;
 
 import javafx.beans.property.*;
-        import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 public class ComputationRow {
     private final StringProperty ID                        = new SimpleStringProperty();

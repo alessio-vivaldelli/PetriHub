@@ -1,10 +1,10 @@
 package it.petrinet.model.TableRow;
 
 public enum Status {
-    STARTED("Not Started"),
+    WAITING("Waiting"),
     IN_PROGRESS("In Progress"),
-    COMPLETED("Completed"),
-    WAITING("Waiting");
+    STARTED("Not Started"),
+    COMPLETED("Completed");
 
     private final String label;
     Status(String label) { this.label = label; }
