@@ -19,16 +19,28 @@
                preserveRatio="true"/>
 
     <!-- Form -->
-    <VBox spacing="10.0" alignment="CENTER" maxWidth="300.0">
+    <VBox spacing="13.0" alignment="CENTER" maxWidth="300.0">
+        <padding>
+            <Insets top="20.0" />
+        </padding>
         <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
-        
-        <TextField fx:id="usernameField" promptText="Choose username"/>
 
-        <PasswordField fx:id="passwordField" promptText="Choose password"/>
+        <TextField fx:id="usernameField"
+                   promptText="Choose username"
+                   onAction="#handleRegister"/>
 
-        <PasswordField fx:id="confirmPasswordField" promptText="Confirm password"/>
+        <PasswordField fx:id="passwordField"
+                       promptText="Choose password"
+                       onAction="#handleRegister"/>
 
-        <Button text="Register" onAction="#handleRegister" maxWidth="Infinity"/>
+        <PasswordField fx:id="confirmPasswordField"
+                       promptText="Confirm password"
+                       onAction="#handleRegister"/>
+
+        <Button text="Register"
+                onAction="#handleRegister"
+                maxWidth="Infinity"
+                defaultButton="true"/>
         <Hyperlink text="Back to login" onAction="#handleBackToLogin" alignment="CENTER"/>
     </VBox>
 </VBox>

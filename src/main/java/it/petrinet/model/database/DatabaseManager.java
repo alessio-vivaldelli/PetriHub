@@ -26,6 +26,32 @@ public class DatabaseManager {
         return DriverManager.getConnection(COMPUTATIONS_DB_URL);
     }
 
+    public static String getGlobalDir(){
+        return globalDir;
+    }
+
+    public static String getComputationsDbUrl() {
+        return COMPUTATIONS_DB_URL;
+    }
+
+    public static String getNotificationsDbUrl() {
+        return NOTIFICATIONS_DB_URL;
+    }
+
+    public static String getPetriNetsDbUrl() {
+        return PETRI_NETS_DB_URL;
+    }
+
+    public static String getUserDbUrl() {
+        return USER_DB_URL;
+    }
+
+//    protected static boolean tableExists(String tableName, String URL) throws SQLException {
+//        try (Connection connection = getComputationsDBConnection()) {
+//            ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null);
+//            return rs.next();
+//        }
+//    }
     protected static boolean tableExists(String file, String name) {
         String db_URL = globalDir + file + ".db";
         if(!db_URL.equals(USER_DB_URL) & !db_URL.equals(PETRI_NETS_DB_URL) &!db_URL.equals(COMPUTATIONS_DB_URL) &!db_URL.equals(NOTIFICATIONS_DB_URL)){

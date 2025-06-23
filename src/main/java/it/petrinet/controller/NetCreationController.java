@@ -43,8 +43,8 @@ public class NetCreationController implements Initializable {
         canvas = new PetriNetCreationPane("NewPetriNet", "A new Petri net for testing");
 
         // Il canvas deve occupare tutto lo spazio disponibile
-        canvas.prefWidthProperty().bind(canvasContainer.widthProperty());
-        canvas.prefHeightProperty().bind(canvasContainer.heightProperty());
+        //canvas.prefWidthProperty().bind(canvasContainer.widthProperty());
+        //canvas.prefHeightProperty().bind(canvasContainer.heightProperty());
 
         canvasContainer.getChildren().add(canvas);
 

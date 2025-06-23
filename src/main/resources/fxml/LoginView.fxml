@@ -13,8 +13,7 @@
       fx:controller="it.petrinet.controller.LoginController"
       alignment="CENTER"
       spacing="20"
-      maxWidth="400"
-      styleClass="login-root">
+      maxWidth="400">
 
     <!-- Padding intorno a tutto il contenuto -->
     <padding>
@@ -32,8 +31,7 @@
           maxWidth="300">
         <!-- Messaggio di errore -->
         <Label fx:id="statusLabel"
-               visible="false"
-               styleClass="error-label"/>
+               visible="false"/>
 
         <!-- Username -->
         <TextField fx:id="usernameField"

@@ -1,6 +1,7 @@
 package it.petrinet.controller;
 
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.PetriNet;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.components.table.DynamicPetriNetTableComponent;
@@ -21,7 +22,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
+import java.sql.Array;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -199,7 +202,7 @@ public class HomeController implements Initializable {
     /**
      * CRITICAL: Refresh table data without recreating structure
      */
-    public void refreshTableData() {
+    public void refreshTableData() throws InputTypeException {
         LOGGER.info("Refreshing table data...");
 
         if (petriNetTable == null) {
@@ -207,26 +210,20 @@ public class HomeController implements Initializable {
             initializeTableComponent();
         }
 
-        List<PetriNetRow> data = createSampleNetData();
-        petriNetTable.setData(data);
+        List<PetriNetRow> recentNets = new ArrayList<PetriNetRow>();
+        List<PetriNet> wantedNets = PetriNetsDAO.getMostRecentlyModifiedNets(ViewNavigator.getAuthenticatedUser(),4);;
+        for(PetriNet net : wantedNets){
+            if(net.getCreatorId().equals(ViewNavigator.getAuthenticatedUser().getUsername())){
+                NetCategory cat = NetCategory.OWNED;
+            }
+            else{
+                NetCategory cat = NetCategory.SUBSCRIBED;
+            }
+            recentNets.add(new PetriNetRow(net.getNetName(),net.getCreatorId(),LocalDateTime.now(),Status.STARTED, NetCategory.OWNED));
+        }
+        petriNetTable.setData(recentNets);
 
-        LOGGER.info("Table data refreshed with " + data.size() + " items");
-    }
-
-    /**
-     * Creates sample data for the Petri nets table
-     */
-    private List<PetriNetRow> createSampleNetData() {
-        return Arrays.asList(
-                PetriNetRow.of("Manufacturing Process Flow", "Alice Johnson",
-                        LocalDateTime.now().minusDays(1), Status.COMPLETED, NetCategory.SUBSCRIBED),
-                PetriNetRow.of("Supply Chain Logistics", "Bob Smith",
-                        LocalDateTime.now().minusDays(2), Status.IN_PROGRESS, NetCategory.OWNED),
-                PetriNetRow.of("Server Request Model", "Charlie Brown",
-                        LocalDateTime.now().minusDays(3), Status.STARTED, NetCategory.SUBSCRIBED),
-                PetriNetRow.of("Inventory Management", "David Wilson",
-                        LocalDateTime.now().minusDays(4), Status.WAITING, NetCategory.OWNED)
-        );
+        LOGGER.info("Table data refreshed with " + recentNets.size() + " items");
     }
 
     /**
