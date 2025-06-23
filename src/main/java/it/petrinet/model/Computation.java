@@ -1,10 +1,10 @@
 package it.petrinet.model;
 
 public class Computation {
-    private static String netId;
-    private static String creatorId;
-    private static String userId;
-    private static int startDate;
+    private String netId;
+    private String creatorId;
+    private String userId;
+    private int startDate;
     private static int endDate = -1;
 
     public Computation(String netId, String creatorId, String userId, int startDate) {
@@ -29,15 +29,15 @@ public class Computation {
         return userId;
     }
 
-    public static void setEndDate(int endDate) {
+    public void setEndDate(int endDate) {
         Computation.endDate = endDate;
     }
 
-    public static int getEndDate() {
+    public int getEndDate() {
         return endDate;
     }
 
-    public static int getStartDate(){
+    public int getStartDate(){
         return startDate;
     }
 }

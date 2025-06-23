@@ -1,6 +1,7 @@
 package it.petrinet.model.database;
 
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
 
@@ -235,6 +236,56 @@ public class PetriNetsDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
         return null;
+    }
+
+    public static List<PetriNet> getMostRecentlyModifiedNets(Object user, int howMany) throws InputTypeException{
+        List<PetriNet> wantedNets = new ArrayList<PetriNet>();
+        String db2Alias = "Comps";
+        String searchCommand = "SELECT netName, creatorId, creationDate, XML_PATH, image_PATH, isReady " +
+                "FROM petri_nets Nets" +
+                " JOIN " + db2Alias + ".computations C ON (C.netId = N.netName) " +
+                " JOIN " + db2Alias + ".computationsSteps S ON (S.computationId  = C.id) " +
+                " WHERE creatorId = ? or userId = ?" +
+                " ORDER BY C.timestamp";
+
+        String attachCommand = "ATTACH DATABASE '" + DatabaseManager.getComputationsDbUrl() + "' AS " + db2Alias + ";";
+
+        try{
+            if(user instanceof User u){
+                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                     Statement statement = connection.createStatement();
+                     PreparedStatement p_statement = connection.prepareStatement(searchCommand)){
+                    statement.execute(attachCommand);
+                    p_statement.setString(1, u.getUsername());
+                    p_statement.setString(2, u.getUsername());
+
+                    ResultSet result = p_statement.executeQuery();
+
+                    while(result.next() || howMany>0){
+                        wantedNets.add(new PetriNet(
+                                result.getString(1),
+                                result.getString(2),
+                                result.getInt(3),
+                                result.getString(4),
+                                result.getString(5),
+                                result.getBoolean(6)
+
+                        ));
+                        howMany --;
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return wantedNets;
     }
 
 }

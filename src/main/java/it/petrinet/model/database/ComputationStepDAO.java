@@ -10,17 +10,17 @@ import java.util.List;
 
 public class ComputationStepDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException {
-        insertStep(new ComputationStep(1, 2, "net1", "T1> T2", "p1, p2, p3", 1));
+        insertStep(new ComputationStep(1, 2, "net1", "T1 > T2", "p1, p2, p3", 1));
     }
 
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS computationSteps (" +
-                "id INTEGER AUTOINCREMENT PRIMARY KEY, " +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "computationId INTEGER NOT NULL, " +
                 "netId TEXT NOT NULL, " +
                 "transition TEXT, " +
                 "markingLocation TEXT NOT NULL, " +
-                "timestamp TEXT NOT NULL)";
+                "timestamp INTEGER NOT NULL)";
 
         try (Connection connection = DatabaseManager.getComputationsDBConnection();
              Statement statement = connection.createStatement()) {
@@ -41,12 +41,11 @@ public class ComputationStepDAO implements DataAccessObject{
 
                 try (Connection connection = DatabaseManager.getComputationsDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setInt(1, s.getId());
-                    p_statement.setInt(2, s.getComputationId());
-                    p_statement.setString(3, s.getNetId());
-                    p_statement.setString(4, s.getTransition());
-                    p_statement.setString(5, s.getMarkingLocation());
-                    p_statement.setInt(6, s.getTimestamp());
+                    p_statement.setInt(1, s.getComputationId());
+                    p_statement.setString(2, s.getNetId());
+                    p_statement.setString(3, s.getTransition());
+                    p_statement.setString(4, s.getMarkingLocation());
+                    p_statement.setInt(5, s.getTimestamp());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
