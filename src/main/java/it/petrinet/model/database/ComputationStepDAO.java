@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ComputationStepDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException {
-        insertStep(new ComputationStep(1, 2, "net1", "T1 > T2", "p1, p2, p3", 1));
+        insertStep(new ComputationStep(3, 4, "net1", "T3 > T4", "p1, p2, p3", 1));
     }
 
     public void createTable() {                          //metodo per creazione tabelle
@@ -18,8 +18,8 @@ public class ComputationStepDAO implements DataAccessObject{
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "computationId INTEGER NOT NULL, " +
                 "netId TEXT NOT NULL, " +
-                "transition TEXT, " +
-                "markingLocation TEXT NOT NULL, " +
+                "transitionName TEXT, " +
+                "markingState TEXT NOT NULL, " +
                 "timestamp INTEGER NOT NULL)";
 
         try (Connection connection = DatabaseManager.getComputationsDBConnection();
@@ -58,7 +58,7 @@ public class ComputationStepDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
     }
-    public static void deleteStep(Object step) throws InputTypeException{
+    public static void removeStep(Object step) throws InputTypeException{
         String command = "DELETE FROM computationSteps WHERE id = ? AND computationId = ? AND netId = ?";
         try {
             if (step instanceof ComputationStep s) {
