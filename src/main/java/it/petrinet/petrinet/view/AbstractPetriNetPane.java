@@ -148,7 +148,7 @@ public abstract class AbstractPetriNetPane extends Pane {
    * "on...Click" hook methods in this class.
    */
   private final void setupInteraction() {
-    graphView.setCanvasSingleClickAction(e -> onCanvasSingleClickAction(e));
+    graphView.setCanvasSingleClickAction(this::onCanvasSingleClickAction);
     graphView.setEdgeSingleClickAction(this::onEdgeSingleClickAction);
     graphView.setVertexSingleClickAction(this::onVertexSingleClickAction);
     graphView.setVertexRightClickAction(this::onVertexRightClickAction);

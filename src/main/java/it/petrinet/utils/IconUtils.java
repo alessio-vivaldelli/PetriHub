@@ -2,6 +2,7 @@ package it.petrinet.utils;
 
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.MenuItem;
 import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.ColorInput;
@@ -111,6 +112,65 @@ public final class IconUtils {
                 () -> LOGGER.warning("Failed to create icon view for: " + iconName)
         );
     }
+
+    /**
+         * Sets an icon on a MenuItem with default dimensions.
+         *
+         * @param menuItem The menu item to set the icon on
+         * @param iconName The icon file name (e.g., "home.png" or "home")
+         * @throws IllegalArgumentException if menuItem or iconName is null
+         */
+        public static void setIcon(MenuItem menuItem, String iconName) {
+            setIcon(menuItem, iconName, DEFAULT_ICON_SIZE, DEFAULT_ICON_SIZE, null);
+        }
+
+        /**
+         * Sets an icon on a MenuItem with custom square dimensions.
+         *
+         * @param menuItem The menu item to set the icon on
+         * @param iconName The icon file name
+         * @param size The desired width and height for the icon
+         * @throws IllegalArgumentException if menuItem or iconName is null, or size is negative
+         */
+        public static void setIcon(MenuItem menuItem, String iconName, double size) {
+            validateSize(size);
+            setIcon(menuItem, iconName, size, size, null);
+        }
+
+        /**
+         * Sets an icon on a MenuItem with recoloring.
+         *
+         * @param menuItem The menu item to set the icon on
+         * @param iconName The icon file name
+         * @param color The color to tint the icon with
+         * @throws IllegalArgumentException if menuItem, iconName, or color is null
+         */
+        public static void setIcon(MenuItem menuItem, String iconName, Color color) {
+            Objects.requireNonNull(color, "Color cannot be null");
+            setIcon(menuItem, iconName, DEFAULT_ICON_SIZE, DEFAULT_ICON_SIZE, color);
+        }
+
+        /**
+         * Sets an icon on a MenuItem with custom dimensions and color.
+         *
+         * @param menuItem The menu item to set the icon on
+         * @param iconName The icon file name
+         * @param width The desired width for the icon
+         * @param height The desired height for the icon
+         * @param color The color to tint the icon with (null for no coloring)
+         * @throws IllegalArgumentException if menuItem or iconName is null, or dimensions are negative
+         */
+        public static void setIcon(MenuItem menuItem, String iconName, double width, double height, Color color) {
+            Objects.requireNonNull(menuItem, "MenuItem cannot be null");
+            Objects.requireNonNull(iconName, "Icon name cannot be null");
+            validateSize(width);
+            validateSize(height);
+
+            createIconView(iconName, width, height, color).ifPresentOrElse(
+                    menuItem::setGraphic,
+                    () -> LOGGER.warning("Failed to create icon view for: " + iconName)
+            );
+        }
 
     /**
      * Changes the color of an icon in a Labeled control.

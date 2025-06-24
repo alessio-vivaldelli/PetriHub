@@ -9,6 +9,7 @@ import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphEdge;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 
+import it.petrinet.Main;
 import it.petrinet.petrinet.IllegalConnectionException;
 import it.petrinet.petrinet.builder.PetriNetBuilder;
 import it.petrinet.petrinet.model.Node;
@@ -18,6 +19,8 @@ import it.petrinet.petrinet.model.Place;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
 import it.petrinet.petrinet.model.Transition;
 import it.petrinet.petrinet.persistance.pnml.PNMLSerializer;
+import it.petrinet.utils.IconUtils;
+import it.petrinet.view.components.PopupMenu;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -31,6 +34,9 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+
+import javax.swing.*;
 
 public class PetriNetEditorPane extends AbstractPetriNetPane {
   public enum MODE {
@@ -43,14 +49,11 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
 
     @Override
     public String toString() {
-      switch (this) {
-        case PLACE:
-          return "circle";
-        case TRANSITION:
-          return "transition";
-        default:
-          return super.toString();
-      }
+        return switch (this) {
+            case PLACE -> "circle";
+            case TRANSITION -> "transition";
+            default -> super.toString();
+        };
     }
   }
 
@@ -227,41 +230,87 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     super.onGraphInitialized();
   }
 
+  // ... (nel metodo onCanvasSingleClickAction)
+
   @Override
   protected void onCanvasSingleClickAction(Point2D point) {
     super.onCanvasSingleClickAction(point);
 
     if (currentMode.equals(MODE.CREATE)) {
-      // Create a new vertex at the clicked point using current node type
-      // Prompt user for a unique node label using JavaFX
       String baseLabel = !currentNodeType.equals(NODE_TYPE.TRANSITION) ? "New Place" : "New Transition";
       boolean unique = false;
       String nodeLabel = baseLabel;
 
+      // Loop per garantire un label unico
       while (!unique) {
-        TextInputDialog dialog = new TextInputDialog(nodeLabel);
-        dialog.setTitle("New Node");
-        dialog.setHeaderText("Enter a unique name for the new node:");
-        dialog.setContentText("Name:");
-        Optional<String> result = dialog.showAndWait();
-        if (!result.isPresent() || result.get().trim().isEmpty()) {
-          return; // Cancelled or empty input
-        }
-        String tmpNodeLabel = result.get().trim();
-        nodeLabel = tmpNodeLabel;
-        boolean exists = isLabelUnique(null, tmpNodeLabel);
-        if (exists) {
-          unique = true;
+        PopupMenu dialog = new PopupMenu(Main.getPrimaryStage());
+        Label prompt = new Label();
+        prompt.setText("Enter a unique label for the new " +
+                (currentNodeType.equals(NODE_TYPE.TRANSITION) ? "Transition" : "Place") + ":");
+        prompt.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        TextField labelTextField = new TextField();
+        labelTextField.setPromptText("name");
+
+        // Aggiungi un pulsante OK per confermare l'input
+        ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        VBox inputContent = new VBox(10);
+        inputContent.getChildren().addAll(prompt, labelTextField);
+
+        // Aggiungi i pulsanti in un HBox (o in un FlowPane per più flessibilità)
+        javafx.scene.control.Button okBtn = new javafx.scene.control.Button("OK");
+        okBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+        javafx.scene.control.Button cancelBtn = new javafx.scene.control.Button("Cancel");
+        cancelBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
+
+        inputContent.getChildren().addAll(okBtn, cancelBtn); // Aggiungi i pulsanti
+
+        dialog.setContent(inputContent);
+
+        // Gestione del click sui pulsanti
+        okBtn.setOnAction(e -> {
+          dialog.setResult(labelTextField.getText().trim()); // Imposta il risultato e chiudi
+        });
+        cancelBtn.setOnAction(e -> {
+          dialog.setResult(null); // Imposta il risultato a null e chiudi
+        });
+
+        // Puoi anche gestire Enter per l'OK
+        labelTextField.setOnAction(e -> {
+          dialog.setResult(labelTextField.getText().trim());
+        });
+
+        // MOST IMPORTANT CHANGE: Usa showAndWait()
+        Optional<String> resultOptional = dialog.showAndWait();
+
+        System.out.println("User input received (via Optional): " + resultOptional);
+
+        if (resultOptional.isPresent()) {
+          String tmpNodeLabel = resultOptional.get();
+          if (tmpNodeLabel.isEmpty()) {
+            showMessage(AlertType.ERROR, "Input Error", "Empty Label", "Label cannot be empty. Please try again.");
+            continue; // Continua il loop
+          }
+          nodeLabel = tmpNodeLabel;
+          boolean exists = isLabelUnique(null, tmpNodeLabel);
+          if (exists) {
+            unique = true;
+          } else {
+            showMessage(AlertType.WARNING, "Duplicate Label", "Label Not Unique", "The label '" + tmpNodeLabel + "' already exists. Please choose a different one.");
+            // Non impostare nodeLabel a "copy" qui, lascia all'utente di riscrivere
+          }
         } else {
-          nodeLabel = tmpNodeLabel + " (copy)";
+          // Utente ha annullato (ESC o click fuori o pulsante Cancel)
+          System.out.println("Popup cancelled by user.");
+          return; // Esce dalla funzione onCanvasSingleClickAction
         }
       }
 
-      this.addNodeToGraph((createNode(nodeLabel, currentNodeType.toString(),
-          point)));
+      // Se si esce dal while, significa che unique è true e nodeLabel è valido
+      this.addNodeToGraph(createNode(nodeLabel, currentNodeType.toString(), point));
     }
   }
-
   @Override
   protected void onVertexRightClickAction(SmartGraphVertex<Node> vertex) {
     super.onVertexRightClickAction(vertex);
@@ -274,12 +323,11 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
 
       // Create custom MenuItem with TextField for label editing
       CustomMenuItem editLabelItem = new CustomMenuItem();
-      VBox editBox = new VBox(5);
-      Label editLabel = new Label("Edit Label:");
+      VBox editBox = new VBox(10);
       TextField labelField = new TextField(element.element().getName());
-      labelField.setPrefWidth(150);
-
+      labelField.setPrefWidth(200); // Larghezza preferita per adattarsi al menu contestuale
       // Handle Enter key and focus lost to apply changes
+
       Runnable applyLabelChange = () -> {
         String newLabel = labelField.getText().trim();
         if (!setNodeLabel(element, newLabel)) {
@@ -292,12 +340,12 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
 
       labelField.setOnAction(_ -> applyLabelChange.run());
 
-      editBox.getChildren().addAll(editLabel, labelField);
+      editBox.getChildren().add(labelField);
       editLabelItem.setContent(editBox);
       editLabelItem.setHideOnClick(false); // Keep menu open while editing
 
-      MenuItem deleteItem = new MenuItem("Delete Node");
-      deleteItem.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+      MenuItem deleteItem = new MenuItem("Delete");
+      deleteItem.setStyle("-fx-text-fill: #f38ba8; -fx-font-weight: bold;");
       deleteItem.setOnAction(_ -> {
         removeNodeFromGraph(element);
       });
@@ -307,6 +355,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       MenuItem userTypeItem = null;
       MenuItem startPlaceItem = null;
       MenuItem endPlaceItem = null;
+      MenuItem normalPlaceItem = null;
       if (currentType.equals("Transition")) {
         TRANSITION_TYPE current = ((Transition) element.element()).getType();
         userTypeItem = new MenuItem(
@@ -317,8 +366,26 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
               : TRANSITION_TYPE.ADMIN;
           setTransitionType(newType, element);
         });
+        IconUtils.setIcon(userTypeItem, !current.equals(TRANSITION_TYPE.ADMIN) ? "AdminMode.png" : "UserMode.png" , 20);
       } else {
-        startPlaceItem = new MenuItem("Set as Start Node");
+        normalPlaceItem = new MenuItem("Set as Normal Place");
+        IconUtils.setIcon(normalPlaceItem, "Place.png", 20);
+        normalPlaceItem.setOnAction(_ -> {
+            setPlaceType(PLACE_TYPE.NORMAL, element);
+            if (petriNetBuilder.getStartNode() != null) {
+                if (petriNetBuilder.getStartNode().getName().equals(element.element().getName())) {
+                petriNetBuilder.setStartNode(null);
+                }
+            }
+            if (petriNetBuilder.getFinishNode() != null) {
+                if (petriNetBuilder.getFinishNode().getName().equals(element.element().getName())) {
+                petriNetBuilder.setFinishNode(null);
+                }
+            }
+        });
+
+        startPlaceItem = new MenuItem("Set as Start Palace");
+        IconUtils.setIcon(startPlaceItem, "StartPlace.png", 20);
         startPlaceItem.setOnAction(_ -> {
 
           if (petriNetBuilder.getStartNode() != null) {
@@ -334,7 +401,8 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
           }
           petriNetBuilder.setStartNode(element.element().getName());
         });
-        endPlaceItem = new MenuItem("Set as Finish Node");
+        endPlaceItem = new MenuItem("Set as Finish Place");
+        IconUtils.setIcon(endPlaceItem, "EndPlace.png", 20);
         endPlaceItem.setOnAction(_ -> {
           if (petriNetBuilder.getFinishNode() != null) {
             Vertex<Node> node = getVertexByName(petriNetBuilder.getFinishNode().getName());
@@ -359,12 +427,13 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       });
 
       if (userTypeItem != null) {
-        contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(),
+        contextMenu.getItems().addAll(editLabelItem,
             userTypeItem, new SeparatorMenuItem(), infoItem, deleteItem);
       } else {
-        contextMenu.getItems().addAll(editLabelItem, new SeparatorMenuItem(), startPlaceItem, endPlaceItem,
+        contextMenu.getItems().addAll(editLabelItem, normalPlaceItem, startPlaceItem, endPlaceItem,
             new SeparatorMenuItem(), infoItem, deleteItem);
       }
+
 
       // Show context menu at cursor position
       showContextMenuOnGraph(contextMenu, element);
@@ -374,6 +443,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     }
 
   }
+
 
   @Override
   protected void onVertexSingleClickAction(SmartGraphVertex<Node> vertex) {
@@ -436,6 +506,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     }
 
   }
+
 
   @Override
   protected void removeNodeFromGraph(Vertex<Node> node) {
@@ -519,10 +590,8 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
   private boolean areCompatible(Node node1, Node node2) {
     if (node1 instanceof Place && node2 instanceof Transition) {
       return true; // Place can connect to Transition
-    } else if (node1 instanceof Transition && node2 instanceof Place) {
-      return true; // Transition can connect to Place
-    }
-    return false; // Other combinations are not allowed
+    } else return node1 instanceof Transition && node2 instanceof Place; // Transition can connect to Place
+// Other combinations are not allowed
   }
 
 }
