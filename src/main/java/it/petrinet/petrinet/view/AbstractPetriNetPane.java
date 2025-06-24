@@ -49,11 +49,12 @@ import javafx.util.Duration;
  */
 public abstract class AbstractPetriNetPane extends Pane {
 
-  private static final String USER_TRANSITION_STYLE = "userTransition";
-  private static final String ADMIN_TRANSITION_STYLE = "adminTransition";
-  private static final String START_VERTEX_STYLE = "startVertex";
-  private static final String END_VERTEX_STYLE = "endVertex";
-  private static final String NORMAL_VERTEX_STYLE = "vertex";
+  protected static final String USER_TRANSITION_STYLE = "userTransition";
+  protected static final String ADMIN_TRANSITION_STYLE = "adminTransition";
+  protected static final String FIRABLE_TRANSITION_STYLE = "firableTransition";
+  protected static final String START_VERTEX_STYLE = "startVertex";
+  protected static final String END_VERTEX_STYLE = "endVertex";
+  protected static final String NORMAL_VERTEX_STYLE = "vertex";
 
   /** The JavaFX component responsible for rendering the graph. */
   private SmartGraphPanel<Node, String> graphView;
@@ -191,15 +192,14 @@ public abstract class AbstractPetriNetPane extends Pane {
 
   protected void addNodeStyle(Vertex<Node> node, String style) {
     graphView.getStylableVertex(node).addStyleClass(style);
-    graphView.update();
-    graphView.updateAndWait();
+  }
+
+  protected void setNodeStyle(Vertex<Node> node, String styleClass) {
+    graphView.getStylableVertex(node).setStyleClass(styleClass);
   }
 
   protected void removeNodeStyle(Vertex<Node> node, String style) {
     graphView.getStylableVertex(node).removeStyleClass(style);
-    graphView.update();
-    graphView.updateAndWait();
-
   }
 
   /**

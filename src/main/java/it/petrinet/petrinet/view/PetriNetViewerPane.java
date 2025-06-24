@@ -21,6 +21,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   private String petriName;
   private final String petriNetPNML;
   private Map<String, Integer> marking;
+  private boolean testMode = true;
 
   public PetriNetViewerPane(String petriNetPNML, Computation computation) {
     super();
@@ -91,19 +92,25 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
     }
 
     getGraphVertices().stream().forEach(vertex -> {
-      addNodeStyle(vertex, "firable");
       if (vertex.element() instanceof Transition t) {
         if (incidentEdges(vertex).stream()
             .map(edge -> (edge.vertices()[0].equals(vertex) ? edge.vertices()[1] : edge.vertices()[0]))
             .allMatch(node -> ((Place) node.element()).getPlaceTokens() > 0)) {
           System.out.println("TRANSITION " + t + " is FIRABLE");
-          if (ViewNavigator.getAuthenticatedUser().getUsername().equals(computation.getCreatorId())
-              && t.getType().equals(TRANSITION_TYPE.ADMIN)) {
+          removeNodeStyle(vertex, USER_TRANSITION_STYLE);
+          removeNodeStyle(vertex, ADMIN_TRANSITION_STYLE);
+          addNodeStyle(vertex, FIRABLE_TRANSITION_STYLE);
+          if (testMode) {
             t.setIsFirable(true);
-          }
-          if (ViewNavigator.getAuthenticatedUser().getUsername().equals(computation.getUserId())
-              && t.getType().equals(TRANSITION_TYPE.USER)) {
-            t.setIsFirable(true);
+          } else {
+            if (ViewNavigator.getAuthenticatedUser().getUsername().equals(computation.getCreatorId())
+                && t.getType().equals(TRANSITION_TYPE.ADMIN)) {
+              t.setIsFirable(true);
+            }
+            if (ViewNavigator.getAuthenticatedUser().getUsername().equals(computation.getUserId())
+                && t.getType().equals(TRANSITION_TYPE.USER)) {
+              t.setIsFirable(true);
+            }
           }
         }
       }

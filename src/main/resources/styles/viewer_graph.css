@@ -21,7 +21,7 @@
   -fx-font: bold 8pt "sans-serif";
 }
 
-.firable {
+.firableTransition {
     -fx-fill: yellow;
     -fx-stroke: red;
     -fx-stroke-width: 4;
