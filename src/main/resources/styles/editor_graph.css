@@ -1,5 +1,5 @@
 .graph {
-  -fx-background-color: #1e1e2e;
+  -fx-background-color: #F4FFFB;
 }
 
 .vertex {
@@ -9,6 +9,7 @@
   /* you should keep this for vertex.radius to hold */
   -fx-fill: #B1DFF7;
 }
+
 
 .vertex:hover {
   /* pseudo-classes also work */
@@ -82,7 +83,6 @@
   /* you should keep this if using arrows */
   -fx-fill: #FFCCCC;
 }
-
 
 .adminTransition:hover {
   -fx-stroke-width: 3;

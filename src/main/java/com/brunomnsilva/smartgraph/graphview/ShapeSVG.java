@@ -2,48 +2,40 @@ package com.brunomnsilva.smartgraph.graphview;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.FillRule;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
 
 public class ShapeSVG implements ShapeWithRadius<SVGPath> {
 
-  public static final double SCALE = 0.05;
+  public static final double SCALE = 0.04;
   protected final DoubleProperty centerX, centerY;
   protected final DoubleProperty radius;
+  protected int markingCount = 1;
 
-  // protected final Polygon surrogate;
   protected final SVGPath svgPath;
 
-  /**
-   * Creates a regular polygon shape with <code>numberSides</code>
-   * 
-   * @param x      the x-center coordinate
-   * @param y      the y-center coordinate
-   * @param radius the radius of the enclosed circle
-   */
-  public ShapeSVG(double x, double y, double radius) {
+  // Fattore per creare uno spazio tra i cerchi. 1.0 = nessun spazio, 0.9 = 10% di
+  // spazio.
+  private static final double GAP_FACTOR = 0.80;
+
+  public ShapeSVG(double x, double y, double radius, int marking) {
     Args.requireNonNegative(x, "x");
     Args.requireNonNegative(y, "y");
     Args.requireNonNegative(radius, "radius");
 
     this.svgPath = new SVGPath();
-
-    // this.surrogate = new Polygon();
+    this.markingCount = marking;
 
     this.centerX = new SimpleDoubleProperty(x);
     this.centerY = new SimpleDoubleProperty(y);
+    this.radius = new SimpleDoubleProperty(radius);
 
     this.centerX.addListener((observable, oldValue, newValue) -> updateSVG());
     this.centerY.addListener((observable, oldValue, newValue) -> updateSVG());
-
-    this.radius = new SimpleDoubleProperty(radius);
     this.radius.addListener((observable, oldValue, newValue) -> updateSVG());
 
     updateSVG();
@@ -52,78 +44,94 @@ public class ShapeSVG implements ShapeWithRadius<SVGPath> {
   protected void updateSVG() {
     double cx = centerX.doubleValue();
     double cy = centerY.doubleValue();
-    double radius = getRadius();
+    double outerRadius = getRadius();
 
-    String path = String.join("", generatePackedCircles(radius, radius * 0.1, radius * 0.5, 10));
+    // Raggio fisso per il sistema di coordinate SVG interno, es. 25.
+    // Questo semplifica i calcoli di posizionamento.
+    double internalRadius = 25.0;
 
-    svgPath.setContent(
-        // // Cerchio interno
-        // "M -10 -5 " +
-        // "A 5 5 0 1 0 -10 5 " +
-        // "A 5 5 0 1 0 -10 -5 Z " +
+    // Genera i percorsi SVG per i cerchi interni
+    String markingsPath = String.join("", generatePackedCircles(internalRadius, markingCount));
 
-        path +
+    // Costruisce il percorso SVG completo
+    String fullPath = markingsPath +
+    // Cerchio grande esterno (raggio 25, centrato in 0,0)
+        "M 0 -25 " +
+        "A 25 25 0 1 0 0 25 " +
+        "A 25 25 0 1 0 0 -25 Z";
 
-        // Cerchio grande esterno (raggio 25, centrato in 0,0)
-            "M 0 -25 " +
-            "A 25 25 0 1 0 0 25 " +
-            "A 25 25 0 1 0 0 -25 Z");
+    svgPath.setContent(fullPath);
 
-    svgPath.setScaleX(radius * SCALE);
-    svgPath.setScaleY(radius * SCALE);
+    // Scala l'intero SVG per adattarlo al raggio esterno desiderato
+    svgPath.setScaleX(outerRadius * SCALE);
+    svgPath.setScaleY(outerRadius * SCALE);
 
+    // Posiziona l'SVG nella posizione corretta del pannello
     svgPath.setTranslateX(cx);
     svgPath.setTranslateY(cy);
   }
 
-  // Trova il massimo raggio possibile
-  public static double findMaxRadius(double R, double rMin, double rMax, int targetCount) {
-    double eps = 1e-6;
-    double low = rMin, high = rMax, best = rMin;
-
-    while (high - low > eps) {
-      double mid = (low + high) / 2.0;
-      int count = (int) Math.floor(Math.PI * (R - mid) / mid);
-
-      if (count >= targetCount) {
-        best = mid;
-        low = mid;
-      } else {
-        high = mid;
-      }
-    }
-
-    return best;
-  }
-
-  public static List<String> generatePackedCircles(double R, double rMin, double rMax, int count) {
+  /**
+   * Genera i percorsi SVG per un numero 'count' di cerchi interni,
+   * impacchettati all'interno di un cerchio più grande di raggio R.
+   *
+   * @param R     Raggio del cerchio contenitore.
+   * @param count Numero di cerchi da generare.
+   * @return Una lista di stringhe, ognuna rappresentante un percorso SVG per un
+   *         cerchio.
+   */
+  public static List<String> generatePackedCircles(double R, int count) {
     List<String> paths = new ArrayList<>();
 
-    double radius = findMaxRadius(R, rMin, rMax, count);
-    int numCircles = (int) Math.floor(Math.PI * (R - radius) / radius);
-    numCircles = Math.min(numCircles, count);
+    // CASO 1: Nessun cerchio.
+    if (count <= 0) {
+      return paths;
+    }
 
-    double circleRadius = R - radius; // raggio della circonferenza su cui piazzare i cerchi
+    // CASO 2: Un singolo cerchio, posizionato al centro.
+    if (count == 1) {
+      double r = R / 6; // Raggio ragionevole per un cerchio singolo
+      paths.add(svgCirclePath(0, 0, r));
+      return paths;
+    }
 
-    for (int i = 0; i < numCircles; i++) {
-      double angle = 2 * Math.PI * i / numCircles;
-      double x = circleRadius * Math.cos(angle);
-      double y = circleRadius * Math.sin(angle);
-      paths.add(svgCirclePath(x, y, radius));
+    // CASO 3: Cerchi multipli, calcolati con trigonometria.
+    // Calcola il raggio massimo possibile per ogni cerchietto in modo che si
+    // tocchino appena.
+    // La formula deriva da: r <= R / (1/sin(PI/N) + 1)
+    double maxRadius = R / (1.5 / Math.sin(Math.PI / count) + 1.0);
+
+    // Applica il fattore di gap per creare spazio.
+    double r = maxRadius * GAP_FACTOR;
+
+    // Raggio della circonferenza su cui giacciono i centri dei cerchietti.
+    double placementRadius = r / Math.sin(Math.PI / count);
+
+    // Genera i percorsi SVG per ogni cerchio.
+    for (int i = 0; i < count; i++) {
+      // Calcola l'angolo per distribuire uniformemente i cerchi.
+      double angle = 2 * Math.PI * i / count;
+
+      double x = placementRadius * Math.cos(angle);
+      double y = placementRadius * Math.sin(angle);
+      paths.add(svgCirclePath(x, y, r));
     }
 
     return paths;
   }
 
+  /**
+   * Crea la stringa del percorso SVG per un cerchio.
+   */
   private static String svgCirclePath(double x, double y, double radius) {
-    return String.format(
-        "M %.2f %.2f " + // Move to top of the circle
-            "A %.2f %.2f 0 1 0 %.2f %.2f " + // First arc
-            "A %.2f %.2f 0 1 0 %.2f %.2f Z", // Second arc
-        x, y - radius, // Move to (x, y - r)
-        radius, radius, x, y + radius, // First arc to (x, y + r)
-        radius, radius, x, y - radius // Second arc back to start
-    );
+    // Usiamo Locale.US per garantire che il separatore decimale sia un punto.
+    return String.format(Locale.US,
+        "M %.2f %.2f " +
+            "A %.2f %.2f 0 1 0 %.2f %.2f " +
+            "A %.2f %.2f 0 1 0 %.2f %.2f Z",
+        x, y - radius,
+        radius, radius, x, y + radius,
+        radius, radius, x, y - radius);
   }
 
   @Override
@@ -154,7 +162,6 @@ public class ShapeSVG implements ShapeWithRadius<SVGPath> {
   @Override
   public void setRadius(double radius) {
     Args.requireNonNegative(radius, "radius");
-
     this.radius.set(radius);
   }
 }

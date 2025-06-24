@@ -392,6 +392,10 @@ public class PetriNetCreationPane extends Pane {
       }
     });
 
+    graphView.getModel().vertices().stream().forEach(e -> {
+      g.incidentEdges(e);
+    })
+
     // Set up edge click action for deletion mode
     graphView.setEdgeSingleClickAction(edge -> {
       if (currentMode.equals(MODE.DELETION)) {

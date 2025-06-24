@@ -1,6 +1,12 @@
 package it.petrinet.petrinet.view;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Collection;
+import java.util.Random;
 
 import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
@@ -9,6 +15,7 @@ import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphEdge;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphProperties;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
@@ -42,11 +49,12 @@ import javafx.util.Duration;
  */
 public abstract class AbstractPetriNetPane extends Pane {
 
-  private static final String USER_TRANSITION_STYLE = "userTransition";
-  private static final String ADMIN_TRANSITION_STYLE = "adminTransition";
-  private static final String START_VERTEX_STYLE = "startVertex";
-  private static final String END_VERTEX_STYLE = "endVertex";
-  private static final String NORMAL_VERTEX_STYLE = "vertex";
+  protected static final String USER_TRANSITION_STYLE = "userTransition";
+  protected static final String ADMIN_TRANSITION_STYLE = "adminTransition";
+  protected static final String FIRABLE_TRANSITION_STYLE = "firableTransition";
+  protected static final String START_VERTEX_STYLE = "startVertex";
+  protected static final String END_VERTEX_STYLE = "endVertex";
+  protected static final String NORMAL_VERTEX_STYLE = "vertex";
 
   /** The JavaFX component responsible for rendering the graph. */
   private SmartGraphPanel<Node, String> graphView;
@@ -76,9 +84,53 @@ public abstract class AbstractPetriNetPane extends Pane {
    * Creates the graph model, the view panel, and adds them to the scene.
    */
   private final void setupGraph() {
+
+    String propertiesPath = System.getProperty("user.dir") +
+        "/src/main/resources/properties/";
+    String stylePath = System.getProperty("user.dir") +
+        "/src/main/resources/styles/";
+
+    switch (this.getClass().getSimpleName()) {
+      case "PetriNetEditorPane":
+        propertiesPath += "editor_graph";
+        stylePath += "editor_graph";
+        break;
+      case "PetriNetViewerPane":
+        propertiesPath += "viewer_graph";
+        stylePath += "viewer_graph";
+        break;
+      default:
+        propertiesPath += "editor_graph";
+        stylePath += "editor_graph";
+        break;
+    }
+    propertiesPath += ".properties";
+    stylePath += ".css";
+
+    File propertiesFile = new File(propertiesPath);
+    File styleFile = new File(stylePath);
+
+    if (!propertiesFile.exists() || !styleFile.exists()) {
+      throw new RuntimeException(
+          "Properties file or style file not found: " + propertiesFile.getAbsolutePath() + ", "
+              + styleFile.getAbsolutePath());
+    }
+
+    URI styleURI = styleFile.toURI();
+
+    InputStream propertiesFileStream = null;
+    try {
+      propertiesFileStream = new FileInputStream(propertiesFile);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+
+    // 3. Passa lo stream al costruttore di SmartGraphProperties
+    SmartGraphProperties properties = new SmartGraphProperties(propertiesFileStream);
+
     g = new DigraphEdgeList<>();
     SmartPlacementStrategy initialPlacement = new SmartRandomPlacementStrategy();
-    graphView = new SmartGraphPanel<>(g, initialPlacement);
+    graphView = new SmartGraphPanel<>(g, properties, initialPlacement, styleURI);
     contentZoomScrollPane = new ContentZoomScrollPane(graphView);
 
     graphView.setPrefHeight(1080);
@@ -132,6 +184,22 @@ public abstract class AbstractPetriNetPane extends Pane {
    */
   public boolean getIsInteractionEnabled() {
     return isInteractionEnabled;
+  }
+
+  protected Collection<Edge<String, Node>> incidentEdges(Vertex<Node> node) {
+    return g.incidentEdges(node);
+  }
+
+  protected void addNodeStyle(Vertex<Node> node, String style) {
+    graphView.getStylableVertex(node).addStyleClass(style);
+  }
+
+  protected void setNodeStyle(Vertex<Node> node, String styleClass) {
+    graphView.getStylableVertex(node).setStyleClass(styleClass);
+  }
+
+  protected void removeNodeStyle(Vertex<Node> node, String style) {
+    graphView.getStylableVertex(node).removeStyleClass(style);
   }
 
   /**
@@ -229,7 +297,6 @@ public abstract class AbstractPetriNetPane extends Pane {
       }
     }
     graphView.setVertexPosition(v, element.getPosition().getX(), element.getPosition().getY());
-
     graphView.updateAndWait();
     graphView.update();
 
@@ -269,6 +336,35 @@ public abstract class AbstractPetriNetPane extends Pane {
    */
   protected void addArcToGraph(String from, String to, String label) {
     this.addArcToGraph(getVertexByName(from), getVertexByName(to), label);
+  }
+
+  /**
+   * Creates a directed edge (arc) between two vertices.
+   *
+   * @param from The source vertex.
+   * @param to   The destination vertex.
+   */
+  protected void addArcToGraph(String from, String to) {
+    this.addArcToGraph(getVertexByName(from), getVertexByName(to), generateRandomEdgeLabel());
+  }
+
+  protected boolean isEdgeLabelUnique(Edge<String, Node> edge, String newLabel) {
+
+    if (getGraphEdges().stream()
+        .anyMatch(e -> e.element().equals(newLabel) && e != edge)) {
+      return false;
+    }
+    return true;
+  }
+
+  private String generateRandomEdgeLabel() {
+    String label = "edge_" + System.currentTimeMillis();
+
+    while (!isEdgeLabelUnique(null, label)) {
+      label += new Random().nextInt(1000);
+    }
+
+    return label;
   }
 
   /**

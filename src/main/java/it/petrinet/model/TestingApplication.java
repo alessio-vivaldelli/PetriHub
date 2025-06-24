@@ -6,6 +6,8 @@ import java.util.List;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
 import it.petrinet.petrinet.model.Transition;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
+import it.petrinet.petrinet.view.*;
+
 import it.petrinet.petrinet.view.PetriNetEditorPane;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
@@ -20,10 +22,42 @@ import javafx.util.Duration;
 public class TestingApplication extends Application {
 
   private PetriNetEditorPane petriNetCreationPane;
+  private PetriNetViewerPane petriNetViewerPane;
 
   @Override
   public void start(Stage stage) throws IOException {
 
+    // VBox vBox = createNet();
+    VBox vBox = visualizeNet();
+
+    Scene scene = new Scene(vBox, 1920, 1020);
+
+    stage = new Stage(StageStyle.DECORATED);
+    stage.setTitle("JavaFXGraph Visualization");
+    stage.setScene(scene);
+    stage.show();
+
+    // petriNetCreationPane.init();
+    petriNetViewerPane.init();
+  }
+
+  public VBox visualizeNet() {
+    VBox vBox = new VBox();
+    vBox.setSpacing(10);
+
+    Computation computation = new Computation("testnet", "creatorID", "userID");
+    computation.addStep(new ComputationStep(1, "1", "testnet", "", "start_e:1", 123456));
+    computation.addStep(new ComputationStep(2, "2", "testnet", "t1", "p1:2,start_e:1,p2:1", 1234567));
+
+    String path = System.getProperty("user.dir") +
+        "/src/main/resources/data/pnml/testing_petri_net.pnml";
+    petriNetViewerPane = new PetriNetViewerPane(path, computation);
+
+    vBox.getChildren().add(petriNetViewerPane);
+    return vBox;
+  }
+
+  public VBox createNet() {
     VBox vBox = new VBox();
     vBox.setSpacing(10);
 
@@ -89,14 +123,7 @@ public class TestingApplication extends Application {
 
     vBox.getChildren().addAll(petriNetCreationPane, buttonBox, nodeTypeBox, zoomBox);
 
-    Scene scene = new Scene(vBox, 1920, 1020);
-
-    stage = new Stage(StageStyle.DECORATED);
-    stage.setTitle("JavaFXGraph Visualization");
-    stage.setScene(scene);
-    stage.show();
-
-    petriNetCreationPane.init();
+    return vBox;
   }
 
   // start application

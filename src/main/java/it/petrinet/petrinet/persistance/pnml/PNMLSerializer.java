@@ -153,6 +153,14 @@ public class PNMLSerializer implements NetSerializer {
     transition.setAttribute("type", t.getType().toString());
     transitionName.setTextContent(t.getName());
     transition.appendChild(transitionName);
+    if (t.getPosition() != null) {
+      Element graphic = doc.createElementNS(PNMLUtils.PNML_NS, "graphics");
+      Element offset = doc.createElementNS(PNMLUtils.PNML_NS, "offset");
+      offset.setAttribute("x", String.valueOf(t.getPosition().getX()));
+      offset.setAttribute("y", String.valueOf(t.getPosition().getY()));
+      graphic.appendChild(offset);
+      transition.appendChild(graphic);
+    }
     return transition;
   }
 }

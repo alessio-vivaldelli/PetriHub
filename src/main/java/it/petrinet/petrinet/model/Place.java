@@ -80,6 +80,9 @@ public class Place extends Node {
    */
   @SmartShapeTypeSource
   public String modelShape() {
+    if (this.getPlaceTokens() > 0) {
+      return "place_" + this.getPlaceTokens();
+    }
     return "place";
   }
 

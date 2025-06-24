@@ -61,8 +61,26 @@ public class ShapeFactory {
         return new ShapeStar(x, y, radius);
       case "marker":
         return new ShapePlaceWithMarker(x, y, radius);
-      case "svg":
-        return new ShapeSVG(x, y, radius);
+      case "place_1":
+        return new ShapeSVG(x, y, radius, 1);
+      case "place_2":
+        return new ShapeSVG(x, y, radius, 2);
+      case "place_3":
+        return new ShapeSVG(x, y, radius, 3);
+      case "place_4":
+        return new ShapeSVG(x, y, radius, 4);
+      case "place_5":
+        return new ShapeSVG(x, y, radius, 5);
+      case "place_6":
+        return new ShapeSVG(x, y, radius, 6);
+      case "place_7":
+        return new ShapeSVG(x, y, radius, 7);
+      case "place_8":
+        return new ShapeSVG(x, y, radius, 8);
+      case "place_9":
+        return new ShapeSVG(x, y, radius, 9);
+      case "place_10":
+        return new ShapeSVG(x, y, radius, 10);
       case "transition":
         return new ShapeTransition(x, y, radius);
       case "circle":
@@ -91,7 +109,8 @@ public class ShapeFactory {
         return new ShapeRegularPolygon(x, y, radius, 12);
 
       default:
-        throw new IllegalArgumentException("Invalid shape type. See javadoc for available shapes.");
+        return new ShapeSVG(x, y, radius, 10);
+
     }
   }
 }

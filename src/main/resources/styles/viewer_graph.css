@@ -1,5 +1,5 @@
 .graph {
-  -fx-background-color: #1e1e2e;
+  -fx-background-color: #F4FFFB;
 }
 
 .vertex {
@@ -19,6 +19,12 @@
 
 .vertex-label {
   -fx-font: bold 8pt "sans-serif";
+}
+
+.firableTransition {
+    -fx-fill: yellow;
+    -fx-stroke: red;
+    -fx-stroke-width: 4;
 }
 
 .edge {
@@ -82,7 +88,6 @@
   /* you should keep this if using arrows */
   -fx-fill: #FFCCCC;
 }
-
 
 .adminTransition:hover {
   -fx-stroke-width: 3;
