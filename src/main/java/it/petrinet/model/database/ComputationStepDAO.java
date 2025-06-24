@@ -44,7 +44,7 @@ public class ComputationStepDAO implements DataAccessObject{
                     p_statement.setInt(1, s.getComputationId());
                     p_statement.setString(2, s.getNetId());
                     p_statement.setString(3, s.getTransitionName());
-                    p_statement.setString(4, s.getMarkingState());
+                    p_statement.setString(4, s.getTempMarkingState());
                     p_statement.setLong(5, s.getTimestamp());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {

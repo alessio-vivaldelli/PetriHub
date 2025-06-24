@@ -13,8 +13,11 @@ import java.util.Objects;
  * Steps are naturally ordered by their timestamp.
  */
 public class ComputationStep implements Comparable<ComputationStep> {
+  //TODO: remove this field, it is not used
+  private final String TEMP_MARKING_STATE;
+
   private final long id;
-  private final String computationId;
+  private final int computationId;
   private final String netId;
   private final String transitionName;
   private Map<String, Integer> markingState = new HashMap<>();
@@ -32,10 +35,10 @@ public class ComputationStep implements Comparable<ComputationStep> {
    * @param timestamp      when this step occurred (Unix timestamp in seconds)
    * @throws IllegalArgumentException if any required parameter is null or empty
    */
-  public ComputationStep(long id, String computationId, String netId, String transitionName, String markingState,
+  public ComputationStep(long id, int computationId, String netId, String transitionName, String markingState,
       long timestamp) {
     validatePositiveId(id, "id");
-    validateRequiredString(computationId, "computationId");
+    validatePositiveId(computationId, "computationId");
     validateRequiredString(netId, "netId");
     // validateRequiredString(transitionName, "transitionName");
     validateRequiredString(markingState, "markingState");
@@ -44,6 +47,7 @@ public class ComputationStep implements Comparable<ComputationStep> {
     this.computationId = computationId;
     this.netId = netId;
     this.transitionName = transitionName;
+    this.TEMP_MARKING_STATE = markingState;
     parseMarkingState(markingState);
     this.timestamp = timestamp;
   }
@@ -69,29 +73,15 @@ public class ComputationStep implements Comparable<ComputationStep> {
 
   }
 
-  /**
-   * Returns the unique identifier for this step.
-   *
-   * @return step ID
-   */
+
   public long getId() {
     return id;
   }
 
-  /**
-   * Returns the identifier of the parent computation.
-   *
-   * @return computation ID
-   */
-  public String getComputationId() {
+  public int getComputationId() {
     return computationId;
   }
 
-  /**
-   * Returns the identifier of the associated Petri net.
-   *
-   * @return net ID
-   */
   public String getNetId() {
     return netId;
   }
@@ -112,6 +102,11 @@ public class ComputationStep implements Comparable<ComputationStep> {
    */
   public Map<String, Integer> getMarkingState() {
     return markingState;
+  }
+
+  //TODO: remove this method, it is not used
+  public String getTempMarkingState() {
+    return TEMP_MARKING_STATE;
   }
 
   /**
@@ -138,8 +133,8 @@ public class ComputationStep implements Comparable<ComputationStep> {
    * @param computationId the computation ID to check
    * @return true if this step belongs to the computation, false otherwise
    */
-  public boolean belongsToComputation(String computationId) {
-    return this.computationId.equals(computationId);
+  public boolean belongsToComputation(int computationId) {
+    return this.computationId == computationId;
   }
 
   /**
@@ -149,7 +144,7 @@ public class ComputationStep implements Comparable<ComputationStep> {
    * @return true if this step belongs to the net, false otherwise
    */
   public boolean belongsToNet(String netId) {
-    return this.netId.equals(netId);
+    return getNetId().equals(netId);
   }
 
   /**

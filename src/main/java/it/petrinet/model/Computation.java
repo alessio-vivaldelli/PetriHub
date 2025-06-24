@@ -171,7 +171,7 @@ public class Computation {
      * @see #getSteps()
      */
     public boolean addStep(ComputationStep step) {
-        if (step == null || !step.getNetId().equals(this.netId)) return false;
+        if (step == null || !step.belongsToNet(netId)) return false;
 
         return steps.add(step);
     }
