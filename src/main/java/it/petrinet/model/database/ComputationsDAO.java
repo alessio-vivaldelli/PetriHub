@@ -21,8 +21,8 @@ public class ComputationsDAO implements DataAccessObject{
                 "netId TEXT NOT NULL, " +
                 "creatorId TEXT NOT NULL, " +
                 "userId TEXT NOT NULL," +
-                "startDate INTEGER, " +
-                "endDate INTEGER," +
+                "startDate LONGINT, " +
+                "endDate LONGINT," +
                 "UNIQUE (netId, userId, creatorId))";
 
         try (Connection connection = DatabaseManager.getComputationsDBConnection();
@@ -47,11 +47,11 @@ public class ComputationsDAO implements DataAccessObject{
                     p_Statement.setString(1, c.getNetId());
                     p_Statement.setString(2, c.getCreatorId());
                     p_Statement.setString(3, c.getUserId());
-                    if(c.getStartDate()!= -1){
-                        p_Statement.setInt(4, c.getStartDate());
+                    if(c.getStartTimestamp()>0){
+                        p_Statement.setLong(4, c.getStartTimestamp());
                     }
-                    if(c.getEndDate()!= -1){
-                        p_Statement.setInt(5, c.getEndDate());
+                    if(c.getEndTimestamp()>0){
+                        p_Statement.setLong(5, c.getEndTimestamp());
                     }
                     p_Statement.executeUpdate();
                 }

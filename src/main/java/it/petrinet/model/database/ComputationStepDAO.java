@@ -31,7 +31,7 @@ public class ComputationStepDAO implements DataAccessObject{
     }
 
     public static void insertStep(Object step) throws InputTypeException{
-        String command = "INSERT INTO computationSteps(computationId, netId, transition, markingLocation, timestamp) VALUES (?, ?, ?, ?, ?)";
+        String command = "INSERT INTO computationSteps(computationId, netId, transitionName, markingState, timestamp) VALUES (?, ?, ?, ?, ?)";
         try {
             if (step instanceof ComputationStep s) {
                 if (!DatabaseManager.tableExists("computations", "computationSteps")) {
@@ -43,9 +43,9 @@ public class ComputationStepDAO implements DataAccessObject{
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setInt(1, s.getComputationId());
                     p_statement.setString(2, s.getNetId());
-                    p_statement.setString(3, s.getTransition());
-                    p_statement.setString(4, s.getMarkingLocation());
-                    p_statement.setInt(5, s.getTimestamp());
+                    p_statement.setString(3, s.getTransitionName());
+                    p_statement.setString(4, s.getMarkingState());
+                    p_statement.setLong(5, s.getTimestamp());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -59,6 +59,57 @@ public class ComputationStepDAO implements DataAccessObject{
         }
     }
 
+//    public static void main(String[] args) throws InputTypeException {
+//        insertStep(new ComputationStep(1, 2, "net1", "T1 > T2", "p1, p2, p3", 1));
+//    }
+//
+//    public void createTable() {                          //metodo per creazione tabelle
+//        String table = "CREATE TABLE IF NOT EXISTS computationSteps (" +
+//                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+//                "computationId INTEGER NOT NULL, " +
+//                "netId TEXT NOT NULL, " +
+//                "transition TEXT, " +
+//                "markingLocation TEXT NOT NULL, " +
+//                "timestamp INTEGER NOT NULL)";
+//
+//        try (Connection connection = DatabaseManager.getComputationsDBConnection();
+//             Statement statement = connection.createStatement()) {
+//            statement.execute(table);
+//        } catch (SQLException ex) {
+//            ex.printStackTrace();
+//        }
+//    }
+//
+//    public static void insertStep(Object step) throws InputTypeException{
+//        String command = "INSERT INTO computationSteps(computationId, netId, transition, markingLocation, timestamp) VALUES (?, ?, ?, ?, ?)";
+//        try {
+//            if (step instanceof ComputationStep s) {
+//                if (!DatabaseManager.tableExists("computations", "computationSteps")) {
+//                    ComputationStepDAO dao = new ComputationStepDAO();
+//                    dao.createTable();
+//                }
+//
+//                try (Connection connection = DatabaseManager.getComputationsDBConnection();
+//                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+//                    p_statement.setInt(1, s.getComputationId());
+//                    p_statement.setString(2, s.getNetId());
+//                    p_statement.setString(3, s.getTransition());
+//                    p_statement.setString(4, s.getMarkingLocation());
+//                    p_statement.setInt(5, s.getTimestamp());
+//                    p_statement.executeUpdate();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            } else {
+//                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
+//            }
+//        }
+//        catch(InputTypeException e){
+//            e.ErrorPrinter();
+//        }
+//    }
+
+
     public static void deleteStep(Object step) throws InputTypeException{
         String command = "DELETE FROM computationSteps WHERE id = ? AND computationId = ? AND netId = ?";
         try {
@@ -66,7 +117,7 @@ public class ComputationStepDAO implements DataAccessObject{
 
                 try (Connection connection = DatabaseManager.getComputationsDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setInt(1, s.getId());
+                    p_statement.setLong(1, s.getId());
                     p_statement.setInt(2, s.getComputationId());
                     p_statement.setString(3, s.getNetId());
                     p_statement.executeUpdate();
@@ -84,22 +135,22 @@ public class ComputationStepDAO implements DataAccessObject{
 
     public static ComputationStep getComputationStepByTimestamp(Object timestamp)throws InputTypeException{
         try{
-            if(timestamp instanceof String time){
+            if(timestamp instanceof Long time){
                 String command = "SELECT * FROM computations WHERE timestamp = ?";
 
                 try (Connection connection = DatabaseManager.getComputationsDBConnection();
                      PreparedStatement p_Statement = connection.prepareStatement(command)){
-                    p_Statement.setString(1, time);
+                    p_Statement.setLong(1, time);
                     ResultSet result = p_Statement.executeQuery();
 
                     if(result.next()){
                         new ComputationStep(
-                                result.getInt(1),
+                                result.getLong(1),
                                 result.getInt(2),
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getInt(6)
+                                result.getLong(6)
                         );
                     }
                 }
@@ -125,22 +176,25 @@ public class ComputationStepDAO implements DataAccessObject{
                     System.err.println("The computation given is not in the database");
                     return null;
                 }
-
-                String command2 = "SELECT * FROM computationSteps WHERE Computation = ? and MAX(timestamp) = timestamp";
+                String command2 = "SELECT * " +
+                        "FROM computationSteps " +
+                        "WHERE computationId = ? " +
+                        "AND timestamp = (SELECT MAX(timestamp) FROM computationSteps WHERE ComputationId = ?);";
 
                 try (Connection connection = DatabaseManager.getComputationsDBConnection();
                      PreparedStatement p_Statement = connection.prepareStatement(command2)) {
-                    p_Statement.setInt(1, id);
+                    p_Statement.setLong(1, id);
+                    p_Statement.setLong(2,id);
                     ResultSet result = p_Statement.executeQuery();
 
                     if(result.next()) {
                         return new ComputationStep(
-                                result.getInt(1),
+                                result.getLong(1),
                                 result.getInt(2),
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getInt(6)
+                                result.getLong(6)
                         );
                     }
                 } catch (SQLException ex) {
@@ -171,12 +225,12 @@ public class ComputationStepDAO implements DataAccessObject{
 
                     while (result.next()) {
                         wantedSteps.add( new ComputationStep(
-                                result.getInt(1),
+                                result.getLong(1),
                                 result.getInt(2),
                                 result.getString(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getInt(6)
+                                result.getLong(6)
                         ));
                     }
                 } catch (SQLException ex) {
@@ -200,7 +254,7 @@ public class ComputationStepDAO implements DataAccessObject{
 
                 try (Connection connection = DatabaseManager.getComputationsDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setInt(1, s.getId());
+                    p_statement.setLong(1, s.getId());
                     p_statement.setString(3, s.getNetId());
                     ResultSet result = p_statement.executeQuery();
                     if(result.next()){

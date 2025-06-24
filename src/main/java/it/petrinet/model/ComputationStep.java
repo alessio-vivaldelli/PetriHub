@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public class ComputationStep implements Comparable<ComputationStep> {
     private final long id;
-    private final String computationId;
+    private final int computationId;
     private final String netId;
     private final String transitionName;
     private final String markingState;
@@ -28,9 +28,9 @@ public class ComputationStep implements Comparable<ComputationStep> {
      * @param timestamp when this step occurred (Unix timestamp in seconds)
      * @throws IllegalArgumentException if any required parameter is null or empty
      */
-    public ComputationStep(long id, String computationId, String netId, String transitionName, String markingState, long timestamp) {
+    public ComputationStep(long id, int computationId, String netId, String transitionName, String markingState, long timestamp) {
         validatePositiveId(id, "id");
-        validateRequiredString(computationId, "computationId");
+        validatePositiveId(computationId, "computationId");
         validateRequiredString(netId, "netId");
         validateRequiredString(transitionName, "transitionName");
         validateRequiredString(markingState, "markingState");
@@ -57,7 +57,7 @@ public class ComputationStep implements Comparable<ComputationStep> {
      *
      * @return computation ID
      */
-    public String getComputationId() {
+    public int getComputationId() {
         return computationId;
     }
 
@@ -112,8 +112,8 @@ public class ComputationStep implements Comparable<ComputationStep> {
      * @param computationId the computation ID to check
      * @return true if this step belongs to the computation, false otherwise
      */
-    public boolean belongsToComputation(String computationId) {
-        return this.computationId.equals(computationId);
+    public boolean belongsToComputation(int computationId) {
+        return this.computationId == computationId;
     }
 
     /**
