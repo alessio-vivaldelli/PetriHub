@@ -13,8 +13,8 @@ import java.util.Objects;
  * Steps are naturally ordered by their timestamp.
  */
 public class ComputationStep implements Comparable<ComputationStep> {
-  //TODO: remove this field, it is not used
-  private final String TEMP_MARKING_STATE;
+  // TODO: remove this field, it is not used
+  private String TEMP_MARKING_STATE;
 
   private final long id;
   private final int computationId;
@@ -52,8 +52,50 @@ public class ComputationStep implements Comparable<ComputationStep> {
     this.timestamp = timestamp;
   }
 
+  /**
+   * Creates a new computation step.
+   *
+   * @param computationId  identifier of the parent computation
+   * @param netId          identifier of the associated Petri net
+   * @param transitionName name of the transition that was executed
+   * @param markingState   serialized representation of the marking after
+   *                       transition execution
+   * @param timestamp      when this step occurred (Unix timestamp in seconds)
+   * @throws IllegalArgumentException if any required parameter is null or empty
+   */
+  public ComputationStep(int computationId, String netId, String transitionName, String markingState,
+      long timestamp) {
+    this(-1, computationId, netId, transitionName, markingState, timestamp);
+  }
+
+  public ComputationStep(int computationId, String netId, String transitionName, Map<String, Integer> markingState,
+      long timestamp) {
+    this(-1, computationId, netId, transitionName, "", timestamp);
+
+    this.markingState = markingState != null ? new HashMap<>(markingState) : new HashMap<>();
+    serializeMarkingState(markingState);
+  }
+
+  private void serializeMarkingState(Map<String, Integer> markingState) {
+    if (markingState == null || markingState.isEmpty()) {
+      return;
+    }
+
+    StringBuilder sb = new StringBuilder();
+    for (Map.Entry<String, Integer> entry : markingState.entrySet()) {
+      if (sb.length() > 0) {
+        sb.append(",");
+      }
+      sb.append(entry.getKey()).append(":").append(entry.getValue());
+    }
+    this.TEMP_MARKING_STATE = sb.toString();
+  }
+
   private void parseMarkingState(String markingState) {
     // marking state are formatted as "place1:count1,place2:count2,..."
+    if (markingState == null || markingState.trim().isEmpty()) {
+      return;
+    }
 
     String[] pairs = markingState.split(",");
     for (String pair : pairs) {
@@ -73,6 +115,9 @@ public class ComputationStep implements Comparable<ComputationStep> {
 
   }
 
+  public static ComputationStep createEmptyStep(int computationId, String netId) {
+    return new ComputationStep(computationId, netId, "", "", System.currentTimeMillis() / 1000);
+  }
 
   public long getId() {
     return id;
@@ -104,7 +149,7 @@ public class ComputationStep implements Comparable<ComputationStep> {
     return markingState;
   }
 
-  //TODO: remove this method, it is not used
+  // TODO: remove this method, it is not used
   public String getTempMarkingState() {
     return TEMP_MARKING_STATE;
   }

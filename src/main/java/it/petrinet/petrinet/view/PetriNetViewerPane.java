@@ -8,7 +8,11 @@ import java.util.function.Consumer;
 
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 
+import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
+import it.petrinet.model.ComputationStep;
+import it.petrinet.model.database.ComputationStepDAO;
+import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.petrinet.builder.PetriNetBuilder;
 import it.petrinet.petrinet.model.Node;
 import it.petrinet.petrinet.model.PLACE_TYPE;
@@ -28,7 +32,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   private Map<String, Integer> marking;
   private boolean testMode = true;
 
-  private Consumer<String> onTransitionFired = null;
+  private Consumer<ComputationStep> onTransitionFired = null;
   private Consumer<String> onNewFirableTransitionAviable = null;
   private Consumer<String> onPetriNetFinished = null;
 
@@ -106,6 +110,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
             .forEach(node -> {
               if (node.element() instanceof Place p) {
                 p.setPlaceTokens(0);
+                marking.put(p.getName(), 0);
               } else {
                 System.out.println("Strange error....");
               }
@@ -118,23 +123,41 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
                 if (p.getType().equals(PLACE_TYPE.END)) {
                   handleFinishPlaceReached();
                 }
-                p.setPlaceTokens(1);
+                p.incrementPlaceTokens();
+                marking.put(p.getName(), p.getPlaceTokens());
               } else {
                 System.out.println("Strange error....");
               }
             });
-
         updateGraph();
         t.setIsFirable(false);
         setNodeStyle(vertex.getUnderlyingVertex(),
             (t.getType().equals(TRANSITION_TYPE.ADMIN)) ? ADMIN_TRANSITION_STYLE : USER_TRANSITION_STYLE);
         computeFirableTransitions();
+
+        if (!testMode) {
+          ComputationStep nStep = null;
+          try {
+            nStep = new ComputationStep(ComputationsDAO.getIdByComputation(computation),
+                computation.getNetId(), vertex.getUnderlyingVertex().element().getName(), marking,
+                System.currentTimeMillis() / 1000);
+            computation.getSteps().add(nStep);
+          } catch (InputTypeException e) {
+            e.printStackTrace();
+          }
+          if (onTransitionFired != null) {
+            onTransitionFired.accept(nStep);
+          }
+        }
       }
     }
   }
 
   private void handleFinishPlaceReached() {
     // TODO: implement logic to handle finish
+    if (onPetriNetFinished != null) {
+      onPetriNetFinished.accept("arg0");
+    }
     System.out.println("petri net finished....");
   }
 

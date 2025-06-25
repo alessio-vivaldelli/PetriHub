@@ -103,6 +103,15 @@ public class Place extends Node {
   }
 
   /**
+   * Sets the number of tokens in this place.
+   *
+   * @param tokens the new number of tokens
+   */
+  public void incrementPlaceTokens() {
+    this.tokens = tokens + 1;
+  }
+
+  /**
    * Sets whether this place is a start place.
    */
   public void setIsStart() {
