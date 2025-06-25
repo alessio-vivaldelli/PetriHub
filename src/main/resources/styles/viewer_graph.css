@@ -1,21 +1,9 @@
-.root {
-  -fx-catppuccin-mocha-base: #1e1e2e;
-  -fx-catppuccin-mocha-text: #cdd6f4;
-  -fx-catppuccin-mocha-subtext1: #bac2de;
-  -fx-catppuccin-mocha-subtext0: #a6adc8;
-  -fx-catppuccin-mocha-overlay2: #9399b2;
-  -fx-catppuccin-mocha-overlay1: #7f849c;
-  -fx-catppuccin-mocha-overlay0: #6c7086;
-  -fx-catppuccin-mocha-surface2: #585b70;
-  -fx-catppuccin-mocha-surface1: #45475a;
-  -fx-catppuccin-mocha-surface0: #313244;
-}
-
 .graph {
-  -fx-background-color: -fx-catppuccin-mocha-base;
+  -fx-background-color: #1e1e2e;
 }
 
 .vertex {
+
   -fx-stroke-width: 1;
   -fx-stroke: -fx-catppuccin-mocha-text;
   -fx-stroke-type: inside;
@@ -37,8 +25,22 @@
   -fx-fill: -fx-catppuccin-mocha-text;
 }
 
+.firableTransition {
+  -fx-fill: -fx-catppuccin-mocha-blue;
+  -fx-stroke: red;
+  -fx-stroke-dash-array: 4 4;
+  -fx-stroke-width: 2;
+}
+.firableTransition:hover {
+  -fx-cursor: hand;
+  -fx-fill: -fx-catppuccin-mocha-blue;
+  -fx-stroke: red;
+  -fx-stroke-dash-array: 4 4;
+  -fx-stroke-width: 2;
+}
+
 .edge {
-  -fx-stroke-width: 1.5;
+  -fx-stroke-width: 2.5;
   -fx-stroke: -fx-catppuccin-mocha-text;
   -fx-fill: transparent;
   -fx-stroke-line-cap: square;

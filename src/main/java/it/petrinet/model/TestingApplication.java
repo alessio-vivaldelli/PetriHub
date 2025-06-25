@@ -1,6 +1,7 @@
 package it.petrinet.model;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
@@ -11,6 +12,8 @@ import it.petrinet.petrinet.view.*;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -30,6 +33,13 @@ public class TestingApplication extends Application {
     // VBox vBox = createNet();
     VBox vBox = visualizeNet();
 
+    URL cssUrl = getClass().getResource("/styles/style.css");
+    if (cssUrl != null) {
+      String cssPath = cssUrl.toExternalForm();
+      vBox.getStylesheets().add(cssPath);
+    } else {
+      System.err.println("CSS file not found: /styles/style.css");
+    }
     Scene scene = new Scene(vBox, 1920, 1020);
 
     stage = new Stage(StageStyle.DECORATED);
@@ -47,7 +57,8 @@ public class TestingApplication extends Application {
 
     Computation computation = new Computation("testnet", "creatorID", "userID");
     computation.addStep(new ComputationStep(1, 1, "testnet", "", "start_e:1", 123456));
-    computation.addStep(new ComputationStep(2, 2, "testnet", "t1", "p1:2,start_e:1,p2:1", 1234567));
+    // computation.addStep(new ComputationStep(2, 2, "testnet", "t1",
+    // "p1:2,start_e:1,p2:1", 1234567));
 
     String path = System.getProperty("user.dir") +
         "/src/main/resources/data/pnml/testing_petri_net.pnml";

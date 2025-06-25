@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 
 import it.petrinet.model.Computation;
 import it.petrinet.petrinet.builder.PetriNetBuilder;
+import it.petrinet.petrinet.model.Node;
+import it.petrinet.petrinet.model.PLACE_TYPE;
 import it.petrinet.petrinet.model.PetriNetModel;
 import it.petrinet.petrinet.model.Place;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
@@ -22,6 +27,10 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   private final String petriNetPNML;
   private Map<String, Integer> marking;
   private boolean testMode = true;
+
+  private Consumer<String> onTransitionFired = null;
+  private Consumer<String> onNewFirableTransitionAviable = null;
+  private Consumer<String> onPetriNetFinished = null;
 
   public PetriNetViewerPane(String petriNetPNML, Computation computation) {
     super();
@@ -83,7 +92,50 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
     });
 
     computeFirableTransitions();
+  }
 
+  @Override
+  protected void onVertexSingleClickAction(SmartGraphVertex<Node> vertex) {
+    super.onVertexSingleClickAction(vertex);
+
+    if (vertex.getUnderlyingVertex().element() instanceof Transition t) {
+      if (t.getIsReadyToFire()) {
+        incidentEdges(vertex.getUnderlyingVertex()).stream()
+            .map(edge -> (edge.vertices()[0].equals(vertex.getUnderlyingVertex()) ? edge.vertices()[1]
+                : edge.vertices()[0]))
+            .forEach(node -> {
+              if (node.element() instanceof Place p) {
+                p.setPlaceTokens(0);
+              } else {
+                System.out.println("Strange error....");
+              }
+            });
+        outboundEdges(vertex.getUnderlyingVertex()).stream()
+            .map(edge -> (edge.vertices()[0].equals(vertex.getUnderlyingVertex()) ? edge.vertices()[1]
+                : edge.vertices()[0]))
+            .forEach(node -> {
+              if (node.element() instanceof Place p) {
+                if (p.getType().equals(PLACE_TYPE.END)) {
+                  handleFinishPlaceReached();
+                }
+                p.setPlaceTokens(1);
+              } else {
+                System.out.println("Strange error....");
+              }
+            });
+
+        updateGraph();
+        t.setIsFirable(false);
+        setNodeStyle(vertex.getUnderlyingVertex(),
+            (t.getType().equals(TRANSITION_TYPE.ADMIN)) ? ADMIN_TRANSITION_STYLE : USER_TRANSITION_STYLE);
+        computeFirableTransitions();
+      }
+    }
+  }
+
+  private void handleFinishPlaceReached() {
+    // TODO: implement logic to handle finish
+    System.out.println("petri net finished....");
   }
 
   private void computeFirableTransitions() {

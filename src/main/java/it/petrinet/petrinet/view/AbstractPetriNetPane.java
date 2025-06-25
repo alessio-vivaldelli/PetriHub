@@ -186,8 +186,17 @@ public abstract class AbstractPetriNetPane extends Pane {
     return isInteractionEnabled;
   }
 
+  protected void updateGraph() {
+    graphView.update();
+    graphView.updateAndWait();
+  }
+
   protected Collection<Edge<String, Node>> incidentEdges(Vertex<Node> node) {
     return g.incidentEdges(node);
+  }
+
+  protected Collection<Edge<String, Node>> outboundEdges(Vertex<Node> node) {
+    return g.outboundEdges(node);
   }
 
   protected void addNodeStyle(Vertex<Node> node, String style) {
