@@ -32,7 +32,14 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   private Map<String, Integer> marking;
   private boolean testMode = true;
 
-  private Consumer<ComputationStep> onTransitionFired = null;
+  /**
+   * Callback when a transition getb fired .
+   * 
+   * @param String      transitionName: name of the clicked transition
+   * @param Map<String, Integer> markingState: new marking state
+   */
+  private BiConsumer<String, Map<String, Integer>> onTransitionFired = null;
+
   private Consumer<String> onNewFirableTransitionAviable = null;
   private Consumer<String> onPetriNetFinished = null;
 
@@ -135,19 +142,8 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
             (t.getType().equals(TRANSITION_TYPE.ADMIN)) ? ADMIN_TRANSITION_STYLE : USER_TRANSITION_STYLE);
         computeFirableTransitions();
 
-        if (!testMode) {
-          ComputationStep nStep = null;
-          try {
-            nStep = new ComputationStep(ComputationsDAO.getIdByComputation(computation),
-                computation.getNetId(), vertex.getUnderlyingVertex().element().getName(), marking,
-                System.currentTimeMillis() / 1000);
-            computation.getSteps().add(nStep);
-          } catch (InputTypeException e) {
-            e.printStackTrace();
-          }
-          if (onTransitionFired != null) {
-            onTransitionFired.accept(nStep);
-          }
+        if (onTransitionFired != null) {
+          onTransitionFired.accept(vertex.getUnderlyingVertex().element().getName(), marking);
         }
       }
     }
