@@ -49,11 +49,11 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
 
     @Override
     public String toString() {
-        return switch (this) {
-            case PLACE -> "circle";
-            case TRANSITION -> "transition";
-            default -> super.toString();
-        };
+      return switch (this) {
+        case PLACE -> "circle";
+        case TRANSITION -> "transition";
+        default -> super.toString();
+      };
     }
   }
 
@@ -246,7 +246,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
         PopupMenu dialog = new PopupMenu(Main.getPrimaryStage());
         Label prompt = new Label();
         prompt.setText("Enter a unique label for the new " +
-                (currentNodeType.equals(NODE_TYPE.TRANSITION) ? "Transition" : "Place") + ":");
+            (currentNodeType.equals(NODE_TYPE.TRANSITION) ? "Transition" : "Place") + ":");
         prompt.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
         TextField labelTextField = new TextField();
         labelTextField.setPromptText("name");
@@ -297,7 +297,8 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
           if (exists) {
             unique = true;
           } else {
-            showMessage(AlertType.WARNING, "Duplicate Label", "Label Not Unique", "The label '" + tmpNodeLabel + "' already exists. Please choose a different one.");
+            showMessage(AlertType.WARNING, "Duplicate Label", "Label Not Unique",
+                "The label '" + tmpNodeLabel + "' already exists. Please choose a different one.");
             // Non impostare nodeLabel a "copy" qui, lascia all'utente di riscrivere
           }
         } else {
@@ -311,6 +312,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       this.addNodeToGraph(createNode(nodeLabel, currentNodeType.toString(), point));
     }
   }
+
   @Override
   protected void onVertexRightClickAction(SmartGraphVertex<Node> vertex) {
     super.onVertexRightClickAction(vertex);
@@ -366,22 +368,22 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
               : TRANSITION_TYPE.ADMIN;
           setTransitionType(newType, element);
         });
-        IconUtils.setIcon(userTypeItem, !current.equals(TRANSITION_TYPE.ADMIN) ? "AdminMode.png" : "UserMode.png" , 20);
+        IconUtils.setIcon(userTypeItem, !current.equals(TRANSITION_TYPE.ADMIN) ? "AdminMode.png" : "UserMode.png", 20);
       } else {
         normalPlaceItem = new MenuItem("Set as Normal Place");
         IconUtils.setIcon(normalPlaceItem, "Place.png", 20);
         normalPlaceItem.setOnAction(_ -> {
-            setPlaceType(PLACE_TYPE.NORMAL, element);
-            if (petriNetBuilder.getStartNode() != null) {
-                if (petriNetBuilder.getStartNode().getName().equals(element.element().getName())) {
-                petriNetBuilder.setStartNode(null);
-                }
+          setPlaceType(PLACE_TYPE.NORMAL, element);
+          if (petriNetBuilder.getStartNode() != null) {
+            if (petriNetBuilder.getStartNode().getName().equals(element.element().getName())) {
+              petriNetBuilder.setStartNode(null);
             }
-            if (petriNetBuilder.getFinishNode() != null) {
-                if (petriNetBuilder.getFinishNode().getName().equals(element.element().getName())) {
-                petriNetBuilder.setFinishNode(null);
-                }
+          }
+          if (petriNetBuilder.getFinishNode() != null) {
+            if (petriNetBuilder.getFinishNode().getName().equals(element.element().getName())) {
+              petriNetBuilder.setFinishNode(null);
             }
+          }
         });
 
         startPlaceItem = new MenuItem("Set as Start Palace");
@@ -434,7 +436,6 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
             new SeparatorMenuItem(), infoItem, deleteItem);
       }
 
-
       // Show context menu at cursor position
       showContextMenuOnGraph(contextMenu, element);
       // Focus the text field after showing menu
@@ -443,7 +444,6 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     }
 
   }
-
 
   @Override
   protected void onVertexSingleClickAction(SmartGraphVertex<Node> vertex) {
@@ -506,7 +506,6 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     }
 
   }
-
 
   @Override
   protected void removeNodeFromGraph(Vertex<Node> node) {
@@ -590,8 +589,9 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
   private boolean areCompatible(Node node1, Node node2) {
     if (node1 instanceof Place && node2 instanceof Transition) {
       return true; // Place can connect to Transition
-    } else return node1 instanceof Transition && node2 instanceof Place; // Transition can connect to Place
-// Other combinations are not allowed
+    } else
+      return node1 instanceof Transition && node2 instanceof Place; // Transition can connect to Place
+    // Other combinations are not allowed
   }
 
 }

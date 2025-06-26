@@ -280,6 +280,17 @@ public abstract class AbstractPetriNetPane extends Pane {
   }
 
   /**
+   * Gets the vertex opposite to the known vertex on an edge.
+   * 
+   * @param edge        The edge connecting the two vertices.
+   * @param knownVertex The vertex whose opposite we want to find.
+   * @return The opposite vertex.
+   */
+  protected Vertex<Node> getOppositeVertex(Edge<String, Node> edge, Vertex<Node> vertex) {
+    return edge.vertices()[0].equals(vertex) ? edge.vertices()[1] : edge.vertices()[0];
+  }
+
+  /**
    * Adds a new node to the graph model and updates the view.
    *
    * @param element The node element to add.

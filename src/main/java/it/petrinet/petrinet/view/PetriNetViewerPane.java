@@ -1,59 +1,58 @@
 package it.petrinet.petrinet.view;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
+import com.brunomnsilva.smartgraph.graph.Edge;
+import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
-
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
-import it.petrinet.model.ComputationStep;
-import it.petrinet.model.database.ComputationStepDAO;
-import it.petrinet.model.database.ComputationsDAO;
-import it.petrinet.petrinet.builder.PetriNetBuilder;
-import it.petrinet.petrinet.model.Node;
-import it.petrinet.petrinet.model.PLACE_TYPE;
-import it.petrinet.petrinet.model.PetriNetModel;
-import it.petrinet.petrinet.model.Place;
-import it.petrinet.petrinet.model.TRANSITION_TYPE;
-import it.petrinet.petrinet.model.Transition;
+import it.petrinet.petrinet.model.*;
 import it.petrinet.petrinet.persistance.pnml.PNMLParser;
 import it.petrinet.view.ViewNavigator;
 
-public class PetriNetViewerPane extends AbstractPetriNetPane {
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * A custom exception for errors during the view initialization.
+ */
+class PetriNetViewException extends RuntimeException {
+  public PetriNetViewException(String message, Throwable cause) {
+    super(message, cause);
+  }
+}
+
+public class PetriNetViewerPane extends AbstractPetriNetPane {
+  /**
+   * Represents an operation that accepts three input arguments and returns no
+   * result.
+   * 
+   * @param <T> the type of the first argument
+   * @param <U> the type of the second argument
+   * @param <V> the type of the third argument
+   */
+  @FunctionalInterface
+  public interface TriConsumer<T, U, V> {
+    void accept(T t, U u, V v);
+  }
+
+  private final String petriNetPNML;
   private Computation computation;
   private PetriNetModel petriNetModel;
-  private String petriName;
-  private final String petriNetPNML;
-  private Map<String, Integer> marking;
-  private boolean testMode = true;
+  private boolean testMode = true; // Kept for authorization logic
 
-  /**
-   * Callback when a transition getb fired .
-   * 
-   * @param String      transitionName: name of the clicked transition
-   * @param Map<String, Integer> markingState: new marking state
-   */
-  private BiConsumer<String, Map<String, Integer>> onTransitionFired = null;
-
-  private Consumer<String> onNewFirableTransitionAviable = null;
-  private Consumer<String> onPetriNetFinished = null;
+  // Callbacks
+  private TriConsumer<String, Map<String, Integer>, List<Transition>> onTransitionFired;
+  private Runnable onPetriNetFinished;
 
   public PetriNetViewerPane(String petriNetPNML, Computation computation) {
     super();
-    this.petriNetPNML = petriNetPNML;
-
     if (!(new File(petriNetPNML)).exists()) {
       throw new IllegalArgumentException("File does not exist: " + petriNetPNML);
     }
-
-    if (computation == null) {
-      disableInteraction();
-    }
+    this.petriNetPNML = petriNetPNML;
     setComputation(computation);
   }
 
@@ -63,129 +62,167 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
 
   public void setComputation(Computation computation) {
     this.computation = computation;
-    if (computation == null) {
-      disableInteraction();
-    } else {
-      enableInteraction();
-    }
+    this.enableInteraction(computation != null);
   }
 
   @Override
   protected void onGraphInitialized() {
     super.onGraphInitialized();
-    marking = computation.getSteps().getLast().getMarkingState();
-
-    PNMLParser parser = new PNMLParser();
     try {
-      this.petriNetModel = parser.parse(petriNetPNML);
+      loadModelAndBuildGraph();
+      computeAndApplyFirableTransitions();
     } catch (IOException e) {
-      e.printStackTrace();
+      this.enableInteraction(false);
+      throw new PetriNetViewException("Failed to initialize Petri Net view", e);
     }
-    this.petriName = petriNetModel.getName();
+  }
+
+  private void enableInteraction(boolean newValue) {
+    if (newValue) {
+      enableInteraction();
+      return;
+    }
+    disableInteraction();
+  }
+
+  private void loadModelAndBuildGraph() throws IOException {
+    this.petriNetModel = new PNMLParser().parse(petriNetPNML);
+
+    Map<String, Integer> initialMarking = (computation != null && !computation.getSteps().isEmpty())
+        ? computation.getSteps().getLast().getMarkingState()
+        : Map.of();
 
     petriNetModel.getNodes().forEach(node -> {
       if (node instanceof Place p) {
-        if (marking.containsKey(p.getName())) {
-          p.setPlaceTokens(marking.get(p.getName()));
-        } else {
-          p.setPlaceTokens(0);
-        }
-        addNodeToGraph(p);
-      } else if (node instanceof Transition t) {
-        addNodeToGraph(t);
+        p.setPlaceTokens(initialMarking.getOrDefault(p.getName(), 0));
       }
+      addNodeToGraph(node);
     });
 
-    petriNetModel.getConnections().forEach((from, toNodes) -> {
-      toNodes.forEach(to -> {
-        addArcToGraph(from.getName(), to.getName());
-      });
-    });
-
-    computeFirableTransitions();
+    petriNetModel.getConnections()
+        .forEach((from, toNodes) -> toNodes.forEach(to -> addArcToGraph(from.getName(), to.getName())));
   }
 
   @Override
   protected void onVertexSingleClickAction(SmartGraphVertex<Node> vertex) {
     super.onVertexSingleClickAction(vertex);
+    Node element = vertex.getUnderlyingVertex().element();
 
-    if (vertex.getUnderlyingVertex().element() instanceof Transition t) {
-      if (t.getIsReadyToFire()) {
-        incidentEdges(vertex.getUnderlyingVertex()).stream()
-            .map(edge -> (edge.vertices()[0].equals(vertex.getUnderlyingVertex()) ? edge.vertices()[1]
-                : edge.vertices()[0]))
-            .forEach(node -> {
-              if (node.element() instanceof Place p) {
-                p.setPlaceTokens(0);
-                marking.put(p.getName(), 0);
-              } else {
-                System.out.println("Strange error....");
-              }
-            });
-        outboundEdges(vertex.getUnderlyingVertex()).stream()
-            .map(edge -> (edge.vertices()[0].equals(vertex.getUnderlyingVertex()) ? edge.vertices()[1]
-                : edge.vertices()[0]))
-            .forEach(node -> {
-              if (node.element() instanceof Place p) {
-                if (p.getType().equals(PLACE_TYPE.END)) {
-                  handleFinishPlaceReached();
-                }
-                p.incrementPlaceTokens();
-                marking.put(p.getName(), p.getPlaceTokens());
-              } else {
-                System.out.println("Strange error....");
-              }
-            });
-        updateGraph();
-        t.setIsFirable(false);
-        setNodeStyle(vertex.getUnderlyingVertex(),
-            (t.getType().equals(TRANSITION_TYPE.ADMIN)) ? ADMIN_TRANSITION_STYLE : USER_TRANSITION_STYLE);
-        computeFirableTransitions();
-
-        if (onTransitionFired != null) {
-          onTransitionFired.accept(vertex.getUnderlyingVertex().element().getName(), marking);
-        }
-      }
+    if (element instanceof Transition t && t.getIsReadyToFire()) {
+      fireTransition(t, vertex.getUnderlyingVertex());
     }
   }
 
-  private void handleFinishPlaceReached() {
-    // TODO: implement logic to handle finish
-    if (onPetriNetFinished != null) {
-      onPetriNetFinished.accept("arg0");
+  private void fireTransition(Transition t, Vertex<Node> vertex) {
+    // 1. Update model state (consume and produce tokens)
+    Map<String, Integer> newMarking = consumeTokensAndGetCurrentMarking(vertex);
+    produceTokens(vertex, newMarking);
+
+    // 2. Update view
+    updateGraph();
+    t.setIsFirable(false);
+    String style = (t.getType() == TRANSITION_TYPE.ADMIN) ? ADMIN_TRANSITION_STYLE : USER_TRANSITION_STYLE;
+    setNodeStyle(vertex, style);
+
+    // 3. Re-calculate firable transitions and notify listeners
+    List<Transition> firableTransitions = computeAndApplyFirableTransitions();
+    if (onTransitionFired != null) {
+      onTransitionFired.accept(t.getName(), newMarking, firableTransitions);
     }
-    System.out.println("petri net finished....");
   }
 
-  private void computeFirableTransitions() {
-    if (marking == null) {
-      return;
-    }
+  private Map<String, Integer> consumeTokensAndGetCurrentMarking(Vertex<Node> transitionVertex) {
+    Map<String, Integer> currentMarking = getGraphVertices().stream()
+        .filter(v -> v.element() instanceof Place)
+        .map(v -> (Place) v.element())
+        .filter(p -> p.getPlaceTokens() > 0)
+        .collect(Collectors.toMap(Place::getName, Place::getPlaceTokens));
 
-    getGraphVertices().stream().forEach(vertex -> {
-      if (vertex.element() instanceof Transition t) {
-        if (incidentEdges(vertex).stream()
-            .map(edge -> (edge.vertices()[0].equals(vertex) ? edge.vertices()[1] : edge.vertices()[0]))
-            .allMatch(node -> ((Place) node.element()).getPlaceTokens() > 0)) {
-          System.out.println("TRANSITION " + t + " is FIRABLE");
-          removeNodeStyle(vertex, USER_TRANSITION_STYLE);
-          removeNodeStyle(vertex, ADMIN_TRANSITION_STYLE);
-          addNodeStyle(vertex, FIRABLE_TRANSITION_STYLE);
-          if (testMode) {
-            t.setIsFirable(true);
+    incidentEdges(transitionVertex).stream()
+        .map(edge -> getOppositeVertex(edge, transitionVertex))
+        .forEach(placeVertex -> {
+          if (placeVertex.element() instanceof Place p) {
+            p.setPlaceTokens(0); // Assumes weight of 1 and consuming all tokens
+            currentMarking.remove(p.getName());
           } else {
-            if (ViewNavigator.getAuthenticatedUser().getUsername().equals(computation.getCreatorId())
-                && t.getType().equals(TRANSITION_TYPE.ADMIN)) {
-              t.setIsFirable(true);
-            }
-            if (ViewNavigator.getAuthenticatedUser().getUsername().equals(computation.getUserId())
-                && t.getType().equals(TRANSITION_TYPE.USER)) {
-              t.setIsFirable(true);
-            }
+            throw new IllegalStateException("Transition input must be a Place.");
           }
+        });
+    return currentMarking;
+  }
+
+  private void produceTokens(Vertex<Node> transitionVertex, Map<String, Integer> marking) {
+    outboundEdges(transitionVertex).stream()
+        .map(edge -> getOppositeVertex(edge, transitionVertex))
+        .forEach(placeVertex -> {
+          if (placeVertex.element() instanceof Place p) {
+            p.incrementPlaceTokens();
+            marking.put(p.getName(), p.getPlaceTokens());
+            if (p.getType() == PLACE_TYPE.END && onPetriNetFinished != null) {
+              onPetriNetFinished.run();
+            }
+          } else {
+            throw new IllegalStateException("Transition output must be a Place.");
+          }
+        });
+  }
+
+  private List<Transition> computeAndApplyFirableTransitions() {
+    List<Transition> firableTransitions = new ArrayList<>();
+    getGraphVertices().forEach(vertex -> {
+      if (vertex.element() instanceof Transition t) {
+        boolean isEnabled = incidentEdges(vertex).stream()
+            .map(edge -> getOppositeVertex(edge, vertex))
+            .allMatch(node -> ((Place) node.element()).getPlaceTokens() > 0);
+
+        if (isEnabled && isUserAllowedToFire(t)) {
+          t.setIsFirable(true);
+          firableTransitions.add(t);
+          removeNodeStyle(vertex, ADMIN_TRANSITION_STYLE);
+          removeNodeStyle(vertex, USER_TRANSITION_STYLE);
+
+          addNodeStyle(vertex, FIRABLE_TRANSITION_STYLE);
+        } else {
+          t.setIsFirable(false);
+          removeNodeStyle(vertex, FIRABLE_TRANSITION_STYLE);
         }
       }
     });
+    return firableTransitions;
   }
 
+  private boolean isUserAllowedToFire(Transition t) {
+    if (testMode)
+      return true;
+
+    String username = ViewNavigator.getAuthenticatedUser().getUsername();
+    if (t.getType() == TRANSITION_TYPE.ADMIN) {
+      return username.equals(computation.getCreatorId());
+    }
+    if (t.getType() == TRANSITION_TYPE.USER) {
+      return username.equals(computation.getUserId());
+    }
+    return false;
+  }
+
+  /**
+   * Sets a callback for when a transition is fired.
+   * 
+   * @param onTransitionFired A TriConsumer that accepts the fired transition's
+   *                          name,
+   *                          the new marking state, and a list of newly firable
+   *                          transitions.
+   */
+  public void setOnTransitionFired(TriConsumer<String, Map<String, Integer>, List<Transition>> onTransitionFired) {
+    this.onTransitionFired = onTransitionFired;
+  }
+
+  /**
+   * Sets a callback for when the Petri Net reaches a finish place.
+   * 
+   * @param onPetriNetFinished A Runnable to be executed.
+   */
+  public void setOnPetriNetFinished(Runnable onPetriNetFinished) {
+    this.onPetriNetFinished = onPetriNetFinished;
+  }
 }

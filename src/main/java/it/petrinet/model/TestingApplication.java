@@ -65,6 +65,23 @@ public class TestingApplication extends Application {
     petriNetViewerPane = new PetriNetViewerPane(path, computation);
 
     vBox.getChildren().add(petriNetViewerPane);
+
+    // Called when user/admin finish petri net
+    petriNetViewerPane.setOnPetriNetFinished(() -> {
+      System.out.println("Petri net finished");
+    });
+
+    // Called after a transition is fired
+    //
+    // @param String transitionName: clicked transition name
+    // @param Map<String, Integer> newMarkingState: new marking state rappresented
+    // as a map of <placeName, placeTockenCount> (only if count > 0)
+    // @param List<Transition> transitions: list of new firable transitions list
+    petriNetViewerPane.setOnTransitionFired((transitionName, newMarkingState, newTransition) -> {
+      System.out.println("User click: " + transitionName + ", new marking state: " + newMarkingState
+          + ", new firable transition: " + newTransition);
+    });
+
     return vBox;
   }
 
