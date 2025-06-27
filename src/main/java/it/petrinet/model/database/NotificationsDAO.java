@@ -38,10 +38,16 @@ public class NotificationsDAO implements DataAccessObject{
         String command = "INSERT INTO notifications(sender, recipient, netId, type, title, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             if (notification instanceof Notification not) {
-                if (!DatabaseManager.tableExists("notifications", "notifications")) {
-                    NotificationsDAO dao = new NotificationsDAO();
-                    dao.createTable();
+                try{
+                    if (!DatabaseManager.tableExists("notifications", "notifications")) {
+                        NotificationsDAO dao = new NotificationsDAO();
+                        dao.createTable();
+                    }
                 }
+                catch(SQLException e){
+                    e.printStackTrace();
+                }
+
 
                 try (Connection connection = DatabaseManager.getNotificationsDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {

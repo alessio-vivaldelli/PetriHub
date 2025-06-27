@@ -1,8 +1,10 @@
 package it.petrinet.controller;
 
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.ComputationStep;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.database.PetriNetsDAO;
+import it.petrinet.model.database.RecentNet;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.components.table.DynamicPetriNetTableComponent;
 import it.petrinet.model.TableRow.NetCategory;
@@ -24,6 +26,7 @@ import javafx.scene.paint.Color;
 import java.net.URL;
 import java.sql.Array;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -211,15 +214,28 @@ public class HomeController implements Initializable {
         }
 
         List<PetriNetRow> recentNets = new ArrayList<PetriNetRow>();
-        List<PetriNet> wantedNets = PetriNetsDAO.getMostRecentlyModifiedNets(ViewNavigator.getAuthenticatedUser(),4);;
-        for(PetriNet net : wantedNets){
-            if(net.getCreatorId().equals(ViewNavigator.getAuthenticatedUser().getUsername())){
-                NetCategory cat = NetCategory.OWNED;
+        List<RecentNet> wantedNets = PetriNetsDAO.getMostRecentlyModifiedNets(ViewNavigator.getAuthenticatedUser(),2);
+
+        NetCategory cat;
+        for(RecentNet net : wantedNets){
+            if(!(net == null)){
+                if(net.getNet().getCreatorId().equals(ViewNavigator.getAuthenticatedUser().getUsername())){
+                    cat = NetCategory.OWNED;
+                }
+                else{
+                    cat = NetCategory.SUBSCRIBED;
+                }
+
+                LocalDateTime date;
+                if (!(net.getModificationTimestamp() > 0L)) {
+                    date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
+                }
+                else{
+                    date = LocalDateTime.ofEpochSecond(net.getModificationTimestamp(), 0, ZoneOffset.UTC);
+                }
+                recentNets.add(new PetriNetRow(net.getNet().getNetName(),net.getNet().getCreatorId(), date,Status.STARTED, cat));
             }
-            else{
-                NetCategory cat = NetCategory.SUBSCRIBED;
-            }
-            recentNets.add(new PetriNetRow(net.getNetName(),net.getCreatorId(),LocalDateTime.now(),Status.STARTED, NetCategory.OWNED));
+
         }
         petriNetTable.setData(recentNets);
 

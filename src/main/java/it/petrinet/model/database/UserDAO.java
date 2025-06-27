@@ -77,10 +77,16 @@ public class UserDAO implements DataAccessObject{
 
         try{
             if(user instanceof User u) {
-                if (!DatabaseManager.tableExists("users", "users")) {
-                    UserDAO dao = new UserDAO();
-                    dao.createTable();
+                try{
+                    if (!DatabaseManager.tableExists("users", "users")) {
+                        UserDAO dao = new UserDAO();
+                        dao.createTable();
+                    }
                 }
+                catch( SQLException e){
+                    e.printStackTrace();
+                }
+
                 try (Connection connection = DatabaseManager.getUserDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, u.getUsername());

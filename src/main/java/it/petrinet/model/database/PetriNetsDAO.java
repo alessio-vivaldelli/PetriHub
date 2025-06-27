@@ -13,14 +13,20 @@ import java.util.Set;
 
 public class PetriNetsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException{
-        insertNet(new PetriNet("net5", "Antony", 404040, "XML", "image", false ));
+        insertNet(new PetriNet("net10", "Davide", 1000234567049020000L,"XML", "image", true));
+        insertNet(new PetriNet("net1", "a", 34567L,"XML", "image", true));
+        insertNet(new PetriNet("net2", "ale", 456787654L,"XML", "image", true));
+        insertNet(new PetriNet("net3", "Ale", 1000245620000L,"XML", "image", true));
+        System.out.println(getNetsByCreator(new User ("Davide", "Sala", true)));
+        System.out.println(ComputationsDAO.getNetsSubscribedByUser(new User ("Davide", "Sala", true)));
+        System.out.println(getMostRecentlyModifiedNets(new User ("Davide", "Sala", true), 2));
     }
 
     public void createTable() {
         String table = "CREATE TABLE IF NOT EXISTS petri_nets (" +
                 "netName TEXT PRIMARY KEY, " +
                 "creatorId TEXT NOT NULL, " +
-                "creationDate INTEGER NOT NULL, " +
+                "creationDate LONG NOT NULL, " +
                 "XML_PATH TEXT NOT NULL, " +
                 "image_PATH TEXT NOT NULL, " +
                 "isReady BOOLEAN NOT NULL)";
@@ -36,17 +42,23 @@ public class PetriNetsDAO implements DataAccessObject{
     public static void insertNet(Object p_net) throws InputTypeException{                //c'è da rimpiazzare i placeholder coi get della classe delle reti
         String command = "INSERT INTO petri_nets(netName, creatorId, creationDate, XML_PATH, image_PATH, isReady ) VALUES (?, ?, ?, ?, ?, ?)";
         try{
-            if(!DatabaseManager.tableExists("nets", "petri_nets")){
-                PetriNetsDAO dao = new PetriNetsDAO();
-                dao.createTable();
+            try{
+                if(!DatabaseManager.tableExists("nets", "petri_nets")){
+                    PetriNetsDAO dao = new PetriNetsDAO();
+                    dao.createTable();
+                }
             }
+            catch(SQLException e){
+                e.printStackTrace();
+            }
+
             if(p_net instanceof PetriNet net){
                 try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, net.getNetName());
                     p_statement.setString(2, net.getCreatorId());
-                    p_statement.setString(3, net.getXML_PATH());
-                    p_statement.setInt(4,net.getCreationDate());
+                    p_statement.setLong(3,net.getCreationDate());
+                    p_statement.setString(4, net.getXML_PATH());
                     p_statement.setString(5, net.getImage_PATH());
                     p_statement.setBoolean(6, net.isReady());
                     p_statement.executeUpdate();
@@ -138,14 +150,13 @@ public class PetriNetsDAO implements DataAccessObject{
             if (user instanceof User u) {
                 try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
-
                     p_statement.setString(1, u.getUsername());
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
                         wantedNets.add(new PetriNet(
                                 result.getString(1),
                                 result.getString(2),
-                                result.getInt(3),
+                                result.getLong(3),
                                 result.getString(4),
                                 result.getString(5),
                                 result.getBoolean(6)
@@ -183,7 +194,7 @@ public class PetriNetsDAO implements DataAccessObject{
                         wantedNets.add( new PetriNet(
                                 result.getString(1),
                                 result.getString(2),
-                                result.getInt(3),
+                                result.getLong(3),
                                 result.getString(4),
                                 result.getString(5),
                                 result.getBoolean(6)
@@ -217,7 +228,7 @@ public class PetriNetsDAO implements DataAccessObject{
                         return new PetriNet(
                                 result.getString(1),
                                 result.getString(2),
-                                result.getInt(3),
+                                result.getLong(3),
                                 result.getString(4),
                                 result.getString(5),
                                 result.getBoolean(6)
@@ -238,39 +249,36 @@ public class PetriNetsDAO implements DataAccessObject{
         return null;
     }
 
-    public static List<PetriNet> getMostRecentlyModifiedNets(Object user, int howMany) throws InputTypeException{
-        List<PetriNet> wantedNets = new ArrayList<PetriNet>();
-        String db2Alias = "Comps";
-        String searchCommand = "SELECT netName, creatorId, creationDate, XML_PATH, image_PATH, isReady " +
-                "FROM petri_nets Nets" +
-                " JOIN " + db2Alias + ".computations C ON (C.netId = N.netName) " +
-                " JOIN " + db2Alias + ".computationsSteps S ON (S.computationId  = C.id) " +
-                " WHERE creatorId = ? or userId = ?" +
-                " ORDER BY C.timestamp";
+    public static List<RecentNet> getMostRecentlyModifiedNets(Object user, int howMany) throws InputTypeException{
+        List<RecentNet> wantedNets = new ArrayList<RecentNet>();
 
-        String attachCommand = "ATTACH DATABASE '" + DatabaseManager.getComputationsDbUrl() + "' AS " + db2Alias + ";";
+        String searchCommand = "SELECT pn.*, cs.timestamp " +
+                "FROM petri_nets pn " +
+                "LEFT JOIN computations c ON c.netId = pn.netName " +
+                "LEFT JOIN computationSteps cs ON cs.computationId = c.id " +
+                "WHERE pn.creatorId = ? OR c.userId = ? " +
+                "GROUP BY pn.netName " +
+                "ORDER BY MAX(cs.timestamp) DESC;";
 
-        try{
+       try{
             if(user instanceof User u){
                 try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
-                     Statement statement = connection.createStatement();
                      PreparedStatement p_statement = connection.prepareStatement(searchCommand)){
-                    statement.execute(attachCommand);
                     p_statement.setString(1, u.getUsername());
                     p_statement.setString(2, u.getUsername());
-
                     ResultSet result = p_statement.executeQuery();
 
-                    while(result.next() || howMany>0){
-                        wantedNets.add(new PetriNet(
-                                result.getString(1),
+                    System.out.println();
+
+                    while(result.next() & howMany>0){
+                        RecentNet NetRecord = new RecentNet(new PetriNet( result.getString(1),
                                 result.getString(2),
-                                result.getInt(3),
+                                result.getLong(3),
                                 result.getString(4),
                                 result.getString(5),
                                 result.getBoolean(6)
-
-                        ));
+                                ), result.getLong(7));
+                        wantedNets.add(NetRecord);
                         howMany --;
                     }
                 }
@@ -287,6 +295,7 @@ public class PetriNetsDAO implements DataAccessObject{
         }
         return wantedNets;
     }
+
 
 }
 
