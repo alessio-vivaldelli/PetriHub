@@ -13,13 +13,11 @@ import java.util.Set;
 
 public class PetriNetsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException{
-        insertNet(new PetriNet("net10", "Davide", 1000234567049020000L,"XML", "image", true));
-        insertNet(new PetriNet("net1", "a", 34567L,"XML", "image", true));
+        insertNet(new PetriNet("net10", "Davide", 1672435200L,"XML", "image", true));
+        insertNet(new PetriNet("net1", "a", 0L,"XML", "image", true));
         insertNet(new PetriNet("net2", "ale", 456787654L,"XML", "image", true));
-        insertNet(new PetriNet("net3", "Ale", 1000245620000L,"XML", "image", true));
-        System.out.println(getNetsByCreator(new User ("Davide", "Sala", true)));
-        System.out.println(ComputationsDAO.getNetsSubscribedByUser(new User ("Davide", "Sala", true)));
-        System.out.println(getMostRecentlyModifiedNets(new User ("Davide", "Sala", true), 2));
+        insertNet(new PetriNet("net3", "Ale", 1712924800L,"XML", "image", true));
+//        deleteTable();
     }
 
     public void createTable() {
@@ -39,6 +37,16 @@ public class PetriNetsDAO implements DataAccessObject{
         }
     }
 
+    public static void deleteTable(){
+        String command = "DROP TABLE petri_nets;";
+
+        try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute(command);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
     public static void insertNet(Object p_net) throws InputTypeException{                //c'è da rimpiazzare i placeholder coi get della classe delle reti
         String command = "INSERT INTO petri_nets(netName, creatorId, creationDate, XML_PATH, image_PATH, isReady ) VALUES (?, ?, ?, ?, ?, ?)";
         try{

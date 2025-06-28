@@ -11,8 +11,9 @@ import java.util.List;
 
 public class ComputationsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException {
-        insertComputation(new Computation("net2","ale","davide", 34));
-        insertComputation(new Computation("net3","ale","Davide", 34));
+//        insertComputation(new Computation("net2","ale","davide", 34));
+//        insertComputation(new Computation("net3","ale","Davide", 34));
+        insertComputation(new Computation("net10","Davide","Antonio", 34));
     }
 
     public void createTable() {                          //metodo per creazione tabelle

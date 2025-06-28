@@ -10,7 +10,8 @@ import java.util.List;
 
 public class ComputationStepDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException {
-        insertStep(new ComputationStep(5, 2, "net3", "T4", "p2:1,p3:1", 4565432119L));
+        insertStep(new ComputationStep(5, 2, "net3", "T4", "p2:1,p3:1", 1686302400L));
+        insertStep(new ComputationStep(5, 3, "net10", "T4", "p2:1,p3:1", 1702504800L));
     }
 
     public void createTable() {                          //metodo per creazione tabelle
@@ -25,6 +26,16 @@ public class ComputationStepDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(table);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    public static void deleteTable(){
+        String command = "DROP TABLE computationSteps;";
+
+        try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute(command);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
