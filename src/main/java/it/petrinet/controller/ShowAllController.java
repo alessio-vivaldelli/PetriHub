@@ -6,9 +6,9 @@ import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.Status;
-import it.petrinet.model.User;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
+import it.petrinet.model.database.RecentNet;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.PetriNetTableComponent;
@@ -19,8 +19,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ShowAllController {
@@ -77,25 +77,31 @@ public class ShowAllController {
     }
 
     private List<PetriNetRow> DisSet() throws InputTypeException {
-        List<PetriNet> unknownNets = PetriNetsDAO.getUnknownNetsByUser(ViewNavigator.getAuthenticatedUser());
+        List<RecentNet> unknownNets = PetriNetsDAO.getUnknownNetsByUser(ViewNavigator.getAuthenticatedUser());
 
         List<PetriNetRow> netsToShow= new ArrayList<PetriNetRow>();
-        for(PetriNet net : unknownNets){
-            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), Status.STARTED, NetCategory.DISCOVER));
+        for(RecentNet net : unknownNets){
+            LocalDateTime creationDate = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
+            netsToShow.add(new PetriNetRow(net.getNet().getNetName(), net.getNet().getCreatorId(), creationDate, Status.STARTED, NetCategory.DISCOVER));
         }
 
         return netsToShow;
     }
 
     private List<PetriNetRow> SubSet() throws InputTypeException {
-        List<PetriNet> subscribedNets = ComputationsDAO.getNetsSubscribedByUser(ViewNavigator.getAuthenticatedUser());
+        List<RecentNet> subscribedNets = ComputationsDAO.getNetsSubscribedWithTimestampByUser(ViewNavigator.getAuthenticatedUser());
 
         List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
-        for(PetriNet net : subscribedNets){
-
-            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), Status.STARTED, NetCategory.SUBSCRIBED));
+        for(RecentNet net : subscribedNets){
+            LocalDateTime date;
+            if(net.getTimestamp()<0){
+                date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
+            }
+            else{
+                date = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
+            }
+            netsToShow.add(new PetriNetRow(net.getNet().getNetName(), net.getNet().getCreatorId(),date, Status.STARTED, NetCategory.SUBSCRIBED));
         }
-
         return netsToShow;
     }
 
@@ -104,7 +110,8 @@ public class ShowAllController {
 
         List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
         for(PetriNet net : ownNets){
-            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), LocalDateTime.now(), Status.STARTED, NetCategory.OWNED));
+            LocalDateTime creationDate = LocalDateTime.ofEpochSecond(net.getCreationDate(), 0, ZoneOffset.UTC);
+            netsToShow.add(new PetriNetRow(net.getNetName(), net.getCreatorId(), creationDate, Status.STARTED, NetCategory.OWNED));
         }
 
         return netsToShow;

@@ -1,23 +1,19 @@
 package it.petrinet.model.database;
 
 import it.petrinet.exceptions.InputTypeException;
-import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class PetriNetsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException{
-        insertNet(new PetriNet("net10", "Davide", 1672435200L,"XML", "image", true));
-        insertNet(new PetriNet("net1", "a", 0L,"XML", "image", true));
-        insertNet(new PetriNet("net2", "ale", 456787654L,"XML", "image", true));
-        insertNet(new PetriNet("net3", "Ale", 1712924800L,"XML", "image", true));
-//        deleteTable();
+//        insertNet(new PetriNet("net10", "Davide", 1672435200L,"XML", "image", true));
+//        insertNet(new PetriNet("net1", "a", 0L,"XML", "image", true));
+//        insertNet(new PetriNet("net2", "ale", 456787654L,"XML", "image", true));
+//        insertNet(new PetriNet("net3", "ale", 1712924800L,"XML", "image", true));
     }
 
     public void createTable() {
@@ -29,7 +25,7 @@ public class PetriNetsDAO implements DataAccessObject{
                 "image_PATH TEXT NOT NULL, " +
                 "isReady BOOLEAN NOT NULL)";
 
-        try (Connection conn = DatabaseManager.getPetriNetsDBConnection();
+        try (Connection conn = DatabaseManager.getDBConnection();
              Statement statement = conn.createStatement()) {
             statement.execute(table);
         } catch (SQLException ex) {
@@ -40,18 +36,19 @@ public class PetriNetsDAO implements DataAccessObject{
     public static void deleteTable(){
         String command = "DROP TABLE petri_nets;";
 
-        try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+        try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(command);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
+
     public static void insertNet(Object p_net) throws InputTypeException{                //c'è da rimpiazzare i placeholder coi get della classe delle reti
         String command = "INSERT INTO petri_nets(netName, creatorId, creationDate, XML_PATH, image_PATH, isReady ) VALUES (?, ?, ?, ?, ?, ?)";
         try{
             try{
-                if(!DatabaseManager.tableExists("nets", "petri_nets")){
+                if(!DatabaseManager.tableExists("petri_nets")){
                     PetriNetsDAO dao = new PetriNetsDAO();
                     dao.createTable();
                 }
@@ -61,7 +58,7 @@ public class PetriNetsDAO implements DataAccessObject{
             }
 
             if(p_net instanceof PetriNet net){
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, net.getNetName());
                     p_statement.setString(2, net.getCreatorId());
@@ -87,7 +84,7 @@ public class PetriNetsDAO implements DataAccessObject{
         String command = "DELETE FROM petri_nets WHERE netName = ?";
         try{
             if(p_net instanceof PetriNet net){
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, net.getNetName());
                     p_statement.executeUpdate();
@@ -109,7 +106,7 @@ public class PetriNetsDAO implements DataAccessObject{
 
         try{
             if(p_net instanceof PetriNet net){
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)){
                     p_statement.setBoolean(1, true);
                     p_statement.setString(2, net.getNetName());
@@ -133,7 +130,7 @@ public class PetriNetsDAO implements DataAccessObject{
         String command = "UPDATE petri_nets SET image_PATH = ? WHERE netName = ?";
         try {
             if (p_net instanceof PetriNet net) {
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, newDir);
                     p_statement.setString(2, net.getNetName());
@@ -150,51 +147,12 @@ public class PetriNetsDAO implements DataAccessObject{
         }
     }
 
-    public static List<PetriNet> getUnknownNetsByUser(Object user) throws InputTypeException{
-        List<PetriNet> wantedNets = new ArrayList<PetriNet>();
-        String command = "SELECT * FROM petri_nets WHERE creatorId <> ?";
-
-        try {
-            if (user instanceof User u) {
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        wantedNets.add(new PetriNet(
-                                result.getString(1),
-                                result.getString(2),
-                                result.getLong(3),
-                                result.getString(4),
-                                result.getString(5),
-                                result.getBoolean(6)
-                        ));
-                    }
-
-                    List<PetriNet> toRemove = ComputationsDAO.getNetsSubscribedByUser(u);
-                    for(PetriNet removableNet : toRemove){
-                        wantedNets.removeIf(pNet -> removableNet.getNetName().equals(pNet.getNetName()));
-                    }
-
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-        return wantedNets;
-    }
-
     public static List<PetriNet> getNetsByCreator(Object admin) throws InputTypeException{
         List<PetriNet> wantedNets = new ArrayList<PetriNet>();
         try{
             if(admin instanceof User u){
                 String command = "SELECT * FROM petri_nets WHERE creatorId = ?";
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_Statement = connection.prepareStatement(command)){
                     p_Statement.setString(1, u.getUsername());
                     ResultSet result = p_Statement.executeQuery();
@@ -228,7 +186,7 @@ public class PetriNetsDAO implements DataAccessObject{
             if(name instanceof String n){
                 String command = "SELECT * FROM petri_nets WHERE netName = ?";
 
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_Statement = connection.prepareStatement(command)){
                     p_Statement.setString(1, n);
                     ResultSet result = p_Statement.executeQuery();
@@ -270,7 +228,7 @@ public class PetriNetsDAO implements DataAccessObject{
 
        try{
             if(user instanceof User u){
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(searchCommand)){
                     p_statement.setString(1, u.getUsername());
                     p_statement.setString(2, u.getUsername());
@@ -288,6 +246,54 @@ public class PetriNetsDAO implements DataAccessObject{
                                 ), result.getLong(7));
                         wantedNets.add(NetRecord);
                         howMany --;
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return wantedNets;
+    }
+
+    public static List<RecentNet> getUnknownNetsByUser(Object user) throws InputTypeException{
+        List<RecentNet> wantedNets = new ArrayList<RecentNet>();
+
+        String searchCommand = "SELECT * " +
+                "FROM petri_nets pn " +
+                "WHERE pn.creatorId <> ? AND pn.netName NOT IN (\n" +
+                "       SELECT netId\n" +
+                "       FROM computations\n" +
+                "       WHERE userId = ?\n" +
+                "   )\n" +
+                "ORDER BY pn.creationDate DESC;";
+
+        try{
+            if(user instanceof User u){
+                try (Connection connection = DatabaseManager.getDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(searchCommand)){
+                    p_statement.setString(1, u.getUsername());
+                    p_statement.setString(2, u.getUsername());
+                    ResultSet result = p_statement.executeQuery();
+
+                    System.out.println();
+
+                    while(result.next()){
+                        RecentNet NetRecord = new RecentNet(new PetriNet(
+                                result.getString(1),
+                                result.getString(2),
+                                result.getLong(3),
+                                result.getString(4),
+                                result.getString(5),
+                                result.getBoolean(6)
+                        ), result.getLong(3));
+                        wantedNets.add(NetRecord);
                     }
                 }
                 catch(SQLException ex){

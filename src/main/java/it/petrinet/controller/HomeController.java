@@ -1,8 +1,6 @@
 package it.petrinet.controller;
 
 import it.petrinet.exceptions.InputTypeException;
-import it.petrinet.model.ComputationStep;
-import it.petrinet.model.PetriNet;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.model.database.RecentNet;
 import it.petrinet.utils.IconUtils;
@@ -24,11 +22,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
-import java.sql.Array;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -227,11 +223,11 @@ public class HomeController implements Initializable {
                 }
 
                 LocalDateTime date;
-                if (!(net.getModificationTimestamp() > 0L)) {
+                if (!(net.getTimestamp() > 0L)) {
                     date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
                 }
                 else{
-                    date = LocalDateTime.ofEpochSecond(net.getModificationTimestamp(), 0, ZoneOffset.UTC);
+                    date = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
                 }
                 recentNets.add(new PetriNetRow(net.getNet().getNetName(),net.getNet().getCreatorId(), date,Status.STARTED, cat));
             }

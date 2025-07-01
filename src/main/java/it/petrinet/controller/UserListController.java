@@ -1,8 +1,14 @@
 package it.petrinet.controller;
 
+import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.Computation;
+import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.ComputationRow;
 import it.petrinet.model.TableRow.Status;
+import it.petrinet.model.database.ComputationsDAO;
+import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.utils.IconUtils;
+import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.UserSelectComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -10,6 +16,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,14 +24,14 @@ public class UserListController {
 
     @FXML private Label frameTitle;
     @FXML private VBox tableContainer;
-    private  UserSelectComponent userTable;
+    private UserSelectComponent userTable;
     private static String netID;
 
     public static void setNetID(String netID) {
         UserListController.netID = netID;
     }
 
-    public void initialize() {
+    public void initialize() throws InputTypeException {
         frameTitle.setText("SELECT NAME OF ID: " + netID);
         IconUtils.setIcon(frameTitle, "user.png", 30, 30 , null);
 
@@ -45,17 +52,21 @@ public class UserListController {
         // Handle the row click event, e.g., navigate to a user details view or perform an action
     }
 
-    private void loadSubUserData() {
+    private void loadSubUserData() throws InputTypeException {
         List<ComputationRow> subUsers = fetchSubUsers();
         userTable.setData(subUsers);
     }
 
-    private List<ComputationRow> fetchSubUsers() {
-        return Arrays.asList(
-            new ComputationRow("1", "user1", LocalDateTime.now(), LocalDateTime.now().plusHours(1), Status.COMPLETED),
-            new ComputationRow("2", "user2", LocalDateTime.now().minusDays(1), LocalDateTime.now(), Status.IN_PROGRESS),
-            new ComputationRow("3", "user3", LocalDateTime.now().minusDays(2), LocalDateTime.now().minusHours(2), Status.STARTED)
-        );
+    private List<ComputationRow> fetchSubUsers() throws InputTypeException {
+        List <Computation> wantedComputation = ComputationsDAO.getComputationsByNet(PetriNetsDAO.getNetByName(netID.trim()));
+
+        ArrayList<ComputationRow> Comps = new ArrayList<ComputationRow>();
+
+        for (Computation c: wantedComputation){
+            Comps.add(new ComputationRow(ComputationsDAO.getIdByComputation(c)+"",c.getUserId(), LocalDateTime.now(),LocalDateTime.now().plusHours(1),Status.COMPLETED));
+        }
+
+        return Comps;
     }
 
 

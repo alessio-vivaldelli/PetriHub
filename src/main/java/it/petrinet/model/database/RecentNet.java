@@ -5,19 +5,19 @@ import it.petrinet.model.PetriNet;
 
 public class RecentNet{
     private PetriNet net;
-    private long modificationTimestamp;
+    private long timestamp;
 
-    public RecentNet(PetriNet net, long modificationTimestamp) {
+    public RecentNet(PetriNet net, long timestamp) {
         this.net = net;
-        this.modificationTimestamp = modificationTimestamp;
+        this.timestamp = timestamp;
     }
 
     public PetriNet getNet() {
         return net;
     }
 
-    public long getModificationTimestamp() {
-        return modificationTimestamp;
+    public long getTimestamp() {
+        return timestamp;
     }
 }
 

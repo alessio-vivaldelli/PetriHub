@@ -15,56 +15,13 @@ public class UserDAO implements DataAccessObject{
         insertUser(new User("Davide", "sala", true));
 
     }
-
-    public static int getNumberOfOwnedNetsByUser(Object user) throws InputTypeException {
-        String command = "SELECT COUNT(netName) FROM petri_nets WHERE creatorId = ?";
-        int netsNumber = -1;
-        try{
-            if(user instanceof User u) {
-                try (Connection connection = DatabaseManager.getPetriNetsDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
-
-                    netsNumber = result.getInt(1);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-        return netsNumber;
-    }
-
-    public static int getNumberOfSubscribedNetsByUser(Object user) throws InputTypeException {
-        int netsNumber = -1;
-        try{
-            if(user instanceof User u) {
-                netsNumber = ComputationsDAO.getNetsSubscribedByUser(user).size();
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-        return netsNumber;
-    }
-
-
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS users (" +
                 "username TEXT PRIMARY KEY, " +
                 "password TEXT NOT NULL, " +
                 "isAdmin BOOLEAN NOT NULL)";
 
-        try (Connection connection = DatabaseManager.getUserDBConnection();
+        try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(table);
         } catch (SQLException ex) {
@@ -78,7 +35,7 @@ public class UserDAO implements DataAccessObject{
         try{
             if(user instanceof User u) {
                 try{
-                    if (!DatabaseManager.tableExists("users", "users")) {
+                    if (!DatabaseManager.tableExists("users")) {
                         UserDAO dao = new UserDAO();
                         dao.createTable();
                     }
@@ -87,7 +44,7 @@ public class UserDAO implements DataAccessObject{
                     e.printStackTrace();
                 }
 
-                try (Connection connection = DatabaseManager.getUserDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, u.getUsername());
                     p_statement.setString(2, u.getPassword());
@@ -111,7 +68,7 @@ public class UserDAO implements DataAccessObject{
             if (user instanceof User u) {
                 String command = "UPDATE users SET password = ?, isAdmin = ? WHERE username = ?";
 
-                try (Connection connection = DatabaseManager.getUserDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)){
                     p_statement.setString(3, u.getUsername());
                     p_statement.setString(1, password);
@@ -136,7 +93,7 @@ public class UserDAO implements DataAccessObject{
             if (user instanceof User u) {
                 String command = "DELETE FROM users WHERE username = ?";
 
-                try (Connection connection = DatabaseManager.getUserDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)){
                     p_statement.setString(1, u.getUsername());
                     p_statement.executeUpdate();
@@ -157,7 +114,7 @@ public class UserDAO implements DataAccessObject{
     public static User getUserByUsername(String username) {
         String command = "SELECT * FROM users WHERE username = ? ";
 
-        try (Connection connection = DatabaseManager.getUserDBConnection();
+        try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) {
             p_statement.setString(1, username);
             ResultSet result = p_statement.executeQuery();
@@ -179,7 +136,7 @@ public class UserDAO implements DataAccessObject{
         String command = "SELECT * FROM users WHERE password = ? ";
         List <User> filteredUsers = new ArrayList<User>();
 
-        try (Connection connection = DatabaseManager.getUserDBConnection();
+        try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) {
             p_statement.setString(1, password);
             ResultSet result = p_statement.executeQuery();
@@ -214,5 +171,47 @@ public class UserDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
         return null;
+    }
+
+
+    public static int getNumberOfOwnedNetsByUser(Object user) throws InputTypeException {
+        String command = "SELECT COUNT(netName) FROM petri_nets WHERE creatorId = ?";
+        int netsNumber = -1;
+        try{
+            if(user instanceof User u) {
+                try (Connection connection = DatabaseManager.getDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command)) {
+                    p_statement.setString(1, u.getUsername());
+                    ResultSet result = p_statement.executeQuery();
+
+                    netsNumber = result.getInt(1);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return netsNumber;
+    }
+
+    public static int getNumberOfSubscribedNetsByUser(Object user) throws InputTypeException {
+        int netsNumber = -1;
+        try{
+            if(user instanceof User u) {
+                netsNumber = ComputationsDAO.getNetsSubscribedByUser(user).size();
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return netsNumber;
     }
 }

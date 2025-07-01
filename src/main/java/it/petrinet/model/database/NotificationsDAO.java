@@ -26,7 +26,7 @@ public class NotificationsDAO implements DataAccessObject{
                 "timestamp INTEGER NOT NULL," +
                 "UNIQUE(sender, recipient, timestamp))";
         ;
-        try (Connection conn = DatabaseManager.getNotificationsDBConnection();
+        try (Connection conn = DatabaseManager.getDBConnection();
              Statement statement = conn.createStatement()) {
             statement.executeUpdate(table);
         } catch (SQLException ex) {
@@ -39,7 +39,7 @@ public class NotificationsDAO implements DataAccessObject{
         try {
             if (notification instanceof Notification not) {
                 try{
-                    if (!DatabaseManager.tableExists("notifications", "notifications")) {
+                    if (!DatabaseManager.tableExists("notifications")) {
                         NotificationsDAO dao = new NotificationsDAO();
                         dao.createTable();
                     }
@@ -49,7 +49,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
 
 
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, not.getSender());
                     p_statement.setString(2, not.getRecipient());
@@ -75,7 +75,7 @@ public class NotificationsDAO implements DataAccessObject{
         String command = "DELETE FROM notifications WHERE netId = ?";
         try{
             if(net instanceof PetriNet pNet){
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)){
                     p_statement.setString(1, pNet.getNetName());
                     p_statement.executeUpdate();
@@ -98,7 +98,7 @@ public class NotificationsDAO implements DataAccessObject{
             if(recipient instanceof User user) {
                 String command = "DELETE FROM notifications WHERE recipient = ?";
 
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)){
                     p_statement.setString(1, user.getUsername());
                     p_statement.executeUpdate();
@@ -127,7 +127,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
                 String command = "SELECT * FROM notifications WHERE sender = ? ";
 
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, user.getUsername());
                     ResultSet result = p_statement.executeQuery();
@@ -165,7 +165,7 @@ public class NotificationsDAO implements DataAccessObject{
                 }
                 String command = "SELECT * FROM notifications WHERE recipient = ? ";
 
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1, user.getUsername());
                     ResultSet result = p_statement.executeQuery();
@@ -200,7 +200,7 @@ public class NotificationsDAO implements DataAccessObject{
             if(type instanceof Integer t){
                 String command = "SELECT * FROM notifications WHERE type = ? ";
 
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setInt(1, t);
                     ResultSet result = p_statement.executeQuery();
@@ -235,7 +235,7 @@ public class NotificationsDAO implements DataAccessObject{
             if(timestamp instanceof Integer time){
                 String command = "SELECT * FROM notifications WHERE timestamp = ? ";
 
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setInt(1, time);
                     ResultSet result = p_statement.executeQuery();
@@ -268,7 +268,7 @@ public class NotificationsDAO implements DataAccessObject{
             if (notification instanceof Notification not) {
                 String command = "SELECT userId FROM notifications WHERE id = ?";
 
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setInt(1,NotificationsDAO.getIdByNotification(not));
                     ResultSet result = p_statement.executeQuery();
@@ -294,7 +294,7 @@ public class NotificationsDAO implements DataAccessObject{
             if (notification instanceof Notification not) {
                 String command = "SELECT id FROM notifications WHERE sender = and recipient = ? and timestamp = ?";
 
-                try (Connection connection = DatabaseManager.getNotificationsDBConnection();
+                try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command)) {
                     p_statement.setString(1,not.getSender());
                     p_statement.setString(2, not.getRecipient());
