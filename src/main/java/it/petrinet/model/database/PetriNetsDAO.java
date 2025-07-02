@@ -27,8 +27,9 @@ public class PetriNetsDAO implements DataAccessObject{
                 "isReady BOOLEAN NOT NULL, " +
                 "FOREIGN KEY(creatorId) REFERENCES users(username))";
 
-        try (Connection conn = DatabaseManager.getDBConnection();
-             Statement statement = conn.createStatement()) {
+        try (Connection connection = DatabaseManager.getDBConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute("PRAGMA foreign_keys = ON;");
             statement.execute(table);
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -61,8 +62,10 @@ public class PetriNetsDAO implements DataAccessObject{
 
             if(p_net instanceof PetriNet net){
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, net.getNetName());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, net.getNetName());
                     p_statement.setString(2, net.getCreatorId());
                     p_statement.setLong(3,net.getCreationDate());
                     p_statement.setString(4, net.getXML_PATH());
@@ -87,8 +90,10 @@ public class PetriNetsDAO implements DataAccessObject{
         try{
             if(p_net instanceof PetriNet net){
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, net.getNetName());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, net.getNetName());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -109,8 +114,10 @@ public class PetriNetsDAO implements DataAccessObject{
         try{
             if(p_net instanceof PetriNet net){
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)){
-                    p_statement.setBoolean(1, true);
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setBoolean(1, true);
                     p_statement.setString(2, net.getNetName());
                     p_statement.executeUpdate();
                 }
@@ -133,8 +140,10 @@ public class PetriNetsDAO implements DataAccessObject{
         try {
             if (p_net instanceof PetriNet net) {
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, newDir);
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, newDir);
                     p_statement.setString(2, net.getNetName());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
@@ -155,9 +164,11 @@ public class PetriNetsDAO implements DataAccessObject{
             if(admin instanceof User u){
                 String command = "SELECT * FROM petri_nets WHERE creatorId = ?";
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_Statement = connection.prepareStatement(command)){
-                    p_Statement.setString(1, u.getUsername());
-                    ResultSet result = p_Statement.executeQuery();
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, u.getUsername());
+                    ResultSet result = p_statement.executeQuery();
                     while(result.next()){
                         wantedNets.add( new PetriNet(
                                 result.getString(1),
@@ -194,9 +205,11 @@ public class PetriNetsDAO implements DataAccessObject{
                         "GROUP BY pn.netName " +
                         "ORDER BY lastTimestamp DESC;";
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_Statement = connection.prepareStatement(command)){
-                    p_Statement.setString(1, u.getUsername());
-                    ResultSet result = p_Statement.executeQuery();
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, u.getUsername());
+                    ResultSet result = p_statement.executeQuery();
                     while(result.next()){
                         wantedNets.add(new RecentNet(new PetriNet(
                                 result.getString(1),
@@ -229,9 +242,11 @@ public class PetriNetsDAO implements DataAccessObject{
                 String command = "SELECT * FROM petri_nets WHERE netName = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_Statement = connection.prepareStatement(command)){
-                    p_Statement.setString(1, n);
-                    ResultSet result = p_Statement.executeQuery();
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, n);
+                    ResultSet result = p_statement.executeQuery();
                     if(result.next()){
                         return new PetriNet(
                                 result.getString(1),

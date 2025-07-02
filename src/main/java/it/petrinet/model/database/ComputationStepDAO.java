@@ -28,7 +28,7 @@ public class ComputationStepDAO implements DataAccessObject{
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute(table);
+            statement.execute("PRAGMA foreign_keys = ON;");statement.execute(table);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -38,7 +38,7 @@ public class ComputationStepDAO implements DataAccessObject{
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute(command);
+            statement.execute("PRAGMA foreign_keys = ON;");statement.execute(command);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -59,8 +59,10 @@ public class ComputationStepDAO implements DataAccessObject{
                 }
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setInt(1, s.getComputationId());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setInt(1, s.getComputationId());
                     p_statement.setString(2, s.getNetId());
                     p_statement.setString(3, s.getTransitionName());
                     p_statement.setString(4, s.getTempMarkingState());
@@ -83,8 +85,10 @@ public class ComputationStepDAO implements DataAccessObject{
             if (step instanceof ComputationStep s) {
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setLong(1, s.getId());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setLong(1, s.getId());
                     p_statement.setInt(2, s.getComputationId());
                     p_statement.setString(3, s.getNetId());
                     p_statement.executeUpdate();
@@ -185,10 +189,12 @@ public class ComputationStepDAO implements DataAccessObject{
                 String command = "SELECT * FROM computationSteps WHERE userId = ? AND creatorId = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_Statement = connection.prepareStatement(command)) {
-                    p_Statement.setString(1, c.getUserId());
-                    p_Statement.setString(1, c.getCreatorId());
-                    ResultSet result = p_Statement.executeQuery();
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, c.getUserId());
+                    p_statement.setString(1, c.getCreatorId());
+                    ResultSet result = p_statement.executeQuery();
 
                     while (result.next()) {
                         wantedSteps.add( new ComputationStep(
@@ -220,8 +226,10 @@ public class ComputationStepDAO implements DataAccessObject{
             if (step instanceof ComputationStep s) {
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setLong(1, s.getId());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setLong(1, s.getId());
                     p_statement.setString(3, s.getNetId());
                     ResultSet result = p_statement.executeQuery();
                     if(result.next()){

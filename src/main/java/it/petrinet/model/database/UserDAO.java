@@ -23,6 +23,7 @@ public class UserDAO implements DataAccessObject{
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
+            statement.execute("PRAGMA foreign_keys = ON;");
             statement.execute(table);
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -45,8 +46,10 @@ public class UserDAO implements DataAccessObject{
                 }
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, u.getUsername());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, u.getUsername());
                     p_statement.setString(2, u.getPassword());
                     p_statement.setBoolean(3, u.isAdmin());
                     p_statement.executeUpdate();
@@ -69,8 +72,10 @@ public class UserDAO implements DataAccessObject{
                 String command = "UPDATE users SET password = ?, isAdmin = ? WHERE username = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)){
-                    p_statement.setString(3, u.getUsername());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(3, u.getUsername());
                     p_statement.setString(1, password);
                     p_statement.setBoolean(2, u.isAdmin());
                     p_statement.executeUpdate();
@@ -94,8 +99,10 @@ public class UserDAO implements DataAccessObject{
                 String command = "DELETE FROM users WHERE username = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)){
-                    p_statement.setString(1, u.getUsername());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, u.getUsername());
                     p_statement.executeUpdate();
                 }
                 catch (SQLException e) {
@@ -180,8 +187,10 @@ public class UserDAO implements DataAccessObject{
         try{
             if(user instanceof User u) {
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, u.getUsername());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, u.getUsername());
                     ResultSet result = p_statement.executeQuery();
 
                     netsNumber = result.getInt(1);

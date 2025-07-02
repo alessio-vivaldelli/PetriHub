@@ -32,6 +32,7 @@ public class NotificationsDAO implements DataAccessObject{
         ;
         try (Connection conn = DatabaseManager.getDBConnection();
              Statement statement = conn.createStatement()) {
+            statement.execute("PRAGMA foreign_keys = ON;");
             statement.executeUpdate(table);
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -54,8 +55,10 @@ public class NotificationsDAO implements DataAccessObject{
 
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, not.getSender());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, not.getSender());
                     p_statement.setString(2, not.getRecipient());
                     p_statement.setString(3, not.getNetId());
                     p_statement.setInt(4, not.getType());
@@ -80,8 +83,10 @@ public class NotificationsDAO implements DataAccessObject{
         try{
             if(net instanceof PetriNet pNet){
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)){
-                    p_statement.setString(1, pNet.getNetName());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, pNet.getNetName());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -103,8 +108,10 @@ public class NotificationsDAO implements DataAccessObject{
                 String command = "DELETE FROM notifications WHERE recipient = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)){
-                    p_statement.setString(1, user.getUsername());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, user.getUsername());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -132,8 +139,10 @@ public class NotificationsDAO implements DataAccessObject{
                 String command = "SELECT * FROM notifications WHERE sender = ? ";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, user.getUsername());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, user.getUsername());
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
                         filteredNotifications.add(new Notification(
@@ -170,8 +179,10 @@ public class NotificationsDAO implements DataAccessObject{
                 String command = "SELECT * FROM notifications WHERE recipient = ? ";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1, user.getUsername());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1, user.getUsername());
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
                         filteredNotifications.add(new Notification(
@@ -205,8 +216,10 @@ public class NotificationsDAO implements DataAccessObject{
                 String command = "SELECT * FROM notifications WHERE type = ? ";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setInt(1, t);
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setInt(1, t);
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
                         filteredNotifications.add(new Notification(
@@ -240,8 +253,10 @@ public class NotificationsDAO implements DataAccessObject{
                 String command = "SELECT * FROM notifications WHERE timestamp = ? ";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setInt(1, time);
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setInt(1, time);
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
                         filteredNotifications.add(new Notification(
@@ -273,8 +288,10 @@ public class NotificationsDAO implements DataAccessObject{
                 String command = "SELECT userId FROM notifications WHERE id = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setInt(1,NotificationsDAO.getIdByNotification(not));
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setInt(1,NotificationsDAO.getIdByNotification(not));
                     ResultSet result = p_statement.executeQuery();
 
                     if(result.next()){
@@ -299,8 +316,10 @@ public class NotificationsDAO implements DataAccessObject{
                 String command = "SELECT id FROM notifications WHERE sender = and recipient = ? and timestamp = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command)) {
-                    p_statement.setString(1,not.getSender());
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     Statement statement = connection.createStatement()){
+                     statement.execute("PRAGMA foreign_keys = ON;");
+                     p_statement.setString(1,not.getSender());
                     p_statement.setString(2, not.getRecipient());
                     p_statement.setInt(3, not.getTimestamp());
                     ResultSet result = p_statement.executeQuery();
