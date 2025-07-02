@@ -1,15 +1,18 @@
 package it.petrinet.controller;
 
-import it.petrinet.petrinet.view.PetriNetCreationPane;
+import it.petrinet.Main;
+import it.petrinet.petrinet.view.PetriNetEditorPane;
 import it.petrinet.view.ViewNavigator;
-import it.petrinet.view.components.ToolBar;
+import it.petrinet.view.components.PopupMenu;
+import it.petrinet.view.components.toolbar.EditorToolBar;
+import it.petrinet.view.components.toolbar.ToolBar;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -24,11 +27,10 @@ public class NetCreationController implements Initializable {
     public Button finishButton;
 
     @FXML private Pane canvasContainer;
-
     @FXML private HBox toolbarContainer;
 
-    private PetriNetCreationPane canvas;
-    private ToolBar toolbar;
+    private PetriNetEditorPane canvas;
+    private EditorToolBar toolbar;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -40,16 +42,14 @@ public class NetCreationController implements Initializable {
      * Inizializza il canvas PetriNetCreationPane
      */
     private void setupCanvas() {
-        canvas = new PetriNetCreationPane("NewPetriNet", "A new Petri net for testing");
+        canvas = new PetriNetEditorPane("Net Creation", " ");
 
         // Il canvas deve occupare tutto lo spazio disponibile
-        //canvas.prefWidthProperty().bind(canvasContainer.widthProperty());
-        //canvas.prefHeightProperty().bind(canvasContainer.heightProperty());
+        canvas.prefWidthProperty().bind(canvasContainer.widthProperty());
+        canvas.prefHeightProperty().bind(canvasContainer.heightProperty());
 
         canvasContainer.getChildren().add(canvas);
 
-
-        canvas.start();
         PauseTransition delay = new PauseTransition(Duration.millis(200));
         delay.setOnFinished(_ -> {
             canvas.init();
@@ -61,7 +61,7 @@ public class NetCreationController implements Initializable {
      * Crea e configura la toolbar personalizzata
      */
     private void setupToolbar() {
-        toolbar = new ToolBar(canvas);
+        toolbar = new EditorToolBar(canvas);
         toolbarContainer.getChildren().add(toolbar);
     }
 
@@ -72,19 +72,23 @@ public class NetCreationController implements Initializable {
     private void onFinishAction() {
         System.out.println("Finish button clicked - Saving the Petri net");
 
+        canvas.saveNetAction();
+
         // Clean up any resources
         if (canvas != null) canvas = null;
         if (toolbar != null) toolbar = null;
 
+
         // Navigate back to home
         ViewNavigator.exitCreation();
+
     }
 
 
     /**
      * Getter per il canvas (utile per test o integrazioni esterne)
      */
-    public PetriNetCreationPane getCanvas() {
+    public PetriNetEditorPane getCanvas() {
         return canvas;
     }
 

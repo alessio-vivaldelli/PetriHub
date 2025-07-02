@@ -32,6 +32,8 @@ module it.petrinet {
     opens it.petrinet.model.TableRow;
   exports it.petrinet.view.components.table;
   opens it.petrinet.view.components.table;
+    exports it.petrinet.view.components.toolbar;
+    opens it.petrinet.view.components.toolbar;
 
 
 }

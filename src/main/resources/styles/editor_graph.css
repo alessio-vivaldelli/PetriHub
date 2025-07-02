@@ -1,36 +1,41 @@
 .graph {
-  -fx-background-color: #F4FFFB;
+  -fx-background-color: -fx-catppuccin-mocha-base;
 }
 
 .vertex {
-  -fx-stroke-width: 2;
-  -fx-stroke: #61B5F1;
+  -fx-stroke-width: 1;
+  -fx-stroke: -fx-catppuccin-mocha-text;
   -fx-stroke-type: inside;
-  /* you should keep this for vertex.radius to hold */
-  -fx-fill: #B1DFF7;
+  -fx-fill: -fx-catppuccin-mocha-base;
+  -fx-text-fill: -fx-catppuccin-mocha-text;
+  transition: all 0.2s ease;
 }
 
-
 .vertex:hover {
-  /* pseudo-classes also work */
-  /*-fx-cursor: default; */
-  /* You can use this style to override the hand/move cursors while hovering. */
-  -fx-stroke-width: 3;
+  -fx-fill: -fx-catppuccin-mocha-base;
+  -fx-stroke: -fx-catppuccin-mocha-subtext1;
+  -fx-stroke-width: 2;
+  -fx-cursor: hand;
 }
 
 .vertex-label {
   -fx-font: bold 8pt "sans-serif";
+  -fx-text-fill: -fx-catppuccin-mocha-text;
+  -fx-fill: -fx-catppuccin-mocha-text;
 }
 
 .edge {
-  -fx-stroke-width: 2;
-  -fx-stroke: #1e2030;
-  /*-fx-stroke-dash-array: 2 5 2 5;*/
-  /* remove for clean edges */
+  -fx-stroke-width: 1.5;
+  -fx-stroke: -fx-catppuccin-mocha-text;
   -fx-fill: transparent;
-  /*important for curved edges. do not remove */
-  -fx-stroke-line-cap: round;
-  -fx-opacity: 0.8;
+  -fx-stroke-line-cap: square;
+  -fx-opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.edge:hover {
+  -fx-stroke-width: 2;
+  -fx-opacity: 0.9;
 }
 
 .edge-label {
@@ -38,89 +43,60 @@
 }
 
 .arrow {
-  -fx-stroke-width: 3;
-  -fx-stroke: #1e2030;
-  -fx-opacity: 0.8;
+  -fx-stroke-width: 2;
+  -fx-stroke: -fx-catppuccin-mocha-text;
+  -fx-opacity: 0.7;
+  transition: all 0.2s ease;
 }
-
-/*/* Custom vertex. You should revert any unwanted styling in the default element, */
-/*   style, since custom styles will be appended to the default style */*/
-/*.myVertex {*/
-/*  -fx-stroke-width: 5;*/
-/*  -fx-stroke: green;*/
-/*  -fx-stroke-type: inside;*/
-/*  /* you should keep this if using arrows */*/
-/*  -fx-fill: yellowgreen;*/
-/*}*/
 
 .svg_elem {
   -fx-stroke-width: 2;
-  -fx-stroke: green;
+  -fx-stroke: #a6e3a1;
   -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: yellowgreen;
+  -fx-fill: #a6e3a1;
+  -fx-opacity: 0.8;
 }
 
 .marker {
-  /*-fx-stroke-width: 5;*/
-  /*-fx-stroke: green;*/
-  /*-fx-stroke-type: inside;*/
-  /* you should keep this if using arrows */
+  transition: all 0.2s ease;
 }
 
-.userTransition{
-  -fx-stroke-width: 2;
-  -fx-stroke: #00FF00;
-  -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: #FFCCCC;
+.userTransition {
+  -fx-fill: #a6e3a1;
+  transition: all 0.2s ease;
 }
 
 .adminTransition {
-  -fx-stroke-width: 2;
-  -fx-stroke: #FF0000;
-  -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: #FFCCCC;
-}
-
-.adminTransition:hover {
-  -fx-stroke-width: 3;
-  -fx-stroke: #FF0000;
-  -fx-fill: #FFCCCC;
-}
-
-.userTransition:hover {
-  -fx-stroke-width: 3;
-  -fx-stroke: #00FF00;
-  -fx-fill: #FFCCCC;
+  -fx-fill: #f38ba8;
+  transition: all 0.2s ease;
 }
 
 .startVertex {
-  -fx-stroke-width: 2;
-  -fx-stroke: green;
+  -fx-stroke-width: 1.5;
+  -fx-stroke: #50d94a;
   -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: yellowgreen;
+  -fx-fill: -fx-catppuccin-mocha-base;
+  transition: all 0.2s ease;
 }
 
 .endVertex {
-  -fx-stroke-width: 2;
-  -fx-stroke: red;
+  -fx-stroke-width: 1.5;
+  -fx-stroke: #f38ba8;
   -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: tomato;
+  -fx-fill: -fx-catppuccin-mocha-base;
+  transition: all 0.2s ease;
 }
 
 .startVertex:hover {
-  -fx-stroke-width: 3;
-  -fx-stroke: green;
-  -fx-fill: yellowgreen;
+  -fx-fill: -fx-catppuccin-mocha-base;
+  -fx-stroke: #32d32a;
+  -fx-stroke-width: 2;
+  -fx-cursor: hand;
 }
 
 .endVertex:hover {
-  -fx-stroke-width: 3;
-  -fx-stroke: red;
-  -fx-fill: tomato;
+  -fx-fill: -fx-catppuccin-mocha-base;
+  -fx-stroke: #f38ba8;
+  -fx-stroke-width: 2;
+  -fx-cursor: hand;
 }
-

@@ -1,35 +1,43 @@
 .graph {
   -fx-background-color: #1e1e2e;
+  -fx-text-fill: #cdd6f4;
 }
 
 .vertex {
-  -fx-stroke-width: 2;
-  -fx-stroke: #61B5F1;
+  -fx-stroke-width: 1;
+  -fx-stroke: #cdd6f4;
   -fx-stroke-type: inside;
-  /* you should keep this for vertex.radius to hold */
-  -fx-fill: #B1DFF7;
+  -fx-fill: transparent;
+  -fx-text-fill: #cdd6f4;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .vertex:hover {
-  /* pseudo-classes also work */
-  /*-fx-cursor: default; */
-  /* You can use this style to override the hand/move cursors while hovering. */
-  -fx-stroke-width: 3;
+  -fx-stroke-width: 2;
+  -fx-fill: rgba(205, 214, 244, 0.06);
+  -fx-stroke: rgba(205, 214, 244, 0.9);
+  transform: translateY(-1px);
+  filter: drop-shadow(0 2px 8px rgba(205, 214, 244, 0.15));
 }
 
 .vertex-label {
   -fx-font: bold 8pt "sans-serif";
+  -fx-text-fill: #cdd6f4;
+  -fx-fill: #cdd6f4;
 }
 
 .edge {
-  -fx-stroke-width: 2;
-  -fx-stroke: #1e2030;
-  /*-fx-stroke-dash-array: 2 5 2 5;*/
-  /* remove for clean edges */
+  -fx-stroke-width: 1.5;
+  -fx-stroke: #313244;
   -fx-fill: transparent;
-  /*important for curved edges. do not remove */
   -fx-stroke-line-cap: round;
-  -fx-opacity: 0.8;
+  -fx-opacity: 0.7;
+  transition: all 0.25s ease-out;
+}
+
+.edge:hover {
+  -fx-stroke-width: 2;
+  -fx-opacity: 0.9;
 }
 
 .edge-label {
@@ -37,90 +45,78 @@
 }
 
 .arrow {
-  -fx-stroke-width: 3;
-  -fx-stroke: #1e2030;
-  -fx-opacity: 0.8;
+  -fx-stroke-width: 2;
+  -fx-stroke: #313244;
+  -fx-opacity: 0.7;
+  transition: all 0.25s ease-out;
 }
-
-/*/* Custom vertex. You should revert any unwanted styling in the default element, */
-/*   style, since custom styles will be appended to the default style */*/
-/*.myVertex {*/
-/*  -fx-stroke-width: 5;*/
-/*  -fx-stroke: green;*/
-/*  -fx-stroke-type: inside;*/
-/*  /* you should keep this if using arrows */*/
-/*  -fx-fill: yellowgreen;*/
-/*}*/
 
 .svg_elem {
   -fx-stroke-width: 2;
-  -fx-stroke: green;
+  -fx-stroke: #a6e3a1;
   -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: yellowgreen;
+  -fx-fill: #a6e3a1;
+  -fx-opacity: 0.8;
 }
 
 .marker {
-  /*-fx-stroke-width: 5;*/
-  /*-fx-stroke: green;*/
-  /*-fx-stroke-type: inside;*/
-  /* you should keep this if using arrows */
+  transition: all 0.2s ease;
 }
 
-.userTransition{
-  -fx-stroke-width: 2;
-  -fx-stroke: #00FF00;
-  -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: #FFCCCC;
-}
-
-.adminTransition {
-  -fx-stroke-width: 2;
-  -fx-stroke: #FF0000;
-  -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: #FFCCCC;
-}
-
-
-.adminTransition:hover {
-  -fx-stroke-width: 3;
-  -fx-stroke: #FF0000;
-  -fx-fill: #FFCCCC;
+.userTransition {
+  -fx-fill: #a6e3a1;
+  -fx-opacity: 0.75;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .userTransition:hover {
-  -fx-stroke-width: 3;
-  -fx-stroke: #00FF00;
-  -fx-fill: #FFCCCC;
+  -fx-fill: #a6e3a1;
+  -fx-opacity: 0.3;
+  -fx-cursor: hand;
+  transform: translateY(-1px);
+  filter: drop-shadow(0 3px 12px rgba(166, 227, 161, 0.25));
+}
+
+.adminTransition {
+  -fx-fill: #f38ba8;
+  -fx-opacity: 0.75;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.adminTransition:hover {
+  -fx-fill: #f38ba8;
+  -fx-opacity: 0.3;
+  -fx-cursor: hand;
+  transform: translateY(-1px);
+  filter: drop-shadow(0 3px 12px rgba(243, 139, 168, 0.25));
 }
 
 .startVertex {
-  -fx-stroke-width: 2;
-  -fx-stroke: green;
+  -fx-stroke-width: 1.5;
+  -fx-stroke: #a6e3a1;
   -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: yellowgreen;
-}
-
-.endVertex {
-  -fx-stroke-width: 2;
-  -fx-stroke: red;
-  -fx-stroke-type: inside;
-  /* you should keep this if using arrows */
-  -fx-fill: tomato;
+  -fx-fill: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .startVertex:hover {
-  -fx-stroke-width: 3;
-  -fx-stroke: green;
-  -fx-fill: yellowgreen;
+  -fx-stroke-width: 2.5;
+  -fx-fill: rgba(166, 227, 161, 0.12);
+  -fx-cursor: hand;
+  transform: scale(1.03);
+}
+
+.endVertex {
+  -fx-stroke-width: 1.5;
+  -fx-stroke: #f38ba8;
+  -fx-stroke-type: inside;
+  -fx-fill: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .endVertex:hover {
-  -fx-stroke-width: 3;
-  -fx-stroke: red;
-  -fx-fill: tomato;
+  -fx-stroke-width: 2.5;
+  -fx-fill: rgba(243, 139, 168, 0.12);
+  -fx-cursor: hand;
+  transform: scale(1.03);
 }
-

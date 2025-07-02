@@ -28,6 +28,6 @@
     </top>
 
     <center>
-        <Pane fx:id="canvasContainer" style="-fx-background-color: transparent;"/>
+        <Pane fx:id="canvasContainer"/>
     </center>
 </BorderPane>
