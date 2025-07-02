@@ -14,6 +14,7 @@ public class PetriNetsDAO implements DataAccessObject{
 //        insertNet(new PetriNet("net1", "a", 0L,"XML", "image", true));
 //        insertNet(new PetriNet("net2", "ale", 456787654L,"XML", "image", true));
 //        insertNet(new PetriNet("net3", "ale", 1712924800L,"XML", "image", true));
+        System.out.println(getNetsWithTimestampByCreator(new User("Davide", "sala", true)));
     }
 
     public void createTable() {
@@ -23,7 +24,8 @@ public class PetriNetsDAO implements DataAccessObject{
                 "creationDate LONG NOT NULL, " +
                 "XML_PATH TEXT NOT NULL, " +
                 "image_PATH TEXT NOT NULL, " +
-                "isReady BOOLEAN NOT NULL)";
+                "isReady BOOLEAN NOT NULL, " +
+                "FOREIGN KEY(creatorId) REFERENCES users(username))";
 
         try (Connection conn = DatabaseManager.getDBConnection();
              Statement statement = conn.createStatement()) {
@@ -164,6 +166,46 @@ public class PetriNetsDAO implements DataAccessObject{
                                 result.getString(4),
                                 result.getString(5),
                                 result.getBoolean(6)
+                        ));
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return wantedNets;
+    }
+
+    public static List<RecentNet> getNetsWithTimestampByCreator(Object admin) throws InputTypeException{
+        List<RecentNet> wantedNets = new ArrayList<RecentNet>();
+        try{
+            if(admin instanceof User u){
+                String command = "SELECT pn.*, MAX(s.timestamp) AS lastTimestamp FROM petri_nets pn " +
+                        "LEFT JOIN computations c ON c.netId = pn.netName " +
+                        "LEFT JOIN computationSteps s ON s.computationId = c.id " +
+                        "WHERE pn.creatorId = ? " +
+                        "GROUP BY pn.netName " +
+                        "ORDER BY lastTimestamp DESC;";
+                try (Connection connection = DatabaseManager.getDBConnection();
+                     PreparedStatement p_Statement = connection.prepareStatement(command)){
+                    p_Statement.setString(1, u.getUsername());
+                    ResultSet result = p_Statement.executeQuery();
+                    while(result.next()){
+                        wantedNets.add(new RecentNet(new PetriNet(
+                                result.getString(1),
+                                result.getString(2),
+                                result.getLong(3),
+                                result.getString(4),
+                                result.getString(5),
+                                result.getBoolean(6)
+                        ), result.getLong(7)
                         ));
                     }
                 }

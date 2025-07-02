@@ -11,9 +11,9 @@ import java.util.List;
 
 public class ComputationsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException {
-//        insertComputation(new Computation("net2","ale","davide", 34));
-//        insertComputation(new Computation("net3","ale","Davide", 34));
-//        insertComputation(new Computation("net10","Davide","Antonio", 34));
+        insertComputation(new Computation("net2","ale","davide", 34));
+        insertComputation(new Computation("net3","ale","Davide", 34));
+        insertComputation(new Computation("net10","Davide","Antonio", 34));
         System.out.println(getNetsSubscribedWithTimestampByUser(new User("Davide", "pass", true)));
 
     }
@@ -25,12 +25,26 @@ public class ComputationsDAO implements DataAccessObject{
                 "creatorId TEXT NOT NULL, " +
                 "userId TEXT NOT NULL," +
                 "startDate LONGINT, " +
-                "endDate LONGINT," +
-                "UNIQUE (netId, userId, creatorId))";
+                "endDate LONGINT, " +
+                "UNIQUE (netId, userId, creatorId), " +
+                "FOREIGN KEY (netId) REFERENCES petri_nets(netName), " +
+                "FOREIGN KEY (creatorId) REFERENCES users(username), " +
+                "FOREIGN KEY (userId) REFERENCES users(username))";
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
             statement.executeUpdate(table);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void deleteTable(){
+        String command = "DROP TABLE computations;";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute(command);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

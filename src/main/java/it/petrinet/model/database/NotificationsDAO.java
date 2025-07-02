@@ -23,8 +23,12 @@ public class NotificationsDAO implements DataAccessObject{
                 "type INTEGER NOT NULL, " +
                 "title TEXT NOT NULL, " +
                 "text TEXT NOT NULL, " +
-                "timestamp INTEGER NOT NULL," +
-                "UNIQUE(sender, recipient, timestamp))";
+                "timestamp INTEGER NOT NULL, " +
+                "UNIQUE(sender, recipient, timestamp), " +
+                "FOREIGN KEY(sender) REFERENCES users(username), " +
+                "FOREIGN KEY(recipient) REFERENCES users(username), " +
+                "FOREIGN KEY(netId) REFERENCES petri_nets(netName)" +
+                ")";
         ;
         try (Connection conn = DatabaseManager.getDBConnection();
              Statement statement = conn.createStatement()) {

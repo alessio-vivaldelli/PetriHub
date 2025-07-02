@@ -21,7 +21,10 @@ public class ComputationStepDAO implements DataAccessObject{
                 "netId TEXT NOT NULL, " +
                 "transitionName TEXT, " +
                 "markingState TEXT NOT NULL, " +
-                "timestamp INTEGER NOT NULL)";
+                "timestamp INTEGER NOT NULL, " +
+                "FOREIGN KEY(computationId) REFERENCES computations(id), " +
+                "FOREIGN KEY(netId) REFERENCES petri_nets(netName)" +
+                ")";
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {

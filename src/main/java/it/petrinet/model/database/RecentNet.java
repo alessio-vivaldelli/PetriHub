@@ -5,9 +5,9 @@ import it.petrinet.model.PetriNet;
 
 public class RecentNet{
     private PetriNet net;
-    private long timestamp;
+    private Long timestamp;
 
-    public RecentNet(PetriNet net, long timestamp) {
+    public RecentNet(PetriNet net, Long timestamp) {
         this.net = net;
         this.timestamp = timestamp;
     }
@@ -16,7 +16,7 @@ public class RecentNet{
         return net;
     }
 
-    public long getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
 }
