@@ -59,9 +59,10 @@ public class ShowAllController {
     }
 
     private void handleUserTableView(PetriNetRow petriNetRow) {
-        ViewNavigator.navigateToUserList(petriNetRow.nameProperty().toString());
+        ViewNavigator.navigateToUserList(petriNetRow.nameProperty().get());
     }
 
+    //Todo: aggiungere la navigazione a menagePetri
     private void handleTableRowClick(PetriNetRow petriNetRow) {
         System.out.println("Row clicked: " + petriNetRow.nameProperty());
     }
@@ -111,12 +112,7 @@ public class ShowAllController {
         List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
         for(RecentNet net : ownNets){
             LocalDateTime date;
-            if(net.getTimestamp() == null){
-                date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
-            }
-            else{
-                date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
-            }
+            date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
             netsToShow.add(new PetriNetRow(net.getNet().getNetName(), net.getNet().getCreatorId(), date, Status.STARTED, NetCategory.OWNED));
         }
 

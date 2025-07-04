@@ -32,7 +32,7 @@ public class UserListController {
     }
 
     public void initialize() throws InputTypeException {
-        frameTitle.setText("SELECT NAME OF ID: " + netID);
+        frameTitle.setText(netID);
         IconUtils.setIcon(frameTitle, "user.png", 30, 30 , null);
 
         initializeTableComponent();

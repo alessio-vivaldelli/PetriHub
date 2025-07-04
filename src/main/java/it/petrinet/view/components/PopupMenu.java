@@ -2,6 +2,7 @@ package it.petrinet.view.components;
 
 import javafx.animation.*;
 import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -16,11 +17,10 @@ import javafx.util.Duration;
 import java.util.Optional;
 
 /**
- * Enhanced PopupMenu with modal behavior and simulated blur (dimming effect).
- * Uses ChangeListeners for stage position and size synchronization.
- * This version simplifies stage visibility for showAndWait compatibility.
+ * Minimal PopupMenu with smooth animations and subtle shadow effect.
+ * Features a clean, modern design with smooth entry/exit animations.
  */
-public class PopupMenu { // test
+public class PopupMenu {
 
     private final Stage ownerStage;
     private final StackPane root;
@@ -31,8 +31,8 @@ public class PopupMenu { // test
 
     private String result;
 
-    private static final Duration ANIMATION_DURATION = Duration.millis(300);
-    private static final double OVERLAY_DIMMING_OPACITY = 0.6;
+    private static final Duration ANIMATION_DURATION = Duration.millis(250);
+    private static final Duration FAST_ANIMATION = Duration.millis(150);
 
     private ChangeListener<Number> widthListener;
     private ChangeListener<Number> heightListener;
@@ -50,60 +50,94 @@ public class PopupMenu { // test
             ownerStage.getScene().setRoot(root);
         }
 
+        initializePopupStage();
+        setupEventHandlers();
+    }
+
+    private void initializePopupStage() {
         popupStage = new Stage();
         popupStage.initOwner(ownerStage);
         popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.initStyle(StageStyle.TRANSPARENT);
 
         popupRoot = new StackPane();
-        popupRoot.setStyle("-fx-background-color: rgba(0,0,0,0.0);"); // Initial transparent background
+        popupRoot.setStyle("-fx-background-color: rgba(0 ,0,0,0);");
 
         contentContainer = new StackPane();
+        // MODIFICA: Ombra migliorata per un effetto più "fluttuante"
         contentContainer.setStyle(
                 "-fx-background-color: #1e1e2e; " +
                         "-fx-background-radius: 12; " +
                         "-fx-padding: 20; " +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0.3, 0, 6);"
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 25, 0, 0, 10);"
         );
-        contentContainer.setMaxWidth(500);
-        contentContainer.setMaxHeight(300);
-        contentContainer.setOnMouseClicked(e -> e.consume());
 
-        contentContainer.setOpacity(0);
-        contentContainer.setScaleX(0.8);
-        contentContainer.setScaleY(0.8);
+        contentContainer.setMaxWidth(400);
+        contentContainer.setMaxHeight(250);
+        contentContainer.setMinWidth(200);
+        contentContainer.setMinHeight(100);
+
+        contentContainer.setOnMouseClicked(Event::consume);
+
+        resetAnimationState();
 
         popupRoot.getChildren().add(contentContainer);
+        StackPane.setAlignment(contentContainer, Pos.CENTER);
 
         Scene popupScene = new Scene(popupRoot, ownerStage.getWidth(), ownerStage.getHeight());
+        // La scena parte completamente trasparente
         popupScene.setFill(Color.TRANSPARENT);
         popupStage.setScene(popupScene);
 
+        setupPositionListeners();
+    }
+
+    private void setupPositionListeners() {
         widthListener = (obs, oldVal, newVal) -> popupStage.setWidth(newVal.doubleValue());
         heightListener = (obs, oldVal, newVal) -> popupStage.setHeight(newVal.doubleValue());
         xListener = (obs, oldVal, newVal) -> popupStage.setX(newVal.doubleValue());
         yListener = (obs, oldVal, newVal) -> popupStage.setY(newVal.doubleValue());
+    }
 
-        popupStage.getScene().setOnKeyPressed(evt -> {
-            if (evt.getCode() == KeyCode.ESCAPE) {
-                result = null;
-                popupStage.close();
-            }
+    private void setupEventHandlers() {
+        popupStage.setOnShown(event -> {
+            popupStage.getScene().setOnKeyPressed(evt -> {
+                if (evt.getCode() == KeyCode.ESCAPE) {
+                    result = null;
+                    closeWithAnimation();
+                }
+            });
         });
 
         popupRoot.setOnMouseClicked(evt -> {
             if (evt.getTarget() == popupRoot) {
                 result = null;
-                popupStage.close();
+                closeWithAnimation();
             }
         });
 
-        popupStage.setOnHidden(event -> {
-            ownerStage.widthProperty().removeListener(widthListener);
-            ownerStage.heightProperty().removeListener(heightListener);
-            ownerStage.xProperty().removeListener(xListener);
-            ownerStage.yProperty().removeListener(yListener);
-        });
+        popupStage.setOnHidden(event -> removeListeners());
+    }
+
+    private void resetAnimationState() {
+        contentContainer.setOpacity(0);
+        contentContainer.setScaleX(0.85);
+        contentContainer.setScaleY(0.85);
+        contentContainer.setTranslateY(15);
+    }
+
+    private void addListeners() {
+        ownerStage.widthProperty().addListener(widthListener);
+        ownerStage.heightProperty().addListener(heightListener);
+        ownerStage.xProperty().addListener(xListener);
+        ownerStage.yProperty().addListener(yListener);
+    }
+
+    private void removeListeners() {
+        ownerStage.widthProperty().removeListener(widthListener);
+        ownerStage.heightProperty().removeListener(heightListener);
+        ownerStage.xProperty().removeListener(xListener);
+        ownerStage.yProperty().removeListener(yListener);
     }
 
     public void setContent(Node content) {
@@ -113,100 +147,94 @@ public class PopupMenu { // test
     public Optional<String> showAndWait() {
         result = null;
 
+        syncStagePosition();
+        addListeners();
+        resetAnimationState();
+
+        // L'animazione di entrata ora include il fade-in dello sfondo
+        Timeline entryAnimation = createEntryAnimation();
+
+        // La chiamata a showAndWait() è stata spostata per evitare problemi di blocco
+        entryAnimation.play();
+        popupStage.showAndWait();
+
+        // L'animazione di uscita non è più necessaria qui perché gestita da closeWithAnimation()
+        return Optional.ofNullable(result);
+    }
+
+    private void syncStagePosition() {
         popupStage.setWidth(ownerStage.getWidth());
         popupStage.setHeight(ownerStage.getHeight());
         popupStage.setX(ownerStage.getX());
         popupStage.setY(ownerStage.getY());
+    }
 
-        ownerStage.widthProperty().addListener(widthListener);
-        ownerStage.heightProperty().addListener(heightListener);
-        ownerStage.xProperty().addListener(xListener);
-        ownerStage.yProperty().addListener(yListener);
+    private Timeline createEntryAnimation() {
+        Timeline timeline = new Timeline();
 
-        // --- Prepare initial states for animations ---
-        // Do NOT set popupStage.setOpacity(0) here if you want it to appear instantly by showAndWait().
-        // Instead, let the overlay and content handle the visual "fade-in" from scratch.
-        // If you absolutely need the stage itself to fade in, it requires a different approach
-        // that delays the showAndWait() call, which complicates the return value.
+        // MODIFICA: Aggiunta animazione per lo sfondo (overlay)
+        KeyFrame overlayFadeIn = new KeyFrame(ANIMATION_DURATION,
+                new KeyValue(popupStage.getScene().fillProperty(), new Color(0, 0, 0, 0), Interpolator.EASE_OUT));
 
-        contentContainer.setOpacity(0);
-        contentContainer.setScaleX(0.8);
-        contentContainer.setScaleY(0.8);
+        // Animazione del contenuto (invariata)
+        KeyFrame contentStart = new KeyFrame(Duration.ZERO,
+                new KeyValue(contentContainer.opacityProperty(), 0, Interpolator.EASE_OUT),
+                new KeyValue(contentContainer.scaleXProperty(), 0.85, Interpolator.EASE_OUT),
+                new KeyValue(contentContainer.scaleYProperty(), 0.85, Interpolator.EASE_OUT),
+                new KeyValue(contentContainer.translateYProperty(), 15, Interpolator.EASE_OUT));
 
-        // --- Entry Animations ---
+        KeyFrame contentEnd = new KeyFrame(ANIMATION_DURATION,
+                new KeyValue(contentContainer.opacityProperty(), 1, Interpolator.EASE_OUT),
+                new KeyValue(contentContainer.scaleXProperty(), 1, Interpolator.EASE_OUT),
+                new KeyValue(contentContainer.scaleYProperty(), 1, Interpolator.EASE_OUT),
+                new KeyValue(contentContainer.translateYProperty(), 0, Interpolator.EASE_OUT));
 
-        // Animate the dimming overlay's opacity (popupRoot background)
-        FadeTransition dimmingFadeIn = new FadeTransition(ANIMATION_DURATION, popupRoot);
-        dimmingFadeIn.setFromValue(0);
-        popupRoot.setStyle("-fx-background-color: rgba(0,0,0," + OVERLAY_DIMMING_OPACITY + ");");
-        dimmingFadeIn.setToValue(OVERLAY_DIMMING_OPACITY);
+        timeline.getKeyFrames().addAll(overlayFadeIn, contentStart, contentEnd);
 
-        // Animate content scaling and fading
-        ScaleTransition contentScaleIn = new ScaleTransition(ANIMATION_DURATION, contentContainer);
-        contentScaleIn.setFromX(0.8);
-        contentScaleIn.setFromY(0.8);
-        contentScaleIn.setToX(1);
-        contentScaleIn.setToY(1);
-        contentScaleIn.setInterpolator(Interpolator.EASE_OUT);
+        return timeline;
+    }
 
-        FadeTransition contentFadeIn = new FadeTransition(ANIMATION_DURATION, contentContainer);
-        contentFadeIn.setFromValue(0);
-        contentFadeIn.setToValue(1);
+    private Timeline createExitAnimation() {
+        Timeline timeline = new Timeline();
 
-        // Combine only the content and dimming overlay animations
-        ParallelTransition showTransition = new ParallelTransition(
-                dimmingFadeIn,
-                contentScaleIn,
-                contentFadeIn
-                // REMOVED: stageFadeInTimeline
-        );
+        // MODIFICA: Aggiunta animazione per lo sfondo (overlay)
+        KeyFrame overlayFadeOut = new KeyFrame(FAST_ANIMATION,
+                new KeyValue(popupStage.getScene().fillProperty(), Color.TRANSPARENT, Interpolator.EASE_IN));
 
-        // Play the animation *before* showAndWait().
-        // showAndWait() will make the stage visible, and the animations will start from there.
-        // This is the most common and compatible pattern to avoid "Stage already visible".
-        showTransition.play();
-        popupStage.showAndWait();
+        // Animazione del contenuto (invariata)
+        KeyFrame contentStart = new KeyFrame(Duration.ZERO,
+                new KeyValue(contentContainer.opacityProperty(), 1, Interpolator.EASE_IN),
+                new KeyValue(contentContainer.scaleXProperty(), 1, Interpolator.EASE_IN),
+                new KeyValue(contentContainer.scaleYProperty(), 1, Interpolator.EASE_IN),
+                new KeyValue(contentContainer.translateYProperty(), 0, Interpolator.EASE_IN));
 
-        // --- Exit Animations (run AFTER popupStage.showAndWait() returns) ---
-        popupRoot.setStyle("-fx-background-color: rgba(0,0,0," + OVERLAY_DIMMING_OPACITY + ");");
+        KeyFrame contentEnd = new KeyFrame(FAST_ANIMATION,
+                new KeyValue(contentContainer.opacityProperty(), 0, Interpolator.EASE_IN),
+                new KeyValue(contentContainer.scaleXProperty(), 0.9, Interpolator.EASE_IN),
+                new KeyValue(contentContainer.scaleYProperty(), 0.9, Interpolator.EASE_IN),
+                new KeyValue(contentContainer.translateYProperty(), -10, Interpolator.EASE_IN));
 
-        FadeTransition dimmingFadeOut = new FadeTransition(ANIMATION_DURATION, popupRoot);
-        dimmingFadeOut.setFromValue(OVERLAY_DIMMING_OPACITY);
-        dimmingFadeOut.setToValue(0);
+        timeline.getKeyFrames().addAll(overlayFadeOut, contentStart, contentEnd);
 
-        ScaleTransition contentScaleOut = new ScaleTransition(ANIMATION_DURATION, contentContainer);
-        contentScaleOut.setFromX(1);
-        contentScaleOut.setFromY(1);
-        contentScaleOut.setToX(0.8);
-        contentScaleOut.setToY(0.8);
-        contentScaleOut.setInterpolator(Interpolator.EASE_IN);
+        timeline.setOnFinished(e -> resetAnimationState());
 
-        FadeTransition contentFadeOut = new FadeTransition(ANIMATION_DURATION, contentContainer);
-        contentFadeOut.setFromValue(1);
-        contentFadeOut.setToValue(0);
+        return timeline;
+    }
 
-        // Combine exit animations
-        ParallelTransition hideTransition = new ParallelTransition(
-                dimmingFadeOut,
-                contentScaleOut,
-                contentFadeOut
-                // REMOVED: stageFadeOutTimeline
-        );
-
-        hideTransition.setOnFinished(hEvt -> {
-            popupRoot.setStyle("-fx-background-color: transparent;");
-            contentContainer.setOpacity(0);
-            contentContainer.setScaleX(0.8);
-            contentContainer.setScaleY(0.8);
+    private void closeWithAnimation() {
+        Timeline exitAnimation = createExitAnimation();
+        exitAnimation.setOnFinished(e -> {
+            resetAnimationState();
+            // Assicura che lo sfondo torni trasparente prima della chiusura
+            popupStage.getScene().setFill(Color.TRANSPARENT);
+            popupStage.close();
         });
-        hideTransition.play();
-
-        return Optional.ofNullable(result);
+        exitAnimation.play();
     }
 
     public void setResult(String res) {
         this.result = res;
-        popupStage.close();
+        closeWithAnimation();
     }
 
     public boolean isShowing() {
@@ -217,6 +245,17 @@ public class PopupMenu { // test
         contentContainer.setStyle(style);
     }
 
+    public void setDarkTheme(boolean dark) {
+        // Mantenuto per compatibilità, ma l'aspetto è ora fisso come da richiesta
+        contentContainer.setStyle(
+                "-fx-background-color: #1e1e2e; " +
+                        "-fx-background-radius: 12; " +
+                        "-fx-padding: 20; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 25, 0, 0, 10);"
+        );
+    }
+
     public void setOverlayStyle(String style) {
+        // Mantenuto per compatibilità, ma non ha più effetto
     }
 }

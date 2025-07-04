@@ -50,6 +50,7 @@ public class HomeController implements Initializable {
     @FXML private VBox activityFeedContainer;
     @FXML private Label userNameLabel;
     @FXML private VBox tableContainer;
+    @FXML private VBox ownedStats;
 
     // State - CRITICAL: Make these static to persist across scene transitions
     private static DynamicPetriNetTableComponent petriNetTable;
@@ -95,17 +96,25 @@ public class HomeController implements Initializable {
         updateWelcomeMessage();
     }
 
-    /**
+    /*
      * Configures the new net button based on user permissions
      */
     private void configureNewNetButton() {
         boolean isAdmin = currentUser != null && currentUser.isAdmin();
 
         newNetButton.setText(NEW_NET_BUTTON_TEXT);
-        IconUtils.setIcon(newNetButton, ADD_ICON_PATH, ICON_SIZE, ICON_SIZE,
-                Color.BLACK, ContentDisplay.RIGHT);
+        
+        if (isAdmin) IconUtils.setIcon(newNetButton,
+                ADD_ICON_PATH,
+                ICON_SIZE,
+                ICON_SIZE,
+                Color.BLACK,
+                ContentDisplay.RIGHT);
+
         newNetButton.setVisible(isAdmin);
         newNetButton.setManaged(isAdmin);
+        ownedStats.setVisible(isAdmin);
+        ownedStats.setManaged(isAdmin);
     }
 
     /**
@@ -242,9 +251,7 @@ public class HomeController implements Initializable {
      * Handles clicks on table rows with appropriate navigation
      */
     private void handleTableRowClick(PetriNetRow selectedNet) {
-        if (selectedNet == null) {
-            return;
-        }
+        if (selectedNet == null) return;
 
         NetCategory category = selectedNet.typeProperty().get();
         String netName = selectedNet.nameProperty().get();
@@ -312,7 +319,7 @@ public class HomeController implements Initializable {
 
     @FXML
     public void handleSubscribedNetsClick(MouseEvent event) {
-        safeNavigate(ViewNavigator::navigateToMyNets);
+        safeNavigate(ViewNavigator::navigateToSubNets);
     }
 
     @FXML

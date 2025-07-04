@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/ptnet">
+    <net id="Net Creation" type="http://www.pnml.org/version-2009/grammar/ptnet">
+        <name>
+            <text>Net Creation</text>
+        </name>
+        <page id="page1">
+            <place id="az" type="end">
+                <name>az</name>
+                <graphics>
+                    <offset x="509.0" y="370.0"/>
+                </graphics>
+            </place>
+            <transition id="cxm" type="user">
+                <name>cxm</name>
+                <graphics>
+                    <offset x="380.0" y="267.0"/>
+                </graphics>
+            </transition>
+            <transition id="a" type="user">
+                <name>a</name>
+                <graphics>
+                    <offset x="377.0" y="454.0"/>
+                </graphics>
+            </transition>
+            <place id="ads" type="start">
+                <name>ads</name>
+                <graphics>
+                    <offset x="255.0" y="353.0"/>
+                </graphics>
+            </place>
+            <arc id="cxm_az" source="cxm" target="az"/>
+            <arc id="a_az" source="a" target="az"/>
+            <arc id="ads_cxm" source="ads" target="cxm"/>
+            <arc id="ads_a" source="ads" target="a"/>
+        </page>
+    </net>
+</pnml>
