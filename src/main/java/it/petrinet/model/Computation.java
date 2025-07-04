@@ -173,7 +173,7 @@ public class Computation {
     public boolean addSteps(ComputationStep... stepsToAdd) {
         if (stepsToAdd == null || Arrays.stream(stepsToAdd).anyMatch(Objects::isNull))
             return false;
-        if (Arrays.stream(stepsToAdd).anyMatch(e -> !e.belongsToNet(getNetId())))
+        if (Arrays.stream(stepsToAdd).anyMatch(e -> e.belongsToNet(getNetId())))
             return false;
 
         boolean allAdded = true;
@@ -184,7 +184,7 @@ public class Computation {
     }
 
     public boolean addStep(ComputationStep step) {
-        if (step == null || !step.belongsToNet(getNetId())) return false;
+        if (step == null || step.belongsToNet(getNetId())) return false;
 
         return steps.add(step);
     }
@@ -192,7 +192,7 @@ public class Computation {
     public boolean addSteps(Collection<ComputationStep> stepsToAdd) {
         if (stepsToAdd == null || stepsToAdd.isEmpty()) return false;
         if (stepsToAdd.stream().anyMatch(Objects::isNull)) return false;
-        if (stepsToAdd.stream().anyMatch(e -> !e.belongsToNet(getNetId()))) return false;
+        if (stepsToAdd.stream().anyMatch(e -> e.belongsToNet(getNetId()))) return false;
 
         boolean allAdded = true;
         for (ComputationStep s : stepsToAdd)

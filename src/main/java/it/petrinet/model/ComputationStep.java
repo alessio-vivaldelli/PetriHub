@@ -189,7 +189,7 @@ public class ComputationStep implements Comparable<ComputationStep> {
    * @return true if this step belongs to the net, false otherwise
    */
   public boolean belongsToNet(String netId) {
-    return getNetId().equals(netId);
+    return !getNetId().equals(netId);
   }
 
   /**
