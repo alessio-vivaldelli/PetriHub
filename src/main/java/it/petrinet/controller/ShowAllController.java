@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import it.petrinet.controller.util.NavigationHelper;
+import it.petrinet.utils.NavigationHelper;
 import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 public class ShowAllController {
