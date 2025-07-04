@@ -287,25 +287,48 @@ public class ComputationsDAO implements DataAccessObject{
         List<Computation> wantedComputations = new ArrayList<Computation>();
         try{
             if(petriNet instanceof PetriNet net){
-                String command = "SELECT * FROM computations WHERE netId = ? AND creatorId = ?";
+                String command = "SELECT * FROM computations WHERE netId = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, net.getNetName());
-                    p_statement.setString(2, net.getCreatorId());
+
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setString(1, net.getNetName());
+
+                    // DEBUG: Stampa la query e il parametro
+                    System.out.println("=== DEBUG QUERY ===");
+                    System.out.println("Query: " + command);
+                    System.out.println("NetName parameter: '" + net.getNetName() + "'");
+                    System.out.println("NetName length: " + net.getNetName().length());
+
                     ResultSet result = p_statement.executeQuery();
 
+                    int count = 0;
                     while (result.next()) {
-                        wantedComputations.add(new Computation(
+                        count++;
+
+                        // DEBUG: Stampa tutti i campi del ResultSet
+                        System.out.println("Row " + count + ":");
+                        System.out.println("  Column 1 (ID?): " + result.getString(1));
+                        System.out.println("  Column 2 (netId?): " + result.getString(2));
+                        System.out.println("  Column 3 (userId?): " + result.getString(3));
+                        System.out.println("  Column 4: " + result.getString(4));
+                        System.out.println("  Column 5: " + result.getLong(5));
+                        System.out.println("  Column 6: " + result.getLong(6));
+
+                        Computation comp = new Computation(
                                 result.getString(2),
                                 result.getString(3),
                                 result.getString(4),
                                 result.getLong(5),
                                 result.getLong(6)
-                        ));
+                        );
+                        wantedComputations.add(comp);
                     }
+
+                    System.out.println("Total rows found: " + count);
+                    System.out.println("=== END DEBUG ===");
                 }
                 catch(SQLException ex){
                     ex.printStackTrace();
