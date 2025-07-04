@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import it.petrinet.controller.util.NavigationHelper;
+import it.petrinet.utils.NavigationHelper;
 import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 public class UserListController {
@@ -113,6 +113,8 @@ public class UserListController {
 
         List<Computation> computations = ComputationsDAO.getComputationsByNet(net);
         List<ComputationRow> computationRows = new ArrayList<>();
+
+        System.out.println(computations.size());
 
         for (Computation computation : computations) {
             int computationId = ComputationsDAO.getIdByComputation(computation);
