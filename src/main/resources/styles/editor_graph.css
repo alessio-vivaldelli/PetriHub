@@ -73,7 +73,7 @@
 
 .startVertex {
   -fx-stroke-width: 1.5;
-  -fx-stroke: #50d94a;
+  -fx-stroke: #a6e3a1;
   -fx-stroke-type: inside;
   -fx-fill: -fx-catppuccin-mocha-base;
   transition: all 0.2s ease;
@@ -89,7 +89,7 @@
 
 .startVertex:hover {
   -fx-fill: -fx-catppuccin-mocha-base;
-  -fx-stroke: #32d32a;
+  -fx-stroke: #63a45b;
   -fx-stroke-width: 2;
   -fx-cursor: hand;
 }

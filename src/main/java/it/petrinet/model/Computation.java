@@ -165,15 +165,40 @@ public class Computation {
     /**
      * Adds a computation step to this computation.
      *
-     * @param step the computation step to add, must not be null and must belong to the same net
+     * @param stepsToAdd the computation step to add, must not be null and must belong to the same net
      * @return true if the step was successfully added, false if the step was null or belongs to a different net
      * @see ComputationStep#getNetId()
      * @see #getSteps()
      */
+    public boolean addSteps(ComputationStep... stepsToAdd) {
+        if (stepsToAdd == null || Arrays.stream(stepsToAdd).anyMatch(Objects::isNull))
+            return false;
+        if (Arrays.stream(stepsToAdd).anyMatch(e -> !e.belongsToNet(getNetId())))
+            return false;
+
+        boolean allAdded = true;
+        for (ComputationStep s : stepsToAdd)
+            allAdded &= steps.add(s);
+
+        return allAdded;
+    }
+
     public boolean addStep(ComputationStep step) {
-        if (step == null || !step.belongsToNet(netId)) return false;
+        if (step == null || !step.belongsToNet(getNetId())) return false;
 
         return steps.add(step);
+    }
+
+    public boolean addSteps(Collection<ComputationStep> stepsToAdd) {
+        if (stepsToAdd == null || stepsToAdd.isEmpty()) return false;
+        if (stepsToAdd.stream().anyMatch(Objects::isNull)) return false;
+        if (stepsToAdd.stream().anyMatch(e -> !e.belongsToNet(getNetId()))) return false;
+
+        boolean allAdded = true;
+        for (ComputationStep s : stepsToAdd)
+            allAdded &= steps.add(s);
+
+        return allAdded;
     }
 
     /**

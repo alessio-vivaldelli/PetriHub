@@ -50,7 +50,7 @@
 
 .edge:hover {
   -fx-stroke-width: 2;
-  -fx-opacity: 0.9;
+  -fx-opacity: 1.1;
 }
 
 .edge-label {
@@ -78,25 +78,23 @@
 
 .userTransition {
   -fx-fill: #a6e3a1;
-  -fx-opacity: 0.75;
   transition: all 0.2s ease;
 }
 
 .userTransition:hover {
   -fx-fill: #a6e3a1;
-  -fx-opacity: 0.9;
+  -fx-opacity: 1.3;
   -fx-cursor: hand;
 }
 
 .adminTransition {
   -fx-fill: #f38ba8;
-  -fx-opacity: 0.75;
   transition: all 0.2s ease;
 }
 
 .adminTransition:hover {
   -fx-fill: #f38ba8;
-  -fx-opacity: 0.9;
+  -fx-opacity: 1.3;
   -fx-cursor: hand;
 }
 
@@ -118,7 +116,7 @@
 
 .startVertex:hover {
   -fx-fill: -fx-catppuccin-mocha-base;
-  -fx-stroke: #a6e3a1;
+  -fx-stroke: #63a45b;
   -fx-stroke-width: 2;
   -fx-cursor: hand;
 }

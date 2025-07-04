@@ -1,11 +1,10 @@
-// src/main/java/it/petrinet/view/ShowAllController.java
 package it.petrinet.controller;
 
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
-import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.TableRow.NetCategory;
+import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
@@ -23,11 +22,15 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static it.petrinet.utils.ConstantPath.*;
+import it.petrinet.controller.util.NavigationHelper;
 import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 public class ShowAllController {
+
+    private static final Logger LOGGER = Logger.getLogger(ShowAllController.class.getName());
 
     @FXML private Label frameTitle;
     @FXML private VBox tableContainer;
@@ -40,139 +43,220 @@ public class ShowAllController {
 
     @FXML
     public void initialize() throws InputTypeException {
-        frameTitle.setText(" "+cardType.getDisplayName());
-        IconUtils.setIcon(frameTitle, cardType.getDisplayName(), 30, 30 , Color.WHITE);
-
-        // Initialize the table component and load data
+        initializeUserInterface();
         initializeTableComponent();
         loadShowAllData();
     }
 
+    /**
+     * Initializes the user interface components
+     */
+    private void initializeUserInterface() {
+        frameTitle.setText(" " + cardType.getDisplayName());
+        IconUtils.setIcon(frameTitle, cardType.getDisplayName(), 30, 30, Color.WHITE);
+    }
+
+    /**
+     * Initializes the table component and sets up event handlers
+     */
     private void initializeTableComponent() {
         petriNetTable = new PetriNetTableComponent();
+        setupTableEventHandlers();
 
-        if( cardType == NetCategory.OWNED) {
-            petriNetTable.setOnRowClickHandler(this::handleUserTableView);
-        } else {
-            petriNetTable.setOnRowClickHandler(e -> {
-                try {
-                    handleTableRowClick(e);
-                } catch (InputTypeException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }); // Disable click handling for other categories
-        }
-
-        // Add the table component to the container
         VBox.setVgrow(petriNetTable, Priority.ALWAYS);
         tableContainer.getChildren().add(petriNetTable);
     }
 
-    private void handleUserTableView(PetriNetRow petriNetRow) {
-        safeNavigate(() -> ViewNavigator.navigateToUserList(petriNetRow.nameProperty().get()));
-    }
-
-    //Todo: aggiungere la navigazione a menagePetri
-    private void handleTableRowClick(PetriNetRow petriNetRow) throws InputTypeException {
-        PetriNet net =  PetriNetsDAO.getNetByName(petriNetRow.nameProperty().get());
-        assert net != null;
-        switch (cardType) {
-            case SUBSCRIBED -> setupNavigation(net);
-            case DISCOVER -> {}
-            default -> throw new InputTypeException();
-            }
+    /**
+     * Sets up event handlers based on card type
+     */
+    private void setupTableEventHandlers() {
+        if (cardType == NetCategory.OWNED) {
+            petriNetTable.setOnRowClickHandler(this::handleUserTableView);
+        } else {
+            petriNetTable.setOnRowClickHandler(this::handleTableRowClick);
         }
-
-    private void setupNavigation(PetriNet net) throws InputTypeException {
-        String path = netDirectory + net.getXML_PATH();
-        Computation data =  ComputationsDAO.getComputationsByNet(net.getNetName())
-                .stream()
-                .filter(e -> e.getUserId().equals(ViewNavigator.getAuthenticatedUser().getUsername()))
-                .findFirst().orElse(null);
-        safeNavigate(() -> ViewNavigator.navigateToNetVisual(path,data));
     }
 
+    /**
+     * Handles clicks on owned nets - navigates to user list
+     */
+    private void handleUserTableView(PetriNetRow petriNetRow) {
+        String netName = petriNetRow.nameProperty().get();
+        safeNavigate(() -> ViewNavigator.navigateToUserList(netName));
+    }
 
+    /**
+     * Handles clicks on subscribed/discover nets
+     */
+    private void handleTableRowClick(PetriNetRow petriNetRow) {
+        try {
+            String netName = petriNetRow.nameProperty().get();
+            PetriNet net = PetriNetsDAO.getNetByName(netName);
+
+            if (net == null) {
+                LOGGER.warning("Net not found: " + netName);
+                return;
+            }
+
+            switch (cardType) {
+                case SUBSCRIBED -> setupNavigationToNetVisual(net);
+                case DISCOVER -> LOGGER.info("Discover functionality not implemented yet");
+                default -> throw new InputTypeException();
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error handling table row click", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Sets up navigation to net visual view
+     */
+    private void setupNavigationToNetVisual(PetriNet net) throws InputTypeException {
+        NavigationHelper.setupNavigationToNetVisualForCurrentUser(net);
+    }
+
+    /**
+     * Finds computation data for current user and net
+     */
+    private Computation findUserComputation(PetriNet net) throws InputTypeException {
+        return NavigationHelper.findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
+    }
+
+    /**
+     * Loads data based on card type
+     */
     private void loadShowAllData() throws InputTypeException {
         List<PetriNetRow> allNets = switch (cardType) {
-            case OWNED -> OwnSet();
-            case SUBSCRIBED -> SubSet();
-            case DISCOVER -> DisSet();
-            default -> null;
+            case OWNED -> getOwnedNets();
+            case SUBSCRIBED -> getSubscribedNets();
+            case DISCOVER -> getDiscoverableNets();
+            default -> throw new InputTypeException();
         };
         petriNetTable.setData(allNets);
     }
 
-    private List<PetriNetRow> DisSet() throws InputTypeException {
+    /**
+     * Gets discoverable nets for current user
+     */
+    private List<PetriNetRow> getDiscoverableNets() throws InputTypeException {
         List<RecentNet> unknownNets = PetriNetsDAO.getUnknownNetsByUser(ViewNavigator.getAuthenticatedUser());
+        List<PetriNetRow> netsToShow = new ArrayList<>();
 
-        List<PetriNetRow> netsToShow= new ArrayList<PetriNetRow>();
-        for(RecentNet net : unknownNets){
+        for (RecentNet net : unknownNets) {
             LocalDateTime creationDate = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
-            netsToShow.add(new PetriNetRow(net.getNet().getNetName(), net.getNet().getCreatorId(), creationDate, Status.NOT_STARTED, NetCategory.DISCOVER));
-        }
-
-        return netsToShow;
-    }
-
-    private List<PetriNetRow> SubSet() throws InputTypeException {
-        List<RecentNet> subscribedNets = ComputationsDAO.getNetsSubscribedWithTimestampByUser(ViewNavigator.getAuthenticatedUser());
-
-        List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
-        for(RecentNet net : subscribedNets){
-            LocalDateTime date;
-            if(net.getTimestamp() == null){
-                date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
-            }
-            else{
-                date = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
-            }
-            netsToShow.add(new PetriNetRow(net.getNet().getNetName(), net.getNet().getCreatorId(),date, Status.NOT_STARTED, NetCategory.SUBSCRIBED));
+            netsToShow.add(new PetriNetRow(
+                    net.getNet().getNetName(),
+                    net.getNet().getCreatorId(),
+                    creationDate,
+                    Status.NOT_STARTED,
+                    NetCategory.DISCOVER
+            ));
         }
         return netsToShow;
     }
 
-    private List<PetriNetRow> OwnSet() throws InputTypeException {
-        List<RecentNet> ownNets = PetriNetsDAO.getNetsWithTimestampByCreator(ViewNavigator.getAuthenticatedUser());
+    /**
+     * Gets subscribed nets for current user
+     */
+    private List<PetriNetRow> getSubscribedNets() throws InputTypeException {
+        List<RecentNet> subscribedNets = ComputationsDAO.getNetsSubscribedWithTimestampByUser(
+                ViewNavigator.getAuthenticatedUser());
+        List<PetriNetRow> netsToShow = new ArrayList<>();
 
-        List<PetriNetRow> netsToShow = new ArrayList<PetriNetRow>();
-        for(RecentNet net : ownNets){
-            LocalDateTime date;
-            date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
-            netsToShow.add(new PetriNetRow(net.getNet().getNetName(), net.getNet().getCreatorId(), date, getStatus(net), getCategory(net)));
+        for (RecentNet net : subscribedNets) {
+            LocalDateTime date = determineNetDate(net);
+            netsToShow.add(new PetriNetRow(
+                    net.getNet().getNetName(),
+                    net.getNet().getCreatorId(),
+                    date,
+                    Status.NOT_STARTED,
+                    NetCategory.SUBSCRIBED
+            ));
         }
-
         return netsToShow;
     }
 
-    private Status getStatus(RecentNet net) throws InputTypeException {
-        boolean owend = net.getNet().getCreatorId().equals(ViewNavigator.getAuthenticatedUser().getUsername());
+    /**
+     * Gets owned nets for current user
+     */
+    private List<PetriNetRow> getOwnedNets() throws InputTypeException {
+        List<RecentNet> ownNets = PetriNetsDAO.getNetsWithTimestampByCreator(
+                ViewNavigator.getAuthenticatedUser());
+        List<PetriNetRow> netsToShow = new ArrayList<>();
 
-        if(!owend){
-            Computation computation = ComputationsDAO.getComputationsByNet(net.getNet().getNetName())
-                    .stream()
-                    .filter(e -> e.getUserId().equals(ViewNavigator.getAuthenticatedUser().getUsername()))
-                    .findFirst().orElse(null);
-            assert computation != null;
-            if(!computation.isStarted()) return Status.NOT_STARTED;
-            if(computation.isFinished()) return Status.COMPLETED;
-
-            boolean Noficiche = false;
-            if(!Noficiche) return Status.IN_PROGRESS;
-            else return Status.WAITING;
-
+        for (RecentNet net : ownNets) {
+            LocalDateTime date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
+            netsToShow.add(new PetriNetRow(
+                    net.getNet().getNetName(),
+                    net.getNet().getCreatorId(),
+                    date,
+                    determineNetStatus(net),
+                    determineNetCategory(net)
+            ));
         }
-        return Status.COMPLETED; // If the net is owned, it is considered completed
+        return netsToShow;
     }
 
-    private NetCategory getCategory(RecentNet net) throws InputTypeException {
-        if(net.getNet().getCreatorId().equals(ViewNavigator.getAuthenticatedUser().getUsername())) return NetCategory.OWNED;
-        Computation computation = ComputationsDAO.getComputationsByNet(net.getNet().getNetName())
-                .stream()
-                .filter(e -> e.getUserId().equals(ViewNavigator.getAuthenticatedUser().getUsername()))
-                .findFirst().orElse(null);
-        if(computation != null) return NetCategory.SUBSCRIBED;
-        else return NetCategory.DISCOVER;
+    /**
+     * Determines the appropriate date for a net (timestamp or creation date)
+     */
+    private LocalDateTime determineNetDate(RecentNet net) {
+        if (net.getTimestamp() == null) {
+            return LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
+        } else {
+            return LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
+        }
     }
 
+    /**
+     * Determines the status of a net for current user
+     */
+    private Status determineNetStatus(RecentNet net) throws InputTypeException {
+        String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
+        boolean isOwned = net.getNet().getCreatorId().equals(currentUsername);
+
+        if (isOwned) {
+            return Status.COMPLETED; // Owned nets are considered completed
+        }
+
+        Computation computation = findUserComputation(net.getNet());
+        if (computation == null) {
+            return Status.NOT_STARTED;
+        }
+
+        if (!computation.isStarted()) return Status.NOT_STARTED;
+        if (computation.isFinished()) return Status.COMPLETED;
+
+        // TODO: Implement notification check logic
+        boolean hasNotifications = false;
+        return hasNotifications ? Status.WAITING : Status.IN_PROGRESS;
+    }
+
+    /**
+     * Determines the category of a net for current user
+     */
+    private NetCategory determineNetCategory(RecentNet net) throws InputTypeException {
+        String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
+
+        if (net.getNet().getCreatorId().equals(currentUsername)) {
+            return NetCategory.OWNED;
+        }
+
+        Computation computation = findUserComputation(net.getNet());
+        return computation != null ? NetCategory.SUBSCRIBED : NetCategory.DISCOVER;
+    }
+
+//    /**
+//     * Helper method to find computation for a PetriNet
+//     */
+//    private Computation findUserComputation(PetriNet net) throws InputTypeException {
+//        return ComputationsDAO.getComputationsByNet(net.getNetName())
+//                .stream()
+//                .filter(computation -> computation.getUserId().equals(
+//                        ViewNavigator.getAuthenticatedUser().getUsername()))
+//                .findFirst()
+//                .orElse(null);
+//    }
 }

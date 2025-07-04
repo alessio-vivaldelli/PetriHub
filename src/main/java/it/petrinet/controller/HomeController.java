@@ -3,16 +3,18 @@ package it.petrinet.controller;
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
-import it.petrinet.model.database.PetriNetsDAO;
-import it.petrinet.model.database.RecentNet;
-import it.petrinet.utils.IconUtils;
-import it.petrinet.view.components.table.DynamicPetriNetTableComponent;
+import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.User;
+import it.petrinet.model.database.ComputationsDAO;
+import it.petrinet.model.database.PetriNetsDAO;
+import it.petrinet.model.database.RecentNet;
 import it.petrinet.model.database.UserDAO;
+import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
+import it.petrinet.view.components.table.DynamicPetriNetTableComponent;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,6 +34,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import it.petrinet.controller.util.NavigationHelper;
 import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 public class HomeController implements Initializable {
@@ -45,6 +48,7 @@ public class HomeController implements Initializable {
     private static final String NEW_NET_BUTTON_TEXT = "New Net";
     private static final String ADD_ICON_PATH = "add.png";
     private static final int ICON_SIZE = 30;
+    private static final int RECENT_NETS_LIMIT = 2;
 
     // FXML Components
     @FXML private Label ownedNetsLabel;
@@ -83,12 +87,11 @@ public class HomeController implements Initializable {
         }
 
         currentUser = ViewNavigator.getAuthenticatedUser();
-
         initializeUserInterface();
         initializeTableComponent();
         loadInitialData();
-
         isThisInstanceInitialized = true;
+
         LOGGER.info("Controller initialized successfully");
     }
 
@@ -100,20 +103,18 @@ public class HomeController implements Initializable {
         updateWelcomeMessage();
     }
 
-    /*
+    /**
      * Configures the new net button based on user permissions
      */
     private void configureNewNetButton() {
         boolean isAdmin = currentUser != null && currentUser.isAdmin();
 
         newNetButton.setText(NEW_NET_BUTTON_TEXT);
-        
-        if (isAdmin) IconUtils.setIcon(newNetButton,
-                ADD_ICON_PATH,
-                ICON_SIZE,
-                ICON_SIZE,
-                Color.BLACK,
-                ContentDisplay.RIGHT);
+
+        if (isAdmin) {
+            IconUtils.setIcon(newNetButton, ADD_ICON_PATH, ICON_SIZE, ICON_SIZE,
+                    Color.BLACK, ContentDisplay.RIGHT);
+        }
 
         newNetButton.setVisible(isAdmin);
         newNetButton.setManaged(isAdmin);
@@ -181,6 +182,9 @@ public class HomeController implements Initializable {
         updateSubscribedNetsCount();
     }
 
+    /**
+     * Updates owned nets count label
+     */
     private void updateOwnedNetsCount() {
         try {
             int count = UserDAO.getNumberOfOwnedNetsByUser(currentUser);
@@ -191,6 +195,9 @@ public class HomeController implements Initializable {
         }
     }
 
+    /**
+     * Updates discoverable nets count label
+     */
     private void updateDiscoverableNetsCount() {
         try {
             int count = PetriNetsDAO.getUnknownNetsByUser(currentUser).size();
@@ -201,6 +208,9 @@ public class HomeController implements Initializable {
         }
     }
 
+    /**
+     * Updates subscribed nets count label
+     */
     private void updateSubscribedNetsCount() {
         try {
             int count = UserDAO.getNumberOfSubscribedNetsByUser(currentUser);
@@ -222,33 +232,55 @@ public class HomeController implements Initializable {
             initializeTableComponent();
         }
 
-        List<PetriNetRow> recentNets = new ArrayList<PetriNetRow>();
-        List<RecentNet> wantedNets = PetriNetsDAO.getMostRecentlyModifiedNets(ViewNavigator.getAuthenticatedUser(),2);
-
-        NetCategory cat;
-        for(RecentNet net : wantedNets){
-            if(!(net == null)){
-                if(net.getNet().getCreatorId().equals(ViewNavigator.getAuthenticatedUser().getUsername())){
-                    cat = NetCategory.OWNED;
-                }
-                else{
-                    cat = NetCategory.SUBSCRIBED;
-                }
-
-                LocalDateTime date;
-                if (!(net.getTimestamp() > 0L)) {
-                    date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
-                }
-                else{
-                    date = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
-                }
-                recentNets.add(new PetriNetRow(net.getNet().getNetName(),net.getNet().getCreatorId(), date,Status.NOT_STARTED, cat));
-            }
-
-        }
+        List<PetriNetRow> recentNets = buildRecentNetsList();
         petriNetTable.setData(recentNets);
 
         LOGGER.info("Table data refreshed with " + recentNets.size() + " items");
+    }
+
+    /**
+     * Builds the list of recent nets for display
+     */
+    private List<PetriNetRow> buildRecentNetsList() throws InputTypeException {
+        List<PetriNetRow> recentNets = new ArrayList<>();
+        List<RecentNet> wantedNets = PetriNetsDAO.getMostRecentlyModifiedNets(
+                ViewNavigator.getAuthenticatedUser(), RECENT_NETS_LIMIT);
+
+        for (RecentNet net : wantedNets) {
+            if (net != null) {
+                NetCategory category = determineNetCategory(net);
+                LocalDateTime date = determineNetDate(net);
+
+                recentNets.add(new PetriNetRow(
+                        net.getNet().getNetName(),
+                        net.getNet().getCreatorId(),
+                        date,
+                        Status.NOT_STARTED,
+                        category
+                ));
+            }
+        }
+        return recentNets;
+    }
+
+    /**
+     * Determines the category of a net for current user
+     */
+    private NetCategory determineNetCategory(RecentNet net) {
+        String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
+        return net.getNet().getCreatorId().equals(currentUsername)
+                ? NetCategory.OWNED : NetCategory.SUBSCRIBED;
+    }
+
+    /**
+     * Determines the appropriate date for a net
+     */
+    private LocalDateTime determineNetDate(RecentNet net) {
+        if (net.getTimestamp() == null || net.getTimestamp() <= 0L) {
+            return LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
+        } else {
+            return LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
+        }
     }
 
     /**
@@ -263,8 +295,7 @@ public class HomeController implements Initializable {
         try {
             switch (category) {
                 case OWNED -> safeNavigate(() -> ViewNavigator.navigateToUserList(netName));
-                //TODO: DA MODIFICARE
-                case SUBSCRIBED -> safeNavigate(() -> ViewNavigator.navigateToNetVisual(getPath(), getComp()));
+                case SUBSCRIBED -> handleSubscribedNetClick(netName);
                 case DISCOVER -> safeNavigate(ViewNavigator::navigateToDiscover);
                 default -> LOGGER.info("Clicked on net: " + netName);
             }
@@ -273,21 +304,36 @@ public class HomeController implements Initializable {
         }
     }
 
-    //TODO: DA CANCELLARE
-    private String getPath(){
-        return System.getProperty("user.dir") + "/src/main/resources/data/pnml/testing_petri_net.pnml";
+    /**
+     * Handles clicks on subscribed nets
+     */
+    private void handleSubscribedNetClick(String netName) {
+        try {
+            PetriNet net = PetriNetsDAO.getNetByName(netName);
+            if (net != null) {
+                setupNavigationToNetVisual(net);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to handle subscribed net click", e);
+        }
     }
 
-    //TODO: DA CANCELLARE
-    private Computation getComp(){
-        Computation computation = new Computation("testnet", "creatorID", "userID");
-        computation.addStep(new ComputationStep(1, 1, "testnet", "", "start_e:1", 123456));
-        return computation;
+    /**
+     * Sets up navigation to net visual view
+     */
+    private void setupNavigationToNetVisual(PetriNet net) throws InputTypeException {
+        NavigationHelper.setupNavigationToNetVisualForCurrentUser(net);
+    }
+
+    /**
+     * Finds computation data for current user and net
+     */
+    private Computation findUserComputation(PetriNet net) throws InputTypeException {
+        return NavigationHelper.findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
     }
 
     /**
      * CRITICAL: Public method to refresh the entire dashboard
-     * This should be called by ViewNavigator when returning to home
      */
     public void refreshDashboard() {
         LOGGER.info("Refreshing dashboard...");

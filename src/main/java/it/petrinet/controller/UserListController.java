@@ -17,10 +17,16 @@ import javafx.scene.layout.VBox;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import it.petrinet.controller.util.NavigationHelper;
+import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 public class UserListController {
+
+    private static final Logger LOGGER = Logger.getLogger(UserListController.class.getName());
 
     @FXML private Label frameTitle;
     @FXML private VBox tableContainer;
@@ -31,42 +37,115 @@ public class UserListController {
         UserListController.netID = netID;
     }
 
+    @FXML
     public void initialize() throws InputTypeException {
-        frameTitle.setText(netID);
-        IconUtils.setIcon(frameTitle, "user.png", 30, 30 , null);
-
+        initializeUserInterface();
         initializeTableComponent();
         loadSubUserData();
     }
 
-    private  void initializeTableComponent() {
+    /**
+     * Initializes the user interface components
+     */
+    private void initializeUserInterface() {
+        frameTitle.setText(netID);
+        IconUtils.setIcon(frameTitle, "user.png", 30, 30, null);
+    }
+
+    /**
+     * Initializes the table component
+     */
+    private void initializeTableComponent() {
         userTable = new UserSelectComponent();
         userTable.setOnRowClickHandler(this::handleTableRowClick);
         VBox.setVgrow(userTable, Priority.ALWAYS);
         tableContainer.getChildren().add(userTable);
     }
 
-    //TODO: Handle row click event
+    /**
+     * Handles table row click events - navigates to computation view
+     */
     private void handleTableRowClick(ComputationRow computationRow) {
+        if (computationRow == null) return;
 
+        try {
+            PetriNet net = PetriNetsDAO.getNetByName(netID.trim());
+            if (net != null) {
+                String userId = computationRow.usernameProperty().get();
+                setupNavigationToNetVisual(net, userId);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to handle table row click", e);
+        }
     }
 
+    /**
+     * Sets up navigation to net visual view for specific user
+     */
+    private void setupNavigationToNetVisual(PetriNet net, String userId) throws InputTypeException {
+        NavigationHelper.setupNavigationToNetVisualForUser(net, userId);
+    }
+
+    /**
+     * Finds computation data for specific user and net
+     */
+    private Computation findUserComputation(PetriNet net, String userId) throws InputTypeException {
+        return NavigationHelper.findUserComputation(net, userId);
+    }
+
+    /**
+     * Loads subscriber user data for the table
+     */
     private void loadSubUserData() throws InputTypeException {
         List<ComputationRow> subUsers = fetchSubUsers();
         userTable.setData(subUsers);
     }
 
+    /**
+     * Fetches subscriber users and their computation data
+     */
     private List<ComputationRow> fetchSubUsers() throws InputTypeException {
-        List <Computation> wantedComputation = ComputationsDAO.getComputationsByNet(PetriNetsDAO.getNetByName(netID.trim()));
-
-        ArrayList<ComputationRow> Comps = new ArrayList<ComputationRow>();
-
-        for (Computation c: wantedComputation){
-            Comps.add(new ComputationRow(ComputationsDAO.getIdByComputation(c)+"",c.getUserId(), LocalDateTime.now(),LocalDateTime.now().plusHours(1),Status.COMPLETED));
+        PetriNet net = PetriNetsDAO.getNetByName(netID.trim());
+        if (net == null) {
+            LOGGER.warning("Net not found: " + netID);
+            return new ArrayList<>();
         }
 
-        return Comps;
+        List<Computation> computations = ComputationsDAO.getComputationsByNet(net);
+        List<ComputationRow> computationRows = new ArrayList<>();
+
+        for (Computation computation : computations) {
+            int computationId = ComputationsDAO.getIdByComputation(computation);
+            Status status = determineComputationStatus(computation);
+
+            // Using placeholder dates - should be replaced with actual computation dates
+            LocalDateTime startDate = LocalDateTime.now(); // TODO: Get actual start date
+            LocalDateTime endDate = LocalDateTime.now().plusHours(1); // TODO: Get actual end date
+
+            computationRows.add(new ComputationRow(
+                    String.valueOf(computationId),
+                    computation.getUserId(),
+                    startDate,
+                    endDate,
+                    status
+            ));
+        }
+
+        return computationRows;
     }
 
-
+    /**
+     * Determines the status of a computation
+     */
+    private Status determineComputationStatus(Computation computation) {
+        if (!computation.isStarted()) {
+            return Status.NOT_STARTED;
+        } else if (computation.isFinished()) {
+            return Status.COMPLETED;
+        } else {
+            // TODO: Implement notification check logic
+            boolean hasNotifications = false;
+            return hasNotifications ? Status.WAITING : Status.IN_PROGRESS;
+        }
+    }
 }
