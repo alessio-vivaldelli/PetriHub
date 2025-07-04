@@ -2,8 +2,10 @@ package it.petrinet.view;
 
 import it.petrinet.Main;
 import it.petrinet.controller.MainController;
+import it.petrinet.controller.NetVisualController;
 import it.petrinet.controller.ShowAllController;
 import it.petrinet.controller.UserListController;
+import it.petrinet.model.Computation;
 import it.petrinet.model.User;
 import it.petrinet.view.components.NavBar;
 import it.petrinet.model.TableRow.NetCategory;
@@ -180,9 +182,15 @@ public final class ViewNavigator {
         loadView("NetCreationView.fxml");
     }
 
-    public static void exitCreation() {
+    public static void exitPetriNet() {
         mainController.setNavBar(new NavBar());
         loadView("HomeView.fxml");
+    }
+
+    public static void navigateToNetVisual(String path, Computation data) {
+        mainController.setNavBar(null);
+        NetVisualController.setVisuals(path, data);
+        loadView("NetVisualView.fxml");
     }
 
     //Message handling

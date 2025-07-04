@@ -15,6 +15,7 @@ import javafx.scene.image.ImageView;
 
 import java.util.Objects;
 
+import static it.petrinet.utils.Safenavigate.safeNavigate;
 import static it.petrinet.utils.Validation.isValidInput;
 
 public class LoginController {
@@ -73,7 +74,7 @@ public class LoginController {
 
     @FXML
     private void handleRegister() {
-        ViewNavigator.navigateToRegister();
+        safeNavigate(ViewNavigator::navigateToRegister);
     }
 
     private void loadLogoImage() {

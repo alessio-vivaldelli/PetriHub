@@ -465,15 +465,15 @@
 }
 
 /* Status badges */
-.badge-status-started    { -fx-background-color: -fx-catppuccin-mocha-red; }
-.badge-status-in_progress { -fx-background-color: -fx-catppuccin-mocha-peach; }
-.badge-status-completed  { -fx-background-color: -fx-catppuccin-mocha-green; }
-.badge-status-waiting    { -fx-background-color: -fx-catppuccin-mocha-blue; }
+.badge-status-not_started    { -fx-background-color: -fx-catppuccin-mocha-red;  }
+.badge-status-in_progress    { -fx-background-color: -fx-catppuccin-mocha-peach;}
+.badge-status-completed      { -fx-background-color: -fx-catppuccin-mocha-green;}
+.badge-status-waiting        { -fx-background-color: -fx-catppuccin-mocha-blue; }
 
 /* Type badges */
 .badge-type-owned       { -fx-background-color: -fx-catppuccin-mocha-lavender; }
-.badge-type-subscribed  { -fx-background-color: -fx-catppuccin-mocha-pink; }
-.badge-type-discover    { -fx-background-color: -fx-catppuccin-mocha-mauve; }
+.badge-type-subscribed  { -fx-background-color: -fx-catppuccin-mocha-pink;     }
+.badge-type-discover    { -fx-background-color: -fx-catppuccin-mocha-mauve;    }
 
 /* ============================================================================
  * 8. ACTION BUTTONS

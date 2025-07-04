@@ -14,6 +14,7 @@ import javafx.scene.image.ImageView;
 
 import java.util.Objects;
 
+import static it.petrinet.utils.Safenavigate.safeNavigate;
 import static it.petrinet.utils.Validation.isValidInput;
 
 public class RegisterController {
@@ -60,7 +61,7 @@ public class RegisterController {
         UserDAO.insertUser(newUser);
 
         // Navigate to login with success message
-        ViewNavigator.navigateToLoginWithMessage("Registration successful!");
+        safeNavigate(() -> ViewNavigator.navigateToLoginWithMessage("Registration successful!"));
     }
 
     @FXML

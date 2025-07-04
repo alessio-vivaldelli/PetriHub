@@ -58,7 +58,7 @@ public class TestingApplication extends Application {
     Computation computation = new Computation("testnet", "creatorID", "userID");
     computation.addStep(new ComputationStep(1, 1, "testnet", "", "start_e:1", 123456));
     // computation.addStep(new ComputationStep(2, 2, "testnet", "t1",
-    // "p1:2,start_e:1,p2:1", 1234567));
+    // "p1:2,start_e:1,p2:1", 1234567));Computation
 
     String path = System.getProperty("user.dir") +
         "/src/main/resources/data/pnml/testing_petri_net.pnml";

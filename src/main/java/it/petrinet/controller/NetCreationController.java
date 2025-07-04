@@ -1,9 +1,7 @@
 package it.petrinet.controller;
 
-import it.petrinet.Main;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
 import it.petrinet.view.ViewNavigator;
-import it.petrinet.view.components.PopupMenu;
 import it.petrinet.view.components.toolbar.EditorToolBar;
 import it.petrinet.view.components.toolbar.ToolBar;
 import javafx.animation.PauseTransition;
@@ -11,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -26,7 +23,7 @@ public class NetCreationController implements Initializable {
 
     public Button finishButton;
 
-    @FXML private Pane canvasContainer;
+    @FXML private VBox canvasContainer;
     @FXML private HBox toolbarContainer;
 
     private PetriNetEditorPane canvas;
@@ -80,7 +77,7 @@ public class NetCreationController implements Initializable {
 
 
         // Navigate back to home
-        ViewNavigator.exitCreation();
+        ViewNavigator.exitPetriNet();
 
     }
 

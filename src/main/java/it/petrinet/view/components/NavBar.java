@@ -13,6 +13,8 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static it.petrinet.utils.Safenavigate.safeNavigate;
+
 /**
  * Simple vertical navigation bar for the application sidebar.
  */
@@ -88,7 +90,7 @@ public class NavBar extends VBox {
     }
 
     private void handleDiscover() {
-        ViewNavigator.navigateToSubNets();
+       safeNavigate(ViewNavigator::navigateToSubNets);
     }
 
     private void handleLogout() {

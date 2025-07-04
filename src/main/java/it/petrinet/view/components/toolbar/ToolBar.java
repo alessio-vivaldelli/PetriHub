@@ -1,16 +1,11 @@
 package it.petrinet.view.components.toolbar;
 
 import it.petrinet.petrinet.view.AbstractPetriNetPane;
-import it.petrinet.petrinet.view.PetriNetEditorPane;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
-import it.petrinet.petrinet.view.PetriNetEditorPane.MODE;
-import it.petrinet.petrinet.view.PetriNetEditorPane.NODE_TYPE;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 
@@ -97,8 +92,8 @@ public abstract class ToolBar extends HBox {
      */
     private Button createHomeButton() {
         Button home = new Button();
-        home.setOnAction(e -> ViewNavigator.exitCreation());
-        configureStaticButton(home, "home.png", "Return to Home");
+        home.setOnAction(e -> ViewNavigator.exitPetriNet());
+        configureButton(home, "home.png", "Return to Home");
         return home;
     }
 
@@ -108,7 +103,7 @@ public abstract class ToolBar extends HBox {
     private Button createZoomInButton(AbstractPetriNetPane canvas) {
         Button zoomIn = new Button();
         zoomIn.setOnAction(e -> canvas.zoomInAction());
-        configureStaticButton(zoomIn, "zoom_in.png", "Zoom In");
+        configureButton(zoomIn, "zoom_in.png", "Zoom In");
         return zoomIn;
     }
 
@@ -118,14 +113,14 @@ public abstract class ToolBar extends HBox {
     private Button createZoomOutButton(AbstractPetriNetPane canvas) {
         Button zoomOut = new Button();
         zoomOut.setOnAction(e -> canvas.zoomOutAction());
-        configureStaticButton(zoomOut, "zoom_out.png", "Zoom Out");
+        configureButton(zoomOut, "zoom_out.png", "Zoom Out");
         return zoomOut;
     }
 
     /**
      * Configura un Button statico con icona, tooltip e stili
      */
-    private void configureStaticButton(Button button, String iconName, String tooltip) {
+    protected void configureButton(Button button, String iconName, String tooltip) {
         // Imposta l'icona
         IconUtils.setIcon(button, iconName);
 
@@ -158,12 +153,16 @@ public abstract class ToolBar extends HBox {
         return separator;
     }
 
-    protected Region createGap(){
+    protected Region createGap(int multiplier) {
         Region gap = new Region();
-        gap.setPrefWidth(10);
+        gap.setPrefWidth(10 * multiplier);
         gap.setPrefHeight(40);
         HBox.setMargin(gap, new Insets(0, 20, 0, 0));
         return gap;
+    }
+
+    protected Region createGap() {
+        return createGap(1);
     }
 
 }

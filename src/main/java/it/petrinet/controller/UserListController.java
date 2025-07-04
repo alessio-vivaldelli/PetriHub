@@ -48,8 +48,7 @@ public class UserListController {
 
     //TODO: Handle row click event
     private void handleTableRowClick(ComputationRow computationRow) {
-        System.out.println("Row clicked: " + computationRow.usernameProperty().get());
-        // Handle the row click event, e.g., navigate to a user details view or perform an action
+
     }
 
     private void loadSubUserData() throws InputTypeException {

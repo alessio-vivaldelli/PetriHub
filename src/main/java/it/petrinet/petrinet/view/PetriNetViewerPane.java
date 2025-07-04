@@ -25,6 +25,7 @@ class PetriNetViewException extends RuntimeException {
 }
 
 public class PetriNetViewerPane extends AbstractPetriNetPane {
+
   /**
    * Represents an operation that accepts three input arguments and returns no
    * result.
@@ -225,4 +226,13 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   public void setOnPetriNetFinished(Runnable onPetriNetFinished) {
     this.onPetriNetFinished = onPetriNetFinished;
   }
+
+  public void restartAction() {
+    System.out.println("Restarting Petri Net...");
+  }
+
+  public void unsubscribeAction() {
+    System.out.println("Unsubscribing from Petri Net...");
+  }
+
 }

@@ -23,7 +23,7 @@ import java.util.logging.Level;
  */
 public final class IconUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(IconUtils.class.getName());
+    static final Logger LOGGER = Logger.getLogger(IconUtils.class.getName());
 
     // Constants
     private static final String BASE_PATH = "/assets/icons/";

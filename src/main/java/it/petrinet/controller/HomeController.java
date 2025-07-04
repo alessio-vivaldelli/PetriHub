@@ -1,6 +1,8 @@
 package it.petrinet.controller;
 
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.Computation;
+import it.petrinet.model.ComputationStep;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.model.database.RecentNet;
 import it.petrinet.utils.IconUtils;
@@ -29,6 +31,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 public class HomeController implements Initializable {
 
@@ -238,7 +242,7 @@ public class HomeController implements Initializable {
                 else{
                     date = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
                 }
-                recentNets.add(new PetriNetRow(net.getNet().getNetName(),net.getNet().getCreatorId(), date,Status.STARTED, cat));
+                recentNets.add(new PetriNetRow(net.getNet().getNetName(),net.getNet().getCreatorId(), date,Status.NOT_STARTED, cat));
             }
 
         }
@@ -258,14 +262,27 @@ public class HomeController implements Initializable {
 
         try {
             switch (category) {
-                case OWNED -> ViewNavigator.navigateToUserList(netName);
-                case SUBSCRIBED -> ViewNavigator.navigateToSubNets();
-                case DISCOVER -> ViewNavigator.navigateToDiscover();
+                case OWNED -> safeNavigate(() -> ViewNavigator.navigateToUserList(netName));
+                //TODO: DA MODIFICARE
+                case SUBSCRIBED -> safeNavigate(() -> ViewNavigator.navigateToNetVisual(getPath(), getComp()));
+                case DISCOVER -> safeNavigate(ViewNavigator::navigateToDiscover);
                 default -> LOGGER.info("Clicked on net: " + netName);
             }
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Navigation failed for net: " + netName, e);
         }
+    }
+
+    //TODO: DA CANCELLARE
+    private String getPath(){
+        return System.getProperty("user.dir") + "/src/main/resources/data/pnml/testing_petri_net.pnml";
+    }
+
+    //TODO: DA CANCELLARE
+    private Computation getComp(){
+        Computation computation = new Computation("testnet", "creatorID", "userID");
+        computation.addStep(new ComputationStep(1, 1, "testnet", "", "start_e:1", 123456));
+        return computation;
     }
 
     /**
@@ -335,17 +352,6 @@ public class HomeController implements Initializable {
     @FXML
     public void handleNewNetClick(ActionEvent event) {
         safeNavigate(ViewNavigator::navigateToNetCreation);
-    }
-
-    /**
-     * Safely executes navigation with error handling
-     */
-    private void safeNavigate(Runnable navigationAction) {
-        try {
-            navigationAction.run();
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Navigation failed", e);
-        }
     }
 
     // Getters for testing purposes

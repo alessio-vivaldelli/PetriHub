@@ -13,6 +13,7 @@ public class UserDAO implements DataAccessObject{
 //        removeUser(new User("davide", "sala", true));
 //        removeUser(new User("Davide", "sala", false));
         insertUser(new User("Davide", "sala", true));
+        insertUser(new User("a", "a", true));
 
     }
     public void createTable() {                          //metodo per creazione tabelle

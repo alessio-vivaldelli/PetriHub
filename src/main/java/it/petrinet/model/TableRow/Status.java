@@ -3,7 +3,7 @@ package it.petrinet.model.TableRow;
 public enum Status {
     WAITING("Waiting"),
     IN_PROGRESS("In Progress"),
-    STARTED("Not Started"),
+    NOT_STARTED("Not Started"),
     COMPLETED("Completed");
 
     private final String label;
