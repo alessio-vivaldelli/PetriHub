@@ -5,34 +5,48 @@
             <text>Net Creation</text>
         </name>
         <page id="page1">
-            <place id="az" type="end">
-                <name>az</name>
+            <transition id="t" type="user">
+                <name>t</name>
                 <graphics>
-                    <offset x="509.0" y="370.0"/>
-                </graphics>
-            </place>
-            <transition id="cxm" type="user">
-                <name>cxm</name>
-                <graphics>
-                    <offset x="380.0" y="267.0"/>
+                    <offset x="862.0" y="316.0"/>
                 </graphics>
             </transition>
-            <transition id="a" type="user">
-                <name>a</name>
+            <transition id="t3" type="user">
+                <name>t3</name>
                 <graphics>
-                    <offset x="377.0" y="454.0"/>
+                    <offset x="677.0" y="372.0"/>
                 </graphics>
             </transition>
-            <place id="ads" type="start">
-                <name>ads</name>
+            <place id="ff" type="end">
+                <name>ff</name>
                 <graphics>
-                    <offset x="255.0" y="353.0"/>
+                    <offset x="908.0" y="331.0"/>
                 </graphics>
             </place>
-            <arc id="cxm_az" source="cxm" target="az"/>
-            <arc id="a_az" source="a" target="az"/>
-            <arc id="ads_cxm" source="ads" target="cxm"/>
-            <arc id="ads_a" source="ads" target="a"/>
+            <place id="finish" type="normal">
+                <name>finish</name>
+                <graphics>
+                    <offset x="807.0" y="328.0"/>
+                </graphics>
+            </place>
+            <place id="p1" type="start">
+                <name>p1</name>
+                <graphics>
+                    <offset x="539.0" y="332.0"/>
+                </graphics>
+            </place>
+            <transition id="p2" type="admin">
+                <name>p2</name>
+                <graphics>
+                    <offset x="684.0" y="236.0"/>
+                </graphics>
+            </transition>
+            <arc id="t_ff" source="t" target="ff"/>
+            <arc id="t3_finish" source="t3" target="finish"/>
+            <arc id="finish_t" source="finish" target="t"/>
+            <arc id="p1_p2" source="p1" target="p2"/>
+            <arc id="p1_t3" source="p1" target="t3"/>
+            <arc id="p2_finish" source="p2" target="finish"/>
         </page>
     </net>
 </pnml>

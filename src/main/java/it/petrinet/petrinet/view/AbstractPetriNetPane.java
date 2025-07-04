@@ -186,8 +186,17 @@ public abstract class AbstractPetriNetPane extends Pane {
     return isInteractionEnabled;
   }
 
+  protected void updateGraph() {
+    graphView.update();
+    graphView.updateAndWait();
+  }
+
   protected Collection<Edge<String, Node>> incidentEdges(Vertex<Node> node) {
     return g.incidentEdges(node);
+  }
+
+  protected Collection<Edge<String, Node>> outboundEdges(Vertex<Node> node) {
+    return g.outboundEdges(node);
   }
 
   protected void addNodeStyle(Vertex<Node> node, String style) {
@@ -268,6 +277,17 @@ public abstract class AbstractPetriNetPane extends Pane {
     graphView.update();
 
     contentZoomScrollPane.zoomIn();
+  }
+
+  /**
+   * Gets the vertex opposite to the known vertex on an edge.
+   * 
+   * @param edge        The edge connecting the two vertices.
+   * @param knownVertex The vertex whose opposite we want to find.
+   * @return The opposite vertex.
+   */
+  protected Vertex<Node> getOppositeVertex(Edge<String, Node> edge, Vertex<Node> vertex) {
+    return edge.vertices()[0].equals(vertex) ? edge.vertices()[1] : edge.vertices()[0];
   }
 
   /**
