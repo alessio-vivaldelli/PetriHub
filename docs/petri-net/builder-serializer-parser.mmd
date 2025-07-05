@@ -1,0 +1,66 @@
+classDiagram
+    direction TB
+
+    class PetriNetBuilder {
+        -List~Place~ places
+        -List~Transition~ transitions
+        -List~Arc~ arcs
+        -String petriName
+        -Place startNode
+        -Place finishNode
+        +newPlace(String) PlaceBuilder
+        +newTransition(String) TransitionBuilder
+        +addArc(String, String) PetriNetBuilder
+        +build() PetriNetModel
+    }
+
+    class PlaceBuilder {
+        -PetriNetBuilder petriNetBuilder
+        -Place place
+        +PlaceBuilder(PetriNetBuilder petriNetBuilder, String name)
+        +initialMarking(int) PlaceBuilder
+        +withPosition(double x, double y) PlaceBuilder
+        +withType(PLACE_TYPE)PlaceBuilder
+        +donePlace() PetriNetBuilder
+    }
+
+    class TransitionBuilder {
+        -PetriNetBuilder petriNetBuilder
+        -Transition transition
+        +TransitionBuilder(PetriNetBuilder petriNetBuilder, String name)
+        +withPosition(double x, double y) TransitionBuilder
+        +withType(TRANSITION_TYPE) TransitionBuilder
+        +doneTransition() PetriNetBuilder
+    }
+
+    class NetParser {
+        <<Interface>>
+        +parse(String) PetriNetModel
+    }
+
+    class PNMLParser {
+        +parse(String) PetriNetModel
+    }
+
+    class NetSerializer {
+        <<Interface>>
+        +serialize(PetriNetModel) void
+    }
+
+    class PNMLSerializer {
+        +serialize(PetriNetModel) void
+    }
+
+    PetriNetBuilder *-- PlaceBuilder : «inner class»
+    PetriNetBuilder *-- TransitionBuilder : «inner class»
+    PetriNetBuilder --> PetriNetModel : creates
+    PNMLParser ..> PetriNetBuilder : uses
+    PNMLParser ..|> NetParser
+    PNMLSerializer ..|> NetSerializer
+    PNMLParser ..> PetriNetModel : creates
+    PNMLSerializer ..> PetriNetModel : reads
+
+    PetriNetBuilder --> "0..*" Node : creates
+    PetriNetBuilder --> "0..*" Arc : creates
+    PlaceBuilder *-- Place
+    TransitionBuilder *-- Transition

@@ -1,0 +1,77 @@
+classDiagram
+    direction TB
+
+    class Pane {
+        <<JavaFX>>
+    }
+
+    class AbstractPetriNetPane {
+        <<Abstract>>
+        #SmartGraphPanel~Node, String~ graphView
+        #DigraphEdgeList~Node, String~ g
+        #bool isInteractionEnabled
+        +init() void
+        #onVertexSingleClickAction(SmartGraphVertex) void
+        #onEdgeSingleClickAction(SmartGraphEdge) void
+        #onCanvasSingleClickAction(Point2D) void
+        #onVertexRightClickAction(SmartGraphVertex) void
+    }
+
+    class PetriNetEditorPane {
+        -MODE currentMode
+        -NODE_TYPE currentNodeType
+        -PetriNetBuilder petriNetBuilder
+        -areCompatible(Node, Node)
+        +setCurrentMode(MODE) void
+        +saveNetAction(String, String) void
+        +setOnPetriNetSaved(Consumer~String~)
+        #onEdgeSingleClickAction(SmartGraphEdge) void
+        #onCanvasSingleClickAction(Point2D) void
+        #onVertexSingleClickAction(SmartGraphVertex) void
+        #onVertexRightClickAction(SmartGraphVertex) void
+    }
+
+    class PetriNetViewerPane {
+        -PetriNetModel petriNetModel
+        -Computation computation
+        -TriConsumer onTransitionFired
+        -fireTransition(Transition, Vertex) void
+        +setComputation(Computation) void
+        +setOnTransitionFired(TriConsume)
+        +setOnPetriNetFinished(Runnable)
+        #onVertexSingleClickAction(SmartGraphVertex) void
+    }
+
+    class TriConsumer~T, U, V~ {
+<<functional interface>>
++accept(t: T, u: U, v: V)
+}
+
+class MODE {
+<<enumeration>>
+CREATE
+CONNECT
+SELECTION
+DELETION
+}
+class NODE_TYPE {
+<<enumeration>>
+PLACE
+TRANSITION
+}
+
+AbstractPetriNetPane --|> Pane
+
+PetriNetViewerPane ..> TriConsumer : uses
+
+AbstractPetriNetPane <|-- PetriNetEditorPane
+AbstractPetriNetPane <|-- PetriNetViewerPane
+
+PetriNetEditorPane ..> PetriNetBuilder : uses
+PetriNetEditorPane ..> Node : uses
+PetriNetViewerPane ..> Node : uses
+PetriNetViewerPane -- MODE
+PetriNetViewerPane -- NODE_TYPE
+
+PetriNetViewerPane ..> PNMLParser : uses
+PetriNetViewerPane ..> PetriNetModel : manages
