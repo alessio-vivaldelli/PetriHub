@@ -1,0 +1,81 @@
+classDiagram
+    direction BT
+
+    class PetriNetModel {
+        -petriNetName: String
+        - adjacencyList: Map&lt;Node, List&lt;Node&gt;&gt;
+        +PetriNetModel()
+        +PetriNetModel(String, List~Place~, List~Transition~, List~Arc~, Place, Place)
+        +getName(): String
+        +getStartNode(): Node
+        +getFinishNode(): Node
+        +addNode(node: Node): void
+        +addArc(from: Node, to: Node): void
+        +getSuccessors(node: Node): List~Node~
+        +getNodes(): Set~Node~
+        +getConnections(): Map&lt;Node, List&lt;Node&gt;&gt;
+        +getNodeByName(name: String): Node
+        -areCompatible(from: Node, to: Node): boolean
+    }
+
+    class Node {
+        -name: String
+        +Node(String name, Point2D position)
+        +Node(String name)
+        +setName(String)
+        +setPosition(Point2D)
+        +getName(): String
+        #modelShape(): String
+    }
+
+    class Place {
+        -type: PLACE_TYPE
+        -tokens: int
+        +setType(PLACE_TYPE)
+        +setPlaceToken(Integer)
+        +incrementPlaceToken()
+        +getPlaceTokens(): Integer
+        +geType(): PLACE_TYPE
+
+    }
+
+    class Transition {
+        -type: TRANSITION_TYPE
+        -isFirable: boolean
+        +setType(TRANSITION_TYPE)
+        +setIsFirable(boolean)
+        +getType(): TRANSITION_TYPE
+        +getIsFirable(): boolean
+    }
+
+    class Arc {
+        -from: String
+        -to: String
+    }
+
+    class IllegalConnectionException {
+        <<Exception>>
+    }
+
+    class PLACE_TYPE {
+        <<enumeration>>
+        NORMAL
+        START
+        END
+    }
+
+    class TRANSITION_TYPE {
+        <<enumeration>>
+        USER
+        ADMIN
+    }
+
+PetriNetModel "1" o-- "0..*" Node : contains
+Node <|-- Place
+Node <|-- Transition
+
+PetriNetModel ..> Arc : uses
+PetriNetModel ..> IllegalConnectionException : throws
+
+Place -- PLACE_TYPE
+Transition -- TRANSITION_TYPE
