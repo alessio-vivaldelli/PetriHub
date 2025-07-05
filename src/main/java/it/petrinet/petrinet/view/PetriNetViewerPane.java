@@ -53,16 +53,29 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
       throw new IllegalArgumentException("File does not exist: " + petriNetPNML);
     }
     this.petriNetPNML = petriNetPNML;
-    setComputation(computation);
+    this.computation = computation;
+    this.enableInteraction(computation != null);
   }
 
   public PetriNetViewerPane(String petriNetPNML) {
     this(petriNetPNML, null);
   }
 
+  /**
+   * This method must be call after the graph is initialized
+   *
+   * @param computation
+   */
   public void setComputation(Computation computation) {
     this.computation = computation;
     this.enableInteraction(computation != null);
+    try {
+      loadModelAndBuildGraph();
+      computeAndApplyFirableTransitions();
+    } catch (IOException e) {
+      this.enableInteraction(false);
+      throw new PetriNetViewException("Failed to initialize Petri Net view", e);
+    }
   }
 
   @Override
@@ -83,6 +96,14 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
       return;
     }
     disableInteraction();
+  }
+
+  public String getStartPlaceName() {
+    return this.petriNetModel.getStartNode().getName();
+  }
+
+  public String getFinishPlaceName() {
+    return this.petriNetModel.getStartNode().getName();
   }
 
   private void loadModelAndBuildGraph() throws IOException {
