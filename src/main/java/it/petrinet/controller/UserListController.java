@@ -8,7 +8,6 @@ import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.utils.IconUtils;
-import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.UserSelectComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

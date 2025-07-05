@@ -287,6 +287,11 @@
     -fx-scale-y: 1.06;
 }
 
+.navBar-button-home:pressed,
+.navBar-button-myNets:pressed,
+.navBar-button-subNets:pressed,
+.navBar-button-discover:pressed,
+.navBar-button-logout:pressed,
 .navBar-button-home:armed,
 .navBar-button-myNets:armed,
 .navBar-button-subNets:armed,
