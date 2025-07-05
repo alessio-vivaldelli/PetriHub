@@ -77,6 +77,24 @@ public class PetriNetModel {
     return this.name;
   }
 
+  public Node getStartNode() {
+    return adjacencyList.keySet().stream().filter(n -> {
+      if (n instanceof Place p) {
+        return p.getType().equals(PLACE_TYPE.START);
+      }
+      return false;
+    }).findFirst().orElse(null);
+  }
+
+  public Node getFinishNode() {
+    return adjacencyList.keySet().stream().filter(n -> {
+      if (n instanceof Place p) {
+        return p.getType().equals(PLACE_TYPE.END);
+      }
+      return false;
+    }).findFirst().orElse(null);
+  }
+
   /**
    * Adds a node to the Petri net.
    * 
