@@ -145,14 +145,17 @@ public class ShowAllController {
         List<PetriNetRow> netsToShow = new ArrayList<>();
 
         for (RecentNet net : unknownNets) {
-            LocalDateTime creationDate = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
-            netsToShow.add(new PetriNetRow(
-                    net.getNet().getNetName(),
-                    net.getNet().getCreatorId(),
-                    creationDate,
-                    Status.NOT_STARTED,
-                    NetCategory.DISCOVER
-            ));
+            if(!(net.getNet().getNetName() == null)){
+                LocalDateTime creationDate = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
+                netsToShow.add(new PetriNetRow(
+                        net.getNet().getNetName(),
+                        net.getNet().getCreatorId(),
+                        creationDate,
+                        Status.NOT_STARTED,
+                        NetCategory.DISCOVER
+                ));
+            }
+
         }
         return netsToShow;
     }
@@ -166,14 +169,17 @@ public class ShowAllController {
         List<PetriNetRow> netsToShow = new ArrayList<>();
 
         for (RecentNet net : subscribedNets) {
-            LocalDateTime date = determineNetDate(net);
-            netsToShow.add(new PetriNetRow(
-                    net.getNet().getNetName(),
-                    net.getNet().getCreatorId(),
-                    date,
-                    Status.NOT_STARTED,
-                    NetCategory.SUBSCRIBED
-            ));
+            if (!(net.getNet().getNetName() == null)){
+                LocalDateTime date = determineNetDate(net);
+                netsToShow.add(new PetriNetRow(
+                        net.getNet().getNetName(),
+                        net.getNet().getCreatorId(),
+                        date,
+                        Status.NOT_STARTED,
+                        NetCategory.SUBSCRIBED
+                ));
+            }
+
         }
         return netsToShow;
     }
@@ -187,14 +193,16 @@ public class ShowAllController {
         List<PetriNetRow> netsToShow = new ArrayList<>();
 
         for (RecentNet net : ownNets) {
-            LocalDateTime date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
-            netsToShow.add(new PetriNetRow(
-                    net.getNet().getNetName(),
-                    net.getNet().getCreatorId(),
-                    date,
-                    determineNetStatus(net),
-                    determineNetCategory(net)
-            ));
+            if (!(net.getNet().getNetName() == null)){
+                LocalDateTime date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
+                netsToShow.add(new PetriNetRow(
+                        net.getNet().getNetName(),
+                        net.getNet().getCreatorId(),
+                        date,
+                        determineNetStatus(net),
+                        determineNetCategory(net)
+                ));
+            }
         }
         return netsToShow;
     }

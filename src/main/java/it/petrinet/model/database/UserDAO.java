@@ -12,8 +12,8 @@ public class UserDAO implements DataAccessObject{
     public static void main(String args[]) throws InputTypeException {
 //        removeUser(new User("davide", "sala", true));
 //        removeUser(new User("Davide", "sala", false));
-        insertUser(new User("Davide", "sala", true));
-        insertUser(new User("a", "a", true));
+//        insertUser(new User("ale", "ale", true));
+        insertUser(new User("c", "c", false));
 
     }
     public void createTable() {                          //metodo per creazione tabelle
@@ -180,7 +180,6 @@ public class UserDAO implements DataAccessObject{
         }
         return null;
     }
-
 
     public static int getNumberOfOwnedNetsByUser(Object user) throws InputTypeException {
         String command = "SELECT COUNT(netName) FROM petri_nets WHERE creatorId = ?";

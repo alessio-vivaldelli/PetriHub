@@ -11,11 +11,10 @@ import java.util.List;
 
 public class ComputationsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException {
-        insertComputation(new Computation("net2","ale","davide", 34));
-        insertComputation(new Computation("net3","ale","Davide", 34));
-        insertComputation(new Computation("net10","Davide","Antonio", 34));
-        System.out.println(getNetsSubscribedWithTimestampByUser(new User("Davide", "pass", true)));
-
+        insertComputation(new Computation("net3","ale","a", 34,-1 ,Computation.NEXT_STEP_TYPE.ADMIN));
+        insertComputation(new Computation("net10","Davide","a", 34, Computation.NEXT_STEP_TYPE.BOTH));
+        insertComputation(new Computation("net3","ale","Davide", 34, Computation.NEXT_STEP_TYPE.USER));
+        System.out.println(getComputationsByNet(new PetriNet("net3", "ale", 1712924800L, "XML", "image", true)));
     }
 
     public void createTable() {                          //metodo per creazione tabelle
@@ -26,6 +25,7 @@ public class ComputationsDAO implements DataAccessObject{
                 "userId TEXT NOT NULL," +
                 "startDate LONGINT, " +
                 "endDate LONGINT, " +
+                "nextStep INTEGER NOT NULL, " +
                 "UNIQUE (netId, userId, creatorId), " +
                 "FOREIGN KEY (netId) REFERENCES petri_nets(netName), " +
                 "FOREIGN KEY (creatorId) REFERENCES users(username), " +
@@ -55,7 +55,7 @@ public class ComputationsDAO implements DataAccessObject{
     public static void insertComputation(Object computation) throws InputTypeException{
         try{
             if(computation instanceof Computation c){
-                String command = "INSERT INTO computations(netId, creatorId, userId, startDate, endDate) VALUES (?, ?, ?, ?, ?)";
+                String command = "INSERT INTO computations(netId, creatorId, userId, startDate, endDate, nextStep) VALUES (?, ?, ?, ?, ?, ?)";
 
                 try{
                     if(!DatabaseManager.tableExists("computations")){
@@ -80,6 +80,7 @@ public class ComputationsDAO implements DataAccessObject{
                     if(c.getEndTimestamp()>0){
                         p_statement.setLong(5, c.getEndTimestamp());
                     }
+                    p_statement.setInt(6, c.getNextStepType().ordinal());
                     p_statement.executeUpdate();
                 }
                 catch(SQLException ex){
@@ -109,11 +110,13 @@ public class ComputationsDAO implements DataAccessObject{
 
                     if(result.next()){
                         return new Computation(
-                            result.getString(1),
-                            result.getString(2),
-                            result.getString(3),
-                            result.getInt(4),
-                            result.getInt(5)
+                                result.getString(2),
+                                result.getString(3),
+                                result.getString(4),
+                                result.getInt(5),
+                                result.getInt(6),
+                                Computation.toNextStepType(result.getInt(7))
+
                         );
                     }
                 }
@@ -290,45 +293,24 @@ public class ComputationsDAO implements DataAccessObject{
                 String command = "SELECT * FROM computations WHERE netId = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
+                     PreparedStatement p_statement = connection.prepareStatement(command); 
                      Statement statement = connection.createStatement()){
 
                     statement.execute("PRAGMA foreign_keys = ON;");
                     p_statement.setString(1, net.getNetName());
 
-                    // DEBUG: Stampa la query e il parametro
-                    System.out.println("=== DEBUG QUERY ===");
-                    System.out.println("Query: " + command);
-                    System.out.println("NetName parameter: '" + net.getNetName() + "'");
-                    System.out.println("NetName length: " + net.getNetName().length());
-
                     ResultSet result = p_statement.executeQuery();
 
-                    int count = 0;
                     while (result.next()) {
-                        count++;
-
-                        // DEBUG: Stampa tutti i campi del ResultSet
-                        System.out.println("Row " + count + ":");
-                        System.out.println("  Column 1 (ID?): " + result.getString(1));
-                        System.out.println("  Column 2 (netId?): " + result.getString(2));
-                        System.out.println("  Column 3 (userId?): " + result.getString(3));
-                        System.out.println("  Column 4: " + result.getString(4));
-                        System.out.println("  Column 5: " + result.getLong(5));
-                        System.out.println("  Column 6: " + result.getLong(6));
-
-                        Computation comp = new Computation(
+                        wantedComputations.add(new Computation(
                                 result.getString(2),
                                 result.getString(3),
                                 result.getString(4),
                                 result.getLong(5),
-                                result.getLong(6)
-                        );
-                        wantedComputations.add(comp);
+                                result.getLong(6),
+                                Computation.toNextStepType(result.getInt(7))
+                        ));
                     }
-
-                    System.out.println("Total rows found: " + count);
-                    System.out.println("=== END DEBUG ===");
                 }
                 catch(SQLException ex){
                     ex.printStackTrace();
@@ -392,7 +374,8 @@ public class ComputationsDAO implements DataAccessObject{
                                 result.getString(3),
                                 result.getString(4),
                                 result.getInt(5),
-                                result.getInt(6)
+                                result.getInt(6),
+                                Computation.toNextStepType(result.getInt(7))
                         ));
                     }
                 }
@@ -429,7 +412,8 @@ public class ComputationsDAO implements DataAccessObject{
                                 result.getString(3),
                                 result.getString(4),
                                 result.getLong(5),
-                                result.getLong(6)
+                                result.getLong(6),
+                                Computation.toNextStepType(result.getInt(7))
                         ));
                     }
                 }
@@ -468,7 +452,8 @@ public class ComputationsDAO implements DataAccessObject{
                                     result.getString(3),
                                     result.getString(4),
                                     result.getLong(5),
-                                    result.getLong(6)
+                                    result.getLong(6),
+                                    Computation.toNextStepType(result.getInt(7))
                             ));
                         }
                     } catch (SQLException ex) {

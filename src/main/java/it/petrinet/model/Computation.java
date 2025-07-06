@@ -101,7 +101,7 @@ public class Computation {
    *                                  when both are positive
    */
   public Computation(String netId, String creatorId, String userId, long startTimestamp, long endTimestamp,
-      NEXT_STEP_TYPE nextStpe) {
+      NEXT_STEP_TYPE nextStep) {
     this(netId, creatorId, userId);
 
     if (startTimestamp > 0 && endTimestamp > 0 && endTimestamp < startTimestamp)
@@ -109,7 +109,7 @@ public class Computation {
 
     this.startTimestamp = startTimestamp;
     this.endTimestamp = endTimestamp;
-    this.nextStepType = nextStpe;
+    this.nextStepType = nextStep;
   }
 
   /**
@@ -128,7 +128,7 @@ public class Computation {
    *                                  if endTimestamp is before startTimestamp
    *                                  when both are positive
    */
-  public Computation(String netId, String creatorId, String userId, long startTimestamp, NEXT_STEP_TYPE nextStpe) {
+  public Computation(String netId, String creatorId, String userId, long startTimestamp, NEXT_STEP_TYPE nextStep) {
     this(netId, creatorId, userId);
 
     if (startTimestamp < 0)
@@ -136,7 +136,7 @@ public class Computation {
 
     this.startTimestamp = startTimestamp;
     this.endTimestamp = -1L;
-    this.nextStepType = nextStpe;
+    this.nextStepType = nextStep;
   }
 
   /**
@@ -433,6 +433,24 @@ public class Computation {
 
     return endTimestamp - startTimestamp;
   }
+
+  /**
+   * Returns the type of the next expected step in the computation.
+   *
+   * @return the NEXT_STEP_TYPE enum value, indicating who should perform the next action
+   */
+  public NEXT_STEP_TYPE getNextStepType() {
+    return nextStepType;
+  }
+
+  public static NEXT_STEP_TYPE toNextStepType(int index){
+    NEXT_STEP_TYPE[] types = NEXT_STEP_TYPE.values();
+    if(index>types.length | index < 0){
+      throw new IllegalArgumentException();
+    }
+    return types[index];
+  }
+
 
   /**
    * @param o the object to compare with

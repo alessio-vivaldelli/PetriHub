@@ -186,7 +186,7 @@ public class ComputationStepDAO implements DataAccessObject{
         List<ComputationStep> wantedSteps = new ArrayList<ComputationStep>();
         try{
             if(computation instanceof Computation c){
-                String command = "SELECT * FROM computationSteps WHERE userId = ? AND creatorId = ?";
+                String command = "SELECT * FROM computationSteps WHERE userId = ? AND creatorId = ? ORDER BY timestamp DESC;";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command); 
