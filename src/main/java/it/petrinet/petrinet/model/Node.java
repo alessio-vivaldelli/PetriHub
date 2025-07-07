@@ -2,7 +2,6 @@ package it.petrinet.petrinet.model;
 
 import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
 import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;
-
 import javafx.geometry.Point2D;
 
 public abstract class Node {
@@ -14,6 +13,7 @@ public abstract class Node {
    * Set node name, used as well for label
    * 
    * @param name
+   * @param position
    */
   public Node(String name, Point2D position) {
     this.name = name;

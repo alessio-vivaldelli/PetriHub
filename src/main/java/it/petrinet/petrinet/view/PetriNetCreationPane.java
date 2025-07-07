@@ -1,9 +1,6 @@
 package it.petrinet.petrinet.view;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.function.Consumer;
-
+import atlantafx.base.theme.PrimerLight;
 import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Graph;
@@ -11,37 +8,23 @@ import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
-
-import atlantafx.base.theme.PrimerLight;
 import it.petrinet.petrinet.IllegalConnectionException;
 import it.petrinet.petrinet.builder.PetriNetBuilder;
-import it.petrinet.petrinet.model.Node;
-import it.petrinet.petrinet.model.PetriNetModel;
-import it.petrinet.petrinet.model.Place;
-import it.petrinet.petrinet.model.TRANSITION_TYPE;
-import it.petrinet.petrinet.model.Transition;
+import it.petrinet.petrinet.model.*;
 import it.petrinet.petrinet.persistance.pnml.PNMLSerializer;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+
+import java.io.IOException;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public class PetriNetCreationPane extends Pane {
 

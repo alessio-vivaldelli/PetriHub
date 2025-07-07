@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 /**
  * User Select Table Component
  */
-public class UserSelectComponent extends GenericTableComponent<ComputationRow> {
+public class ComputationSelectComponent extends GenericTableComponent<ComputationRow> {
 
     @FXML private TableColumn<ComputationRow, String> IDCol;
     @FXML private TableColumn<ComputationRow, String> usernameCol;
@@ -23,7 +23,7 @@ public class UserSelectComponent extends GenericTableComponent<ComputationRow> {
 
     @Override
     public String getFXMLPath() {
-        return "/fxml/components/UserSelectList.fxml";
+        return "/fxml/components/ComputationSelectList.fxml";
     }
 
     @Override

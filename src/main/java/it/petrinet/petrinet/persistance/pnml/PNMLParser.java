@@ -1,19 +1,17 @@
 package it.petrinet.petrinet.persistance.pnml;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import it.petrinet.petrinet.builder.PetriNetBuilder;
+import it.petrinet.petrinet.model.PLACE_TYPE;
+import it.petrinet.petrinet.model.PetriNetModel;
+import it.petrinet.petrinet.model.TRANSITION_TYPE;
+import it.petrinet.petrinet.persistance.NetParser;
+import it.petrinet.petrinet.persistance.metadata.PNMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import it.petrinet.petrinet.model.*;
-import it.petrinet.petrinet.builder.*;
-import it.petrinet.petrinet.persistance.NetParser;
-import it.petrinet.petrinet.persistance.metadata.PNMLUtils;
+import java.io.File;
+import java.io.IOException;
 
 public class PNMLParser implements NetParser {
 

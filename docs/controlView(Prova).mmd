@@ -1,0 +1,69 @@
+classDiagram
+    direction TB
+
+%% Componenti Principali
+    class MainController
+    class ViewNavigator
+    class Navbar
+    class Table
+
+    class LoginView
+    class LoginController
+    class RegisterView
+    class RegisterController
+
+    class HomeView
+    class HomeController
+    class NetCreationView
+    class NetCreationController
+    class ShowAllView
+    class ShowAllController
+    class ComputationListView
+    class ComputationListController
+    class NetVisualView
+    class NetVisualController
+
+%% Relazioni
+
+%% Flusso Principale
+    MainController --> ViewNavigator : gestisce navigazione
+    MainController --> Navbar : imposta
+
+%% Navigazione (ViewNavigator è il perno)
+    ViewNavigator --> LoginView : naviga a
+    ViewNavigator --> HomeView : naviga a
+    ViewNavigator --> RegisterView : naviga a
+    ViewNavigator --> NetCreationView : naviga a
+    ViewNavigator --> ShowAllView : naviga a
+    ViewNavigator --> ComputationListView : naviga a
+    ViewNavigator --> NetVisualView : naviga a
+
+%% Autenticazione
+    LoginView ..> LoginController : genera
+    LoginController ..> ViewNavigator : richiede navigazione
+
+    RegisterView ..> RegisterController : genera
+    RegisterController ..> ViewNavigator : richiede navigazione
+
+%% Navigazione Home
+    HomeView ..> HomeController : genera
+    HomeController ..> ViewNavigator : richiede navigazione
+
+%% Creazione Contenuti
+    NetCreationView ..> NetCreationController : genera
+    NetCreationController ..> ViewNavigator : richiede navigazione
+
+    ShowAllView ..> ShowAllController : genera
+    ShowAllController ..> ViewNavigator : richiede navigazione
+
+    ComputationListView ..> ComputationListController : genera
+    ComputationListController ..> ViewNavigator : richiede navigazione
+
+%% Utilizzo di Componenti Generici (Table)
+    ShowAllController --> Table : usa
+    ComputationListController --> Table : usa
+    HomeController --> Table : usa
+
+%% Visualizzazione
+    NetVisualView ..> NetVisualController : genera
+    NetVisualController ..> ViewNavigator : richiede navigazione

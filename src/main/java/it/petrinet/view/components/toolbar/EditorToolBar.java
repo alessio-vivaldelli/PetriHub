@@ -1,6 +1,5 @@
 package it.petrinet.view.components.toolbar;
 
-import it.petrinet.petrinet.view.AbstractPetriNetPane;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
 import it.petrinet.utils.IconUtils;
 import javafx.scene.control.ToggleButton;

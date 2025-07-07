@@ -1,7 +1,6 @@
 package it.petrinet.petrinet.model;
 
 import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;
-
 import javafx.geometry.Point2D;
 
 /**

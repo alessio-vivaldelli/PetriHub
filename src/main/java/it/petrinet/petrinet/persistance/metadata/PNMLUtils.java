@@ -1,7 +1,6 @@
 package it.petrinet.petrinet.persistance.metadata;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,12 +9,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import java.io.File;
 
 public class PNMLUtils {
   public static final String PNML_NS = "http://www.pnml.org/version-2009/grammar/ptnet";

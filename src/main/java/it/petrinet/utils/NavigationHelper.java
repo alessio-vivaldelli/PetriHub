@@ -8,7 +8,6 @@ import it.petrinet.model.database.ComputationStepDAO;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.view.ViewNavigator;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;

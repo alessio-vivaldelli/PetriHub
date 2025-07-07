@@ -1,14 +1,14 @@
 package it.petrinet.view;
 
 import it.petrinet.Main;
+import it.petrinet.controller.ComputationListController;
 import it.petrinet.controller.MainController;
 import it.petrinet.controller.NetVisualController;
 import it.petrinet.controller.ShowAllController;
-import it.petrinet.controller.UserListController;
 import it.petrinet.model.Computation;
+import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.User;
 import it.petrinet.view.components.NavBar;
-import it.petrinet.model.TableRow.NetCategory;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -70,8 +70,8 @@ public final class ViewNavigator {
     }
 
     public static void navigateToUserList(String id) {
-        UserListController.setNetID(id);
-        loadView("UserListView.fxml");
+        ComputationListController.setNetID(id);
+        loadView("ComputationListView.fxml");
     }
 
     public static void navigateToHome() {

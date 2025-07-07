@@ -1,5 +1,18 @@
 package it.petrinet.petrinet.view;
 
+import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
+import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Edge;
+import com.brunomnsilva.smartgraph.graph.Vertex;
+import com.brunomnsilva.smartgraph.graphview.*;
+import it.petrinet.petrinet.model.*;
+import javafx.animation.PauseTransition;
+import javafx.geometry.Point2D;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,32 +20,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Random;
-
-import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
-import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
-import com.brunomnsilva.smartgraph.graph.Edge;
-import com.brunomnsilva.smartgraph.graph.Graph;
-import com.brunomnsilva.smartgraph.graph.Vertex;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphEdge;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphProperties;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
-import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
-import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
-
-import atlantafx.base.theme.PrimerLight;
-import it.petrinet.petrinet.model.Node;
-import it.petrinet.petrinet.model.PLACE_TYPE;
-import it.petrinet.petrinet.model.Place;
-import it.petrinet.petrinet.model.TRANSITION_TYPE;
-import it.petrinet.petrinet.model.Transition;
-import javafx.animation.PauseTransition;
-import javafx.application.Application;
-import javafx.geometry.Point2D;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 /**
  * An abstract base class for displaying Petri Nets.
@@ -283,7 +270,6 @@ public abstract class AbstractPetriNetPane extends Pane {
    * Gets the vertex opposite to the known vertex on an edge.
    * 
    * @param edge        The edge connecting the two vertices.
-   * @param knownVertex The vertex whose opposite we want to find.
    * @return The opposite vertex.
    */
   protected Vertex<Node> getOppositeVertex(Edge<String, Node> edge, Vertex<Node> vertex) {

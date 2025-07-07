@@ -24,7 +24,7 @@ public class PetriNetTableComponent extends GenericTableComponent<PetriNetRow> {
 
     @Override
     public String getFXMLPath() {
-        return "/fxml/components/TableList.fxml";
+        return "/fxml/components/PetriNetSelectionList.fxml";
     }
 
     @Override

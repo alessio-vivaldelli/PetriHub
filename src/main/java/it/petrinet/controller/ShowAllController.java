@@ -10,6 +10,7 @@ import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.model.database.RecentNet;
 import it.petrinet.utils.IconUtils;
+import it.petrinet.utils.NavigationHelper;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.PetriNetTableComponent;
 import javafx.fxml.FXML;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import it.petrinet.utils.NavigationHelper;
 import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 public class ShowAllController {
@@ -168,6 +168,8 @@ public class ShowAllController {
                 ViewNavigator.getAuthenticatedUser());
         List<PetriNetRow> netsToShow = new ArrayList<>();
 
+        System.out.println("Subscribed nets count: " + subscribedNets.size());
+
         for (RecentNet net : subscribedNets) {
             if (!(net.getNet().getNetName() == null)){
                 LocalDateTime date = determineNetDate(net);
@@ -256,15 +258,4 @@ public class ShowAllController {
         return computation != null ? NetCategory.SUBSCRIBED : NetCategory.DISCOVER;
     }
 
-//    /**
-//     * Helper method to find computation for a PetriNet
-//     */
-//    private Computation findUserComputation(PetriNet net) throws InputTypeException {
-//        return ComputationsDAO.getComputationsByNet(net.getNetName())
-//                .stream()
-//                .filter(computation -> computation.getUserId().equals(
-//                        ViewNavigator.getAuthenticatedUser().getUsername()))
-//                .findFirst()
-//                .orElse(null);
-//    }
 }

@@ -2,24 +2,25 @@ package it.petrinet.controller;
 
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
-import it.petrinet.model.ComputationStep;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.User;
-import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.model.database.RecentNet;
 import it.petrinet.model.database.UserDAO;
 import it.petrinet.utils.IconUtils;
+import it.petrinet.utils.NavigationHelper;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.DynamicPetriNetTableComponent;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -34,7 +35,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import it.petrinet.utils.NavigationHelper;
 import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 public class HomeController implements Initializable {

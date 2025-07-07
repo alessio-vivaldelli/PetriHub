@@ -1,7 +1,5 @@
 package it.petrinet.utils;
 
-import it.petrinet.controller.HomeController;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -1,7 +1,6 @@
 package it.petrinet.model.database;
 
 import it.petrinet.exceptions.InputTypeException;
-import it.petrinet.model.Computation;
 import it.petrinet.model.User;
 
 import java.sql.*;

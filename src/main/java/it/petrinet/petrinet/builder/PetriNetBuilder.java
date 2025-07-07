@@ -1,11 +1,11 @@
 package it.petrinet.petrinet.builder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import it.petrinet.petrinet.IllegalConnectionException;
 import it.petrinet.petrinet.model.*;
 import javafx.geometry.Point2D;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PetriNetBuilder {
 

@@ -1,8 +1,8 @@
 package it.petrinet.petrinet.model;
 
-import java.util.*;
-
 import it.petrinet.petrinet.IllegalConnectionException;
+
+import java.util.*;
 
 /**
  * Represents a Petri net model with nodes and arcs.
@@ -22,7 +22,7 @@ public class PetriNetModel {
   /**
    * Constructs a PetriNetModel with the specified nodes and arcs.
    * 
-   * @param nodes the list of nodes
+   * @param places the list of nodes
    * @param arcs  the list of arcs
    * @throws IllegalConnectionException
    */
