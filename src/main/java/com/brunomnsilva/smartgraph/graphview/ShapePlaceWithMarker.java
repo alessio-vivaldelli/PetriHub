@@ -27,10 +27,7 @@ package com.brunomnsilva.smartgraph.graphview;
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import org.w3c.dom.css.Rect;
 
 /**
  * This class represents a circle shape with a specified radius.

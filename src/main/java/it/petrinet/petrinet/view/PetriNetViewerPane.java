@@ -1,6 +1,5 @@
 package it.petrinet.petrinet.view;
 
-import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import it.petrinet.model.Computation;

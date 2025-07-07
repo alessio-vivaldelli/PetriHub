@@ -1,7 +1,5 @@
 package it.petrinet.petrinet.model;
 
-import it.petrinet.petrinet.IllegalConnectionException;
-
 public class Arc {
   private String from;
   private String to;

@@ -1,8 +1,13 @@
 package it.petrinet.petrinet.persistance.pnml;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import it.petrinet.petrinet.model.Node;
+import it.petrinet.petrinet.model.PetriNetModel;
+import it.petrinet.petrinet.model.Place;
+import it.petrinet.petrinet.model.Transition;
+import it.petrinet.petrinet.persistance.NetSerializer;
+import it.petrinet.petrinet.persistance.metadata.PNMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -11,16 +16,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import it.petrinet.petrinet.model.Node; // Ensure correct Node import
-import it.petrinet.petrinet.model.PetriNetModel;
-import it.petrinet.petrinet.model.Place;
-import it.petrinet.petrinet.model.Transition;
-import it.petrinet.petrinet.persistance.NetSerializer;
-import it.petrinet.petrinet.persistance.metadata.PNMLUtils;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Serializer for PetriNetModel objects to PNML (Petri Net Markup Language)

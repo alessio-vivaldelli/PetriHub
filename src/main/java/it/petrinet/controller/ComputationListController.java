@@ -8,7 +8,8 @@ import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.utils.IconUtils;
-import it.petrinet.view.components.table.UserSelectComponent;
+import it.petrinet.utils.NavigationHelper;
+import it.petrinet.view.components.table.ComputationSelectComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
@@ -20,20 +21,17 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import it.petrinet.utils.NavigationHelper;
-import static it.petrinet.utils.Safenavigate.safeNavigate;
+public class ComputationListController {
 
-public class UserListController {
-
-    private static final Logger LOGGER = Logger.getLogger(UserListController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ComputationListController.class.getName());
 
     @FXML private Label frameTitle;
     @FXML private VBox tableContainer;
-    private UserSelectComponent userTable;
+    private ComputationSelectComponent userTable;
     private static String netID;
 
     public static void setNetID(String netID) {
-        UserListController.netID = netID;
+        ComputationListController.netID = netID;
     }
 
     @FXML
@@ -55,7 +53,7 @@ public class UserListController {
      * Initializes the table component
      */
     private void initializeTableComponent() {
-        userTable = new UserSelectComponent();
+        userTable = new ComputationSelectComponent();
         userTable.setOnRowClickHandler(this::handleTableRowClick);
         VBox.setVgrow(userTable, Priority.ALWAYS);
         tableContainer.getChildren().add(userTable);

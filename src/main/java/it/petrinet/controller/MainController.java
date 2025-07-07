@@ -4,15 +4,7 @@ import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.NavBar;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import it.petrinet.model.User;
-
-import java.awt.event.ActionEvent;
-import java.net.URL;
 
 //Easy controller che fa il girno di saluti iniziali
 

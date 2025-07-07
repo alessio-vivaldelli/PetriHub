@@ -1,28 +1,67 @@
 classDiagram
 
-
-    LoginFrame ..|> LoginListener : |use|
-    LoginListener --> HomeFrame
+direction TB
 
 
+%% ======= Relationships =======
 
-    HomeFrame ..|> HomeListener : |use|
+%% Main flow
 
-    HomeListener --> ShowAllFrame
-    HomeListener --> PetriNetFrame
+MainController --> ViewNavigator
+
+ViewNavigator --> LogniView
+
+MainController --> NavbarComponent : imposta
 
 
-    ShowAllFrame ..|> ShowAllListener : |use|
+%% Auth
+
+LogniView --> LoginController : genera
+
+LoginController --> HomeView
+
+LoginController --> RegisterView
+
+RegisterView --> RegisterController : genera
+
+RegisterController --> LogniView
 
 
+%% Home navigation
 
-    NotificationPopUp ..|> NotificationPopUpListener : |use|
-    TopbarFrame ..|> TopBarListener : |use|
-    TopBarListener --|> NotificationPopUp
+HomeView --> HomeController : genera
 
-    NotificationPopUpListener --> NotificationFrame
-    NotificationFrame ..|> NotificationListener : |use|
+HomeController --> NetCreationView
 
-    ShowAllListener --> PetriNetFrame
-    NotificationListener --> PetriNetFrame
-    NotificationPopUpListener --> PetriNetFrame
+HomeController --> ShowAllView
+
+HomeController --> ComputationListView
+
+HomeController --> NetVisualView
+
+
+%% Content creation
+
+NetCreationView --> NetCreationController : genera
+
+ShowAllView --> ShowAllController : genera
+
+ComputationListView --> ComputationListController : genera
+
+
+%% Shared Component usage
+
+ShowAllController --> Table : uses
+
+ComputationListController --> Table : uses
+
+HomeController --> Table : uses
+
+
+%% Visualization
+
+ShowAllController --> NetVisualView
+
+ComputationListController --> NetVisualView
+
+NetVisualView --> NetVisualController : genera 

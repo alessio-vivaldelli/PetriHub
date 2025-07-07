@@ -1,10 +1,12 @@
 package it.petrinet.petrinet.builder;
 
+import it.petrinet.petrinet.model.PLACE_TYPE;
+import it.petrinet.petrinet.model.PetriNetModel;
+import it.petrinet.petrinet.model.TRANSITION_TYPE;
+import it.petrinet.petrinet.persistance.pnml.PNMLParser;
+
 import java.io.File;
 import java.io.IOException;
-
-import it.petrinet.petrinet.model.*;
-import it.petrinet.petrinet.persistance.pnml.*;
 
 public class BuilderTest {
   public static void main(String[] args) {

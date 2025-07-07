@@ -1,26 +1,17 @@
 package it.petrinet.model;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-
-import it.petrinet.petrinet.model.TRANSITION_TYPE;
-import it.petrinet.petrinet.model.Transition;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
-import it.petrinet.petrinet.view.*;
-
-import it.petrinet.petrinet.view.PetriNetEditorPane;
-import javafx.animation.PauseTransition;
+import it.petrinet.petrinet.view.PetriNetViewerPane;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
+
+import java.io.IOException;
+import java.net.URL;
 
 public class TestingApplication extends Application {
 

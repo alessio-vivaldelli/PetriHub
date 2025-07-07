@@ -13,8 +13,8 @@ import javafx.scene.paint.Color;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utility class for creating and applying icons to JavaFX controls.

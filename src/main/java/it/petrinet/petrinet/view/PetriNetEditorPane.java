@@ -1,42 +1,24 @@
 package it.petrinet.petrinet.view;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.function.Consumer;
-
 import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphEdge;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
-
 import it.petrinet.Main;
 import it.petrinet.petrinet.IllegalConnectionException;
 import it.petrinet.petrinet.builder.PetriNetBuilder;
-import it.petrinet.petrinet.model.Node;
-import it.petrinet.petrinet.model.PLACE_TYPE;
-import it.petrinet.petrinet.model.PetriNetModel;
-import it.petrinet.petrinet.model.Place;
-import it.petrinet.petrinet.model.TRANSITION_TYPE;
-import it.petrinet.petrinet.model.Transition;
+import it.petrinet.petrinet.model.*;
 import it.petrinet.petrinet.persistance.pnml.PNMLSerializer;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.components.PopupMenu;
 import javafx.geometry.Point2D;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
-import javax.swing.*;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public class PetriNetEditorPane extends AbstractPetriNetPane {
   public enum MODE {

@@ -1,6 +1,9 @@
 package it.petrinet.view.components;
 
-import javafx.animation.*;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.geometry.Pos;

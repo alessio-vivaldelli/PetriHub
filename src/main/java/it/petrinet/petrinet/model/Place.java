@@ -1,7 +1,6 @@
 package it.petrinet.petrinet.model;
 
 import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;
-
 import javafx.geometry.Point2D;
 
 /**
@@ -105,7 +104,6 @@ public class Place extends Node {
   /**
    * Sets the number of tokens in this place.
    *
-   * @param tokens the new number of tokens
    */
   public void incrementPlaceTokens() {
     this.tokens = tokens + 1;
