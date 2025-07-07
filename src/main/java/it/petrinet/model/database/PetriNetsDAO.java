@@ -1,12 +1,16 @@
 package it.petrinet.model.database;
 
 import it.petrinet.exceptions.InputTypeException;
+import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class PetriNetsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException{
@@ -198,7 +202,7 @@ public class PetriNetsDAO implements DataAccessObject{
         List<RecentNet> wantedNets = new ArrayList<RecentNet>();
         try{
             if(admin instanceof User u){
-                String command = "SELECT pn.*, MAX(s.timestamp) AS lastTimestamp FROM petri_nets pn " +
+                String command = "SELECT pn.*, MAX(s.timestamp) AS lastTimestamp, c.* FROM petri_nets pn " +
                         "LEFT JOIN computations c ON c.netId = pn.netName " +
                         "LEFT JOIN computationSteps s ON s.computationId = c.id " +
                         "WHERE pn.creatorId = ? " +
@@ -219,7 +223,14 @@ public class PetriNetsDAO implements DataAccessObject{
                                 result.getString(5),
                                 result.getBoolean(6)
                         ), result.getLong(7)
-                        ));
+                        , new Computation(
+                                result.getString(9),
+                                result.getString(10),
+                                result.getString(11),
+                                result.getLong(12),
+                                result.getLong(13),
+                                Computation.toNextStepType(result.getInt(14))
+                        )));
                     }
                 }
                 catch(SQLException ex){
@@ -275,7 +286,7 @@ public class PetriNetsDAO implements DataAccessObject{
     public static List<RecentNet> getMostRecentlyModifiedNets(Object user, int howMany) throws InputTypeException{
         List<RecentNet> wantedNets = new ArrayList<RecentNet>();
 
-        String searchCommand = "SELECT pn.*, cs.timestamp " +
+        String searchCommand = "SELECT pn.*, cs.timestamp, c.*" +
                 "FROM petri_nets pn " +
                 "LEFT JOIN computations c ON c.netId = pn.netName " +
                 "LEFT JOIN computationSteps cs ON cs.computationId = c.id " +
@@ -286,7 +297,9 @@ public class PetriNetsDAO implements DataAccessObject{
        try{
             if(user instanceof User u){
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(searchCommand)){
+                     PreparedStatement p_statement = connection.prepareStatement(searchCommand);
+                    Statement statement = connection.createStatement()){
+                    statement.execute("PRAGMA foreign_keys = ON;");
                     p_statement.setString(1, u.getUsername());
                     p_statement.setString(2, u.getUsername());
                     ResultSet result = p_statement.executeQuery();
@@ -294,16 +307,22 @@ public class PetriNetsDAO implements DataAccessObject{
                     System.out.println();
 
                     while(result.next() & howMany>0){
-                        RecentNet NetRecord = new RecentNet(new PetriNet( result.getString(1),
+                        wantedNets.add(new RecentNet(new PetriNet( result.getString(1),
                                 result.getString(2),
                                 result.getLong(3),
                                 result.getString(4),
                                 result.getString(5),
-                                result.getBoolean(6)
-                                ), result.getLong(7));
-                        wantedNets.add(NetRecord);
+                                result.getBoolean(6))
+                            , result.getLong(7),
+                                new Computation(result.getString(9),
+                                        result.getString(10),
+                                        result.getString(11),
+                                        result.getLong(12),
+                                        result.getLong(13),
+                                        Computation.toNextStepType(result.getInt(14)))));
                         howMany --;
                     }
+
                 }
                 catch(SQLException ex){
                     ex.printStackTrace();

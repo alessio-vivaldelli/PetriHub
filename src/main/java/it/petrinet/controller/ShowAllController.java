@@ -164,7 +164,7 @@ public class ShowAllController {
      * Gets subscribed nets for current user
      */
     private List<PetriNetRow> getSubscribedNets() throws InputTypeException {
-        List<RecentNet> subscribedNets = ComputationsDAO.getNetsSubscribedWithTimestampByUser(
+        List<RecentNet> subscribedNets = ComputationsDAO.getRecentNetsSubscribedByUser(
                 ViewNavigator.getAuthenticatedUser());
         List<PetriNetRow> netsToShow = new ArrayList<>();
 
@@ -223,23 +223,23 @@ public class ShowAllController {
      */
     private Status determineNetStatus(RecentNet net) throws InputTypeException {
         String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
-        boolean isOwned = net.getNet().getCreatorId().equals(currentUsername);
 
-        if (isOwned) {
-            return Status.COMPLETED; // Owned nets are considered completed
+        if(net.getComputation().getEndTimestamp()>0 & net.getTimestamp() == net.getComputation().getEndTimestamp()){
+            return Status.COMPLETED;
         }
-
-        Computation computation = findUserComputation(net.getNet());
-        if (computation == null) {
+        else if(net.getComputation().getStartTimestamp()<0){
             return Status.NOT_STARTED;
         }
-
-        if (!computation.isStarted()) return Status.NOT_STARTED;
-        if (computation.isFinished()) return Status.COMPLETED;
-
-        // TODO: Implement notification check logic
-        boolean hasNotifications = false;
-        return hasNotifications ? Status.WAITING : Status.IN_PROGRESS;
+        else{
+            if(net.getComputation().getNextStepType() == Computation.NEXT_STEP_TYPE.BOTH ||
+                    (net.getComputation().getNextStepType() == Computation.NEXT_STEP_TYPE.ADMIN & ViewNavigator.getAuthenticatedUser().isAdmin())||
+                    (net.getComputation().getNextStepType() == Computation.NEXT_STEP_TYPE.USER & !ViewNavigator.getAuthenticatedUser().isAdmin())){
+                return Status.WAITING;
+            }
+            else{
+                return Status.IN_PROGRESS;
+            }
+        }
     }
 
     /**

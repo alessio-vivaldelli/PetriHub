@@ -474,6 +474,48 @@ public class ComputationsDAO implements DataAccessObject{
         return wantedComputations;
     }
 
+    public static Computation getComputationByUserAndNet(Object user, Object net) throws InputTypeException{
+        try{
+            if(user instanceof User u){
+                if(net instanceof PetriNet n) {
+                    String command = "SELECT * FROM computations WHERE userId = ? AND netId = ?";
+
+                    try (Connection connection = DatabaseManager.getDBConnection();
+                         PreparedStatement p_statement = connection.prepareStatement(command);
+                         Statement statement = connection.createStatement()){
+                        statement.execute("PRAGMA foreign_keys = ON;");
+                        p_statement.setString(1, u.getUsername());
+                        p_statement.setString(1, n.getNetName());
+                        ResultSet result = p_statement.executeQuery();
+
+                        if (result.next()) {
+                            return new Computation(
+                                    result.getString(2),
+                                    result.getString(3),
+                                    result.getString(4),
+                                    result.getLong(5),
+                                    result.getLong(6),
+                                    Computation.toNextStepType(result.getInt(7))
+                            );
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                else{
+                    throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return null;
+    }
+
     public static List<User> getSubscribedUsersByNet(Object p_net){
         List<User> subscribedUsers = new ArrayList<User>();
         try{
@@ -536,8 +578,8 @@ public class ComputationsDAO implements DataAccessObject{
 
     }
 
-    public static List<RecentNet> getNetsSubscribedWithTimestampByUser(Object user) throws InputTypeException{
-        String command = "SELECT pn.*, MAX(cs.timestamp) " +
+    public static List<RecentNet> getRecentNetsSubscribedByUser(Object user) throws InputTypeException{
+        String command = "SELECT pn.*, MAX(cs.timestamp), c.* " +
                 "FROM petri_nets pn " +
                 "JOIN computations c ON pn.netName = c.netId " +
                 "LEFT JOIN computationSteps cs ON c.id = cs.computationId " +
@@ -561,7 +603,15 @@ public class ComputationsDAO implements DataAccessObject{
                                 result.getString(4),
                                 result.getString(5),
                                 result.getBoolean(6)
-                        ), result.getLong(7)));
+                            ), result.getLong(7),
+                                new Computation(result.getString(9),
+                                        result.getString(10),
+                                        result.getString(11),
+                                        result.getLong(12),
+                                        result.getLong(13),
+                                        Computation.toNextStepType(result.getInt(14)))
+                                )
+                        );
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
