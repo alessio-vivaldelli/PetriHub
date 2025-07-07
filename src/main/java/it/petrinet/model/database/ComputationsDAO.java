@@ -134,17 +134,53 @@ public class ComputationsDAO implements DataAccessObject{
         return null;
     }
 
-    public static void removeComputationById(Object id) throws InputTypeException{
+    private static void removeComputation(int id) throws InputTypeException{
+        String command = "DELETE FROM computations WHERE id = ?";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setInt(1, id);
+            p_statement.executeUpdate();
+
+            ComputationStepDAO.removeAllStepsByComputation(ComputationsDAO.getComputationById(id));
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+    }
+
+
+    public static void removeComputation(Object computation) throws InputTypeException{
         try{
-            if(id instanceof Integer i){
-                String command = "DELETE FROM computations WHERE id = ?";
+            if(computation instanceof Computation c){
+                removeComputation(getIdByComputation(c));
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+    }
+
+    //TODO CHECK
+    public static void resetComputation(Object computation) throws InputTypeException{
+        try{
+            if(computation instanceof Computation c){
+                String command = "Update computations SET endDate = ? WHERE id = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setInt(1, i);
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setNull(1, Types.BIGINT);
+                    p_statement.setInt(2, getIdByComputation(c));
                     p_statement.executeUpdate();
+
+                    ComputationStepDAO.resetComputationSteps(c);
                 }
                 catch(SQLException ex){
                     ex.printStackTrace();
@@ -158,20 +194,22 @@ public class ComputationsDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
     }
-
-    public static void removeComputation(Object computation) throws InputTypeException{
+    //TODO CHECK
+    public static void deleteComputation(Object computation) throws InputTypeException{
         try{
             if(computation instanceof Computation c){
-                String command = "DELETE FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
+                String command = "Update computations SET endDate = ?, startDate = ? WHERE id = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, c.getNetId());
-                    p_statement.setString(2, c.getCreatorId());
-                    p_statement.setString(3, c.getUserId());
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setNull(1, Types.BIGINT);
+                    p_statement.setNull(2, Types.BIGINT);
+                    p_statement.setInt(3, getIdByComputation(c));
                     p_statement.executeUpdate();
+
+                    ComputationStepDAO.removeAllStepsByComputation(c);
                 }
                 catch(SQLException ex){
                     ex.printStackTrace();
