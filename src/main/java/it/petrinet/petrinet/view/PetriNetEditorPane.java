@@ -30,7 +30,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     @Override
     public String toString() {
       return switch (this) {
-        case PLACE -> "circle";
+        case PLACE -> "place";
         case TRANSITION -> "transition";
         default -> super.toString();
       };
@@ -125,6 +125,8 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     saveNetAction(name, description);
   }
 
+
+  //TODO: non salva ancora con il nome, aggiungere Alert per il nome
   /**
    * Handles the action of saving the Petri Net.
    * Shows a confirmation dialog, builds the model, serializes it, and invokes the
