@@ -23,8 +23,8 @@ public class ComputationsDAO implements DataAccessObject{
                 "netId TEXT NOT NULL, " +
                 "creatorId TEXT NOT NULL, " +
                 "userId TEXT NOT NULL," +
-                "startDate LONGINT, " +
-                "endDate LONGINT, " +
+                "startDate longINT, " +
+                "endDate longINT, " +
                 "nextStep INTEGER NOT NULL, " +
                 "UNIQUE (netId, userId, creatorId), " +
                 "FOREIGN KEY (netId) REFERENCES petri_nets(netName), " +
@@ -113,8 +113,8 @@ public class ComputationsDAO implements DataAccessObject{
                                 result.getString(2),
                                 result.getString(3),
                                 result.getString(4),
-                                result.getInt(5),
-                                result.getInt(6),
+                                result.getLong(5),
+                                result.getLong(6),
                                 Computation.toNextStepType(result.getInt(7))
 
                         );
@@ -134,17 +134,52 @@ public class ComputationsDAO implements DataAccessObject{
         return null;
     }
 
-    public static void removeComputationById(Object id) throws InputTypeException{
+    private static void removeComputation(int id) throws InputTypeException{
+        String command = "DELETE FROM computations WHERE id = ?";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setInt(1, id);
+            p_statement.executeUpdate();
+
+            ComputationStepDAO.removeAllStepsByComputation(ComputationsDAO.getComputationById(id));
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    public static void removeComputation(Object computation) throws InputTypeException{
         try{
-            if(id instanceof Integer i){
-                String command = "DELETE FROM computations WHERE id = ?";
+            if(computation instanceof Computation c){
+                removeComputation(getIdByComputation(c));
+            }
+            else{
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+    }
+
+    //TODO CHECK
+    public static void resetComputation(Object computation) throws InputTypeException{
+        try{
+            if(computation instanceof Computation c){
+                String command = "Update computations SET endDate = ? WHERE id = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setInt(1, i);
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setNull(1, Types.BIGINT);
+                    p_statement.setInt(2, getIdByComputation(c));
                     p_statement.executeUpdate();
+
+                    ComputationStepDAO.resetComputationSteps(c);
                 }
                 catch(SQLException ex){
                     ex.printStackTrace();
@@ -158,20 +193,22 @@ public class ComputationsDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
     }
-
-    public static void removeComputation(Object computation) throws InputTypeException{
+    //TODO CHECK
+    public static void deleteComputation(Object computation) throws InputTypeException{
         try{
             if(computation instanceof Computation c){
-                String command = "DELETE FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
+                String command = "Update computations SET endDate = ?, startDate = ? WHERE id = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, c.getNetId());
-                    p_statement.setString(2, c.getCreatorId());
-                    p_statement.setString(3, c.getUserId());
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setNull(1, Types.BIGINT);
+                    p_statement.setNull(2, Types.BIGINT);
+                    p_statement.setInt(3, getIdByComputation(c));
                     p_statement.executeUpdate();
+
+                    ComputationStepDAO.removeAllStepsByComputation(c);
                 }
                 catch(SQLException ex){
                     ex.printStackTrace();
@@ -192,7 +229,7 @@ public class ComputationsDAO implements DataAccessObject{
                 String command = "SELECT endDate FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                      p_statement.setString(1, com.getNetId());
@@ -227,7 +264,7 @@ public class ComputationsDAO implements DataAccessObject{
                     String command = "UPDATE computations SET startDate = ? WHERE netId = ? AND userId = ? AND creatorId = ?";
 
                     try (Connection connection = DatabaseManager.getDBConnection();
-                         PreparedStatement p_statement = connection.prepareStatement(command); 
+                         PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                          p_statement.setInt(1, date);
@@ -260,7 +297,7 @@ public class ComputationsDAO implements DataAccessObject{
                     String command = "UPDATE computations SET endDate = ? WHERE netId = ? AND userId = ? AND creatorId = ?";
 
                     try (Connection connection = DatabaseManager.getDBConnection();
-                         PreparedStatement p_statement = connection.prepareStatement(command); 
+                         PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                          p_statement.setInt(1, date);
@@ -293,7 +330,7 @@ public class ComputationsDAO implements DataAccessObject{
                 String command = "SELECT * FROM computations WHERE netId = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
 
                     statement.execute("PRAGMA foreign_keys = ON;");
@@ -302,12 +339,20 @@ public class ComputationsDAO implements DataAccessObject{
                     ResultSet result = p_statement.executeQuery();
 
                     while (result.next()) {
+                        long sDate = result.getLong(5);
+                        if(result.wasNull()){
+                            sDate = -1L;
+                        }
+                        long eDate = result.getLong(6);
+                        if(result.wasNull()){
+                            eDate = -1L;
+                        }
                         wantedComputations.add(new Computation(
                                 result.getString(2),
                                 result.getString(3),
                                 result.getString(4),
-                                result.getLong(5),
-                                result.getLong(6),
+                                sDate,
+                                eDate,
                                 Computation.toNextStepType(result.getInt(7))
                         ));
                     }
@@ -332,7 +377,7 @@ public class ComputationsDAO implements DataAccessObject{
                 String command = "SELECT id FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                      p_statement.setString(1, c.getNetId());
@@ -363,18 +408,26 @@ public class ComputationsDAO implements DataAccessObject{
                 String command = "SELECT * FROM computations WHERE creatorId = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                      p_statement.setString(1, u.getUsername());
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
+                        long sDate = result.getLong(5);
+                        if(result.wasNull()){
+                            sDate = -1L;
+                        }
+                        long eDate = result.getLong(6);
+                        if(result.wasNull()){
+                            eDate = -1L;
+                        }
                         wantedComputations.add( new Computation(
                                 result.getString(2),
                                 result.getString(3),
                                 result.getString(4),
-                                result.getInt(5),
-                                result.getInt(6),
+                                eDate,
+                                sDate,
                                 Computation.toNextStepType(result.getInt(7))
                         ));
                     }
@@ -401,18 +454,26 @@ public class ComputationsDAO implements DataAccessObject{
                 String command = "SELECT * FROM computations WHERE Id = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
+                     PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                      p_statement.setString(1, u.getUsername());
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
+                        long sDate = result.getLong(5);
+                        if(result.wasNull()){
+                            sDate = -1L;
+                        }
+                        long eDate = result.getLong(6);
+                        if(result.wasNull()){
+                            eDate = -1L;
+                        }
                         wantedComputations.add( new Computation(
                                 result.getString(2),
                                 result.getString(3),
                                 result.getString(4),
-                                result.getLong(5),
-                                result.getLong(6),
+                                sDate,
+                                eDate,
                                 Computation.toNextStepType(result.getInt(7))
                         ));
                     }
@@ -439,7 +500,7 @@ public class ComputationsDAO implements DataAccessObject{
                     String command = "SELECT * FROM computations WHERE userId = ? AND creatorId = ?";
 
                     try (Connection connection = DatabaseManager.getDBConnection();
-                         PreparedStatement p_statement = connection.prepareStatement(command); 
+                         PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                          p_statement.setString(1, u.getUsername());
@@ -447,12 +508,20 @@ public class ComputationsDAO implements DataAccessObject{
                         ResultSet result = p_statement.executeQuery();
 
                         while (result.next()) {
+                            long sDate = result.getLong(5);
+                            if(result.wasNull()){
+                                sDate = -1L;
+                            }
+                            long eDate = result.getLong(6);
+                            if(result.wasNull()){
+                                eDate = -1L;
+                            }
                             wantedComputations.add( new Computation(
                                     result.getString(2),
                                     result.getString(3),
                                     result.getString(4),
-                                    result.getLong(5),
-                                    result.getLong(6),
+                                    sDate,
+                                    eDate,
                                     Computation.toNextStepType(result.getInt(7))
                             ));
                         }
@@ -485,16 +554,25 @@ public class ComputationsDAO implements DataAccessObject{
                          Statement statement = connection.createStatement()){
                         statement.execute("PRAGMA foreign_keys = ON;");
                         p_statement.setString(1, u.getUsername());
-                        p_statement.setString(1, n.getNetName());
+                        p_statement.setString(2, n.getNetName());
                         ResultSet result = p_statement.executeQuery();
 
                         if (result.next()) {
+                            long sDate = result.getLong(5);
+                            if(result.wasNull()){
+                                sDate = -1L;
+                            }
+                            long eDate = result.getLong(6);
+                            if(result.wasNull()){
+                                eDate = -1L;
+                            }
+
                             return new Computation(
                                     result.getString(2),
                                     result.getString(3),
                                     result.getString(4),
-                                    result.getLong(5),
-                                    result.getLong(6),
+                                    sDate,
+                                    eDate,
                                     Computation.toNextStepType(result.getInt(7))
                             );
                         }

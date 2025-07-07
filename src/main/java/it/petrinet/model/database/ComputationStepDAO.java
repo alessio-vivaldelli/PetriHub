@@ -79,6 +79,7 @@ public class ComputationStepDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
     }
+
     public static void removeStep(Object step) throws InputTypeException{
         String command = "DELETE FROM computationSteps WHERE id = ? AND computationId = ? AND netId = ?";
         try {
@@ -91,6 +92,58 @@ public class ComputationStepDAO implements DataAccessObject{
                      p_statement.setLong(1, s.getId());
                     p_statement.setInt(2, s.getComputationId());
                     p_statement.setString(3, s.getNetId());
+                    p_statement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+    }
+
+    public static void removeAllStepsByComputation(Object computation) throws InputTypeException{
+        String command = "DELETE FROM computationSteps WHERE computationId = ? AND netId = ?";
+        try {
+            if (computation instanceof Computation c) {
+
+                try (Connection connection = DatabaseManager.getDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command);
+                     Statement statement = connection.createStatement()){
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setInt(1, ComputationsDAO.getIdByComputation(c));
+                    p_statement.setString(2, c.getNetId());
+                    p_statement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+    }
+
+    //TODO CHECK
+    public static void resetComputationSteps(Object computation) throws InputTypeException{
+        String command = "DELETE FROM computationSteps WHERE computationId = ? AND netId = ? " +
+                "AND timestamp > (SELECT MIN(timestamp) FROM computationSteps WHERE computationId = ? AND netId = ?);";
+        try {
+            if (computation instanceof Computation c) {
+
+                try (Connection connection = DatabaseManager.getDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command);
+                     Statement statement = connection.createStatement()){
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setInt(1, ComputationsDAO.getIdByComputation(c));
+                    p_statement.setString(2, c.getNetId());
+                    p_statement.setInt(3, ComputationsDAO.getIdByComputation(c));
+                    p_statement.setString(4, c.getNetId());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
