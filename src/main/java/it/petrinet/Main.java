@@ -2,6 +2,7 @@ package it.petrinet;
 
 import it.petrinet.controller.MainController;
 import it.petrinet.view.ViewNavigator;
+import it.petrinet.view.components.EnhancedAlert;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,6 +36,7 @@ public class Main extends Application {
 
         // inizializza ViewNavigator con controller
         MainController controller = loader.getController();
+        EnhancedAlert.initDefaultStage(primaryStage);
         ViewNavigator.init(controller);
     }
 
