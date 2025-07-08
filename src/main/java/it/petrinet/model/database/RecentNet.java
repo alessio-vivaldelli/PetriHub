@@ -30,5 +30,9 @@ public class RecentNet{
     public Computation getComputation(){
         return computation;
     }
+
+    public void setComputation(Computation computation) {
+        this.computation = computation;
+    }
 }
 

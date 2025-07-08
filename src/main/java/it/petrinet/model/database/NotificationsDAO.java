@@ -11,7 +11,7 @@ import java.util.List;
 public class NotificationsDAO implements DataAccessObject{
     public static void main(String args[]) throws InputTypeException {
         Notification not = new Notification();
-        insertNotification(not);
+        deleteTable();
     }
 
     public void createTable(){
@@ -34,6 +34,18 @@ public class NotificationsDAO implements DataAccessObject{
              Statement statement = conn.createStatement()) {
             statement.execute("PRAGMA foreign_keys = ON;");
             statement.executeUpdate(table);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void deleteTable(){
+        String command = "DROP TABLE notifications;";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute("PRAGMA foreign_keys = ON;");
+            statement.execute(command);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

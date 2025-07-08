@@ -10,8 +10,10 @@ import java.util.List;
 
 public class ComputationStepDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException {
-        insertStep(new ComputationStep(5, 2, "net3", "T4", "p2:1,p3:1", 1686302400L));
-        insertStep(new ComputationStep(5, 3, "net10", "T4", "p2:1,p3:1", 1702504800L));
+        ComputationStepDAO dao = new ComputationStepDAO();
+        dao.createTable();
+//        insertStep(new ComputationStep(5, 2, "net3", "T4", "p2:1,p3:1", 1686302400L));
+//        insertStep(new ComputationStep(5, 3, "net10", "T4", "p2:1,p3:1", 1702504800L));
     }
 
     public void createTable() {                          //metodo per creazione tabelle

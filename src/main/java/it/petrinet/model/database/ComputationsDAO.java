@@ -11,10 +11,11 @@ import java.util.List;
 
 public class ComputationsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException {
-        insertComputation(new Computation("net3","ale","a", 34,-1 ,Computation.NEXT_STEP_TYPE.ADMIN));
+        ComputationsDAO d = new ComputationsDAO();
+        d.createTable();
+//        insertComputation(new Computation("net1","a","Davide", 34,-1 ,Computation.NEXT_STEP_TYPE.ADMIN));
         insertComputation(new Computation("net10","Davide","a", 34, Computation.NEXT_STEP_TYPE.BOTH));
-        insertComputation(new Computation("net3","ale","Davide", 34, Computation.NEXT_STEP_TYPE.USER));
-        System.out.println(getComputationsByNet(new PetriNet("net3", "ale", 1712924800L, "XML", "image", true)));
+//        insertComputation(new Computation("net4","anto","Davide", 34, Computation.NEXT_STEP_TYPE.USER));
     }
 
     public void createTable() {                          //metodo per creazione tabelle

@@ -255,6 +255,7 @@ public class HomeController implements Initializable {
                         net.getNet().getNetName(),
                         net.getNet().getCreatorId(),
                         date,
+                        //TODO dovrebbe essere next step type
                         Status.NOT_STARTED,
                         category
                 ));

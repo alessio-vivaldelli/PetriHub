@@ -11,11 +11,12 @@ import java.util.List;
 
 public class PetriNetsDAO implements DataAccessObject{
     public static void main(String[] args) throws InputTypeException{
-//        insertNet(new PetriNet("net10", "Davide", 1672435200L,"XML", "image", true));
+        //insertNet(new PetriNet("net10", "Davide", 1672435200L,"XML", "image", true));
 //        insertNet(new PetriNet("net1", "a", 0L,"XML", "image", true));
 //        insertNet(new PetriNet("net2", "ale", 456787654L,"XML", "image", true));
 //        insertNet(new PetriNet("net3", "ale", 1712924800L,"XML", "image", true));
-        System.out.println(getNetsWithTimestampByCreator(new User("Davide", "sala", true)));
+//        insertNet(new PetriNet("net4", "anto", 1710914120L,"XML", "image", true));
+        System.out.println(getMostRecentlyModifiedNets(new User("ale", "a", true), 3));
     }
 
     public void createTable() {
@@ -199,7 +200,7 @@ public class PetriNetsDAO implements DataAccessObject{
         List<RecentNet> wantedNets = new ArrayList<RecentNet>();
         try{
             if(admin instanceof User u){
-                String command = "SELECT pn.*, MAX(s.timestamp) AS lastTimestamp, c.* FROM petri_nets pn " +
+                String command = "SELECT pn.*, MAX(s.timestamp) AS lastTimestamp FROM petri_nets pn, c.* " +
                         "LEFT JOIN computations c ON c.netId = pn.netName " +
                         "LEFT JOIN computationSteps s ON s.computationId = c.id " +
                         "WHERE pn.creatorId = ? " +
@@ -212,6 +213,10 @@ public class PetriNetsDAO implements DataAccessObject{
                      p_statement.setString(1, u.getUsername());
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
+                        int type = result.getInt(14);
+                        if(result.wasNull()){
+                            type = 3;
+                        }
                         wantedNets.add(new RecentNet(new PetriNet(
                                 result.getString(1),
                                 result.getString(2),
@@ -226,8 +231,9 @@ public class PetriNetsDAO implements DataAccessObject{
                                 result.getString(11),
                                 result.getLong(12),
                                 result.getLong(13),
-                                Computation.toNextStepType(result.getInt(14))
-                        )));
+                                Computation.toNextStepType(type)
+                        )
+                        ));
                     }
                 }
                 catch(SQLException ex){
@@ -283,7 +289,7 @@ public class PetriNetsDAO implements DataAccessObject{
     public static List<RecentNet> getMostRecentlyModifiedNets(Object user, int howMany) throws InputTypeException{
         List<RecentNet> wantedNets = new ArrayList<RecentNet>();
 
-        String searchCommand = "SELECT pn.*, cs.timestamp, c.*" +
+        String searchCommand = "SELECT pn.*, cs.timestamp, c.* " +
                 "FROM petri_nets pn " +
                 "LEFT JOIN computations c ON c.netId = pn.netName " +
                 "LEFT JOIN computationSteps cs ON cs.computationId = c.id " +
@@ -304,19 +310,26 @@ public class PetriNetsDAO implements DataAccessObject{
                     System.out.println();
 
                     while(result.next() & howMany>0){
-                        wantedNets.add(new RecentNet(new PetriNet( result.getString(1),
-                                result.getString(2),
-                                result.getLong(3),
-                                result.getString(4),
-                                result.getString(5),
-                                result.getBoolean(6))
-                            , result.getLong(7),
-                                new Computation(result.getString(9),
-                                        result.getString(10),
-                                        result.getString(11),
-                                        result.getLong(12),
-                                        result.getLong(13),
-                                        Computation.toNextStepType(result.getInt(14)))));
+                        RecentNet rn = new RecentNet(
+                                new PetriNet( result.getString(1),
+                                        result.getString(2),
+                                        result.getLong(3),
+                                        result.getString(4),
+                                        result.getString(5),
+                                        result.getBoolean(6))
+                                ,result.getLong(7)
+                        );
+
+                        int id = result.getInt(8);
+                        if(!result.wasNull()){
+                            rn.setComputation(new Computation(result.getString(9),
+                                    result.getString(10),
+                                    result.getString(11),
+                                    result.getLong(12),
+                                    result.getLong(13),
+                                    Computation.toNextStepType(result.getInt(14))));
+                        }
+                        wantedNets.add(rn);
                         howMany --;
                     }
 

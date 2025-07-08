@@ -9,10 +9,9 @@ import java.util.List;
 
 public class UserDAO implements DataAccessObject{
     public static void main(String args[]) throws InputTypeException {
-//        removeUser(new User("davide", "sala", true));
-//        removeUser(new User("Davide", "sala", false));
-//        insertUser(new User("ale", "ale", true));
-        insertUser(new User("c", "c", false));
+        insertUser(new User("a", "a", true));
+        insertUser(new User("Davide", "sala", true));
+        insertUser(new User("ale", "ale", true));
 
     }
     public void createTable() {                          //metodo per creazione tabelle
@@ -29,6 +28,18 @@ public class UserDAO implements DataAccessObject{
             ex.printStackTrace();
         }
     }
+
+    public static void deleteTable(){
+        String command = "DROP TABLE users;";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute(command);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     public static void insertUser(Object user) throws InputTypeException {                  //inserimento di un utente che si registra
         String command = "INSERT INTO users(username, password, isAdmin) VALUES (?, ?, ?)";
@@ -181,21 +192,10 @@ public class UserDAO implements DataAccessObject{
     }
 
     public static int getNumberOfOwnedNetsByUser(Object user) throws InputTypeException {
-        String command = "SELECT COUNT(netName) FROM petri_nets WHERE creatorId = ?";
         int netsNumber = -1;
         try{
             if(user instanceof User u) {
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
-
-                    netsNumber = result.getInt(1);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                netsNumber = PetriNetsDAO.getNetsByCreator(u).size();
             }
             else{
                 throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
