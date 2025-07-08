@@ -399,15 +399,9 @@ public class HomeController implements Initializable {
     }
 
     @FXML
-    public void handleNewNetClick(ActionEvent event) {
-
-        safeNavigate(() -> {
-            try {
-                ViewNavigator.navigateToNetCreation(getValidNetName());
-            } catch (InputTypeException e) {
-                throw new RuntimeException(e);
-            }
-        });
+    public void handleNewNetClick(ActionEvent event) throws InputTypeException {
+        String netName = getValidNetName();
+        if(netName != null) safeNavigate(() -> ViewNavigator.navigateToNetCreation(netName));
     }
 
     // Getters for testing purposes
@@ -431,8 +425,9 @@ public class HomeController implements Initializable {
                     "Insert a name for your new Petri net",
                     "New Petri net"
             );
+            if(result.get().isCancel()) return null; //cancel
 
-            if (result.isPresent() && result.get().isOK()) {
+            if (result.get().isOK()) {
                 newName = result.get().getTextInput();
                 if (newName == null || newName.trim().isEmpty()) {
                     EnhancedAlert.showError( // Changed
