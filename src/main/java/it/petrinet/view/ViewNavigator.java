@@ -1,10 +1,7 @@
 package it.petrinet.view;
 
 import it.petrinet.Main;
-import it.petrinet.controller.ComputationListController;
-import it.petrinet.controller.MainController;
-import it.petrinet.controller.NetVisualController;
-import it.petrinet.controller.ShowAllController;
+import it.petrinet.controller.*;
 import it.petrinet.model.Computation;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.User;
@@ -177,8 +174,9 @@ public final class ViewNavigator {
 
     }
 
-    public static void navigateToNetCreation() {
+    public static void navigateToNetCreation(String id) {
         mainController.setNavBar(null);
+        NetCreationController.setNetName(id);
         loadView("NetCreationView.fxml");
     }
 
