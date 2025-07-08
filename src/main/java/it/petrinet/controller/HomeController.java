@@ -418,12 +418,12 @@ public class HomeController implements Initializable {
     }
 
     private String getValidNetName() throws InputTypeException {
-        String newName;
+        String newName = "New Petri net";
         while (true) {
             Optional<EnhancedAlert.AlertResult> result = EnhancedAlert.showTextInput( // Changed
                     "Petri net creation",
                     "Insert a name for your new Petri net",
-                    "New Petri net"
+                    newName
             );
             if(result.get().isCancel()) return null; //cancel
 

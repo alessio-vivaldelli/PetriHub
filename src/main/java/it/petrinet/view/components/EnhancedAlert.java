@@ -29,26 +29,29 @@ import java.util.Optional;
 
 /**
  * Enhanced Alert Dialog with multiple dialog types, flexible content, and smooth animations.
- * Fixed layout issues and message truncation problems.
- * Now features dynamic sizing based on content, improved centering, and a more compact default size.
+ * Fixed animation issues with consecutive alerts while maintaining original background behavior.
  */
 public class EnhancedAlert {
 
     // Constants
     private static final String CSS_PATH = "/styles/style.css";
-    private static final Duration ANIMATION_DURATION = Duration.millis(300); // Entry animation duration
-    private static final Duration FAST_ANIMATION = Duration.millis(200);   // Exit animation duration
+    private static final Duration ANIMATION_DURATION = Duration.millis(300);
+    private static final Duration FAST_ANIMATION = Duration.millis(200);
 
-    // Sizing limits - Adjusted for a more compact default
-    private static final double MIN_WIDTH = 320; // Slightly reduced min width
-    private static final double MAX_WIDTH = 650; // Slightly reduced max width, still generous
-    private static final double MIN_HEIGHT = 140; // Slightly reduced min height
-    private static final double MAX_HEIGHT = 300; // Adjusted max height
+    // Sizing limits
+    private static final double MIN_WIDTH = 320;
+    private static final double MAX_WIDTH = 650;
+    private static final double MIN_HEIGHT = 140;
+    private static final double MAX_HEIGHT = 300;
 
     // Layout constants
-    private static final double CONTENT_SPACING = 18; // Reduced spacing slightly
+    private static final double CONTENT_SPACING = 18;
     private static final double BUTTON_SPACING = 15;
-    private static final double DIALOG_PADDING = 25; // Reduced padding slightly
+    private static final double DIALOG_PADDING = 25;
+
+    // Global animation state management
+    private static Timeline globalExitAnimation;
+    private static final Object animationLock = new Object();
 
     // Enums
     public enum AlertType {
@@ -103,6 +106,8 @@ public class EnhancedAlert {
 
     private AlertResult result;
     private static Stage defaultStage;
+    private Timeline currentAnimation;
+    private boolean isClosing = false;
 
     // Constructor
     public EnhancedAlert(Stage ownerStage) {
@@ -133,22 +138,22 @@ public class EnhancedAlert {
         // Configure content container
         contentContainer.setAlignment(Pos.CENTER);
         contentContainer.setPadding(new Insets(DIALOG_PADDING));
-        contentContainer.setMaxWidth(Region.USE_PREF_SIZE); // Allows dynamic sizing based on content
-        contentContainer.setMaxHeight(Region.USE_PREF_SIZE); // Allows dynamic sizing based on content
+        contentContainer.setMaxWidth(Region.USE_PREF_SIZE);
+        contentContainer.setMaxHeight(Region.USE_PREF_SIZE);
 
-        // Configure dialog content - ensures elements inside are centered
+        // Configure dialog content
         dialogContent.setAlignment(Pos.CENTER);
-        dialogContent.setFillWidth(true); // Allows children like labels to expand horizontally
+        dialogContent.setFillWidth(true);
 
         // Add dialog content to container
         contentContainer.getChildren().add(dialogContent);
 
-        // Prevent event bubbling, so clicks on content don't close the dialog
+        // Prevent event bubbling
         contentContainer.setOnMouseClicked(Event::consume);
 
         // Add container to root
         popupRoot.getChildren().add(contentContainer);
-        StackPane.setAlignment(contentContainer, Pos.CENTER); // Ensure content container is centered in the root
+        StackPane.setAlignment(contentContainer, Pos.CENTER);
 
         // Create and set scene
         Scene popupScene = new Scene(popupRoot, ownerStage.getWidth(), ownerStage.getHeight());
@@ -157,7 +162,7 @@ public class EnhancedAlert {
     }
 
     private void setupStyling() {
-        // Darker overlay for a more professional look
+        // Original background styling
         popupRoot.setStyle("-fx-background-color: rgb(30,30,46,0.75);");
         contentContainer.getStyleClass().add("enhanced-alert-pane");
 
@@ -178,7 +183,7 @@ public class EnhancedAlert {
         // Keyboard handlers
         popupStage.setOnShown(event -> {
             popupStage.getScene().setOnKeyPressed(evt -> {
-                if (evt.getCode() == KeyCode.ESCAPE) {
+                if (evt.getCode() == KeyCode.ESCAPE && !isClosing) {
                     result = new AlertResult(ButtonType.CANCEL, null);
                     closeWithAnimation();
                 }
@@ -187,7 +192,7 @@ public class EnhancedAlert {
 
         // Mouse handlers - click outside to close
         popupRoot.setOnMouseClicked(evt -> {
-            if (evt.getTarget() == popupRoot) { // Only close if click is directly on the root overlay
+            if (evt.getTarget() == popupRoot && !isClosing) {
                 result = new AlertResult(ButtonType.CANCEL, null);
                 closeWithAnimation();
             }
@@ -287,7 +292,7 @@ public class EnhancedAlert {
 
         TextField textField = new TextField(defaultText != null ? defaultText : "");
         textField.getStyleClass().add("text-input-field");
-        textField.setPrefWidth(280); // Adjusted fixed width for the text field for compactness
+        textField.setPrefWidth(280);
 
         Button okButton = createButton("OK", ButtonType.OK, true);
         Button cancelButton = createButton("Cancel", ButtonType.CANCEL, false);
@@ -307,7 +312,7 @@ public class EnhancedAlert {
         buttonBox.setAlignment(Pos.CENTER);
 
         dialogContent.getChildren().setAll(titleLabel, messageLabel, textField, buttonBox);
-        autoSizeForContent(message, true); // Indicate that it has a text input
+        autoSizeForContent(message, true);
 
         popupStage.setOnShown(e -> Platform.runLater(() -> {
             textField.requestFocus();
@@ -334,8 +339,8 @@ public class EnhancedAlert {
         Label label = new Label(text);
         label.getStyleClass().addAll("title-label", styleClass);
         label.setWrapText(true);
-        label.setAlignment(Pos.CENTER); // Center text within the label
-        label.setMaxWidth(Double.MAX_VALUE); // Allow it to expand to fill width
+        label.setAlignment(Pos.CENTER);
+        label.setMaxWidth(Double.MAX_VALUE);
         return label;
     }
 
@@ -343,9 +348,8 @@ public class EnhancedAlert {
         Label label = new Label(text);
         label.getStyleClass().add("message-label");
         label.setWrapText(true);
-        label.setAlignment(Pos.CENTER); // Center text within the label
-        label.setMaxWidth(Double.MAX_VALUE); // Allow it to expand to fill width
-        // Allow the message label to grow vertically if content is long
+        label.setAlignment(Pos.CENTER);
+        label.setMaxWidth(Double.MAX_VALUE);
         VBox.setVgrow(label, javafx.scene.layout.Priority.SOMETIMES);
         return label;
     }
@@ -370,51 +374,33 @@ public class EnhancedAlert {
         };
     }
 
-    /**
-     * Dynamically sizes the alert based on message length and whether it contains a text input.
-     * This method tries to estimate content size without actually rendering it,
-     * which is a common approach in JavaFX for dynamic sizing.
-     * For truly precise sizing, one would need to render a temporary Text node,
-     * but this approximation is usually sufficient and avoids more complex dependencies.
-     */
     private void autoSizeForContent(String message, boolean hasTextInput) {
-        // Base dimensions for the dialog without much content
         double calculatedWidth = MIN_WIDTH;
         double calculatedHeight = MIN_HEIGHT;
 
         if (message != null && !message.isEmpty()) {
             int messageLength = message.length();
+            double lengthFactor = 2.0;
+            double baseMessageWidth = 300.0;
 
-            // Estimate width: a longer message will try to expand horizontally up to MAX_WIDTH
-            // The factor (e.g., 2.0) determines how aggressively it grows with length
-            double lengthFactor = 2.0; // How much width per character after a certain threshold
-            double baseMessageWidth = 300.0; // Base width for a "standard" message before it starts expanding
-
-            if (messageLength > 30) { // Start expanding width after 30 characters
+            if (messageLength > 30) {
                 calculatedWidth = Math.max(baseMessageWidth, MIN_WIDTH + (messageLength - 30) * lengthFactor);
             } else {
-                calculatedWidth = MIN_WIDTH; // Use min width for very short messages
+                calculatedWidth = MIN_WIDTH;
             }
-            calculatedWidth = Math.min(MAX_WIDTH, calculatedWidth); // Cap at max width
+            calculatedWidth = Math.min(MAX_WIDTH, calculatedWidth);
 
-            // Estimate height: more lines mean more height.
-            // This is a rough estimation of characters per line given the calculated width.
-            // Adjust the 50.0 value based on font size and target aesthetics.
-            double charsPerLineEstimate = Math.max(30, (calculatedWidth - DIALOG_PADDING * 2) / 7.0); // Rough character width (7.0 for avg char width)
+            double charsPerLineEstimate = Math.max(30, (calculatedWidth - DIALOG_PADDING * 2) / 7.0);
             int estimatedLines = (int) Math.ceil(messageLength / charsPerLineEstimate);
-            estimatedLines = Math.max(1, estimatedLines); // Ensure at least one line height
+            estimatedLines = Math.max(1, estimatedLines);
 
-            // Adjust base height with estimated lines, adding space per line
-            // Adding a fixed amount per line for aesthetic spacing
             calculatedHeight = MIN_HEIGHT + (estimatedLines - 1) * 20;
         }
 
-        // Add extra height if there's a text input field
         if (hasTextInput) {
-            calculatedHeight += 65; // Extra space for TextField, its padding, and a bit more for layout
+            calculatedHeight += 65;
         }
 
-        // Ensure calculated sizes are within min/max bounds before setting
         setPreferredSize(
                 Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, calculatedWidth)),
                 Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, calculatedHeight))
@@ -423,28 +409,35 @@ public class EnhancedAlert {
 
     private void setPreferredSize(double width, double height) {
         contentContainer.setPrefSize(width, height);
-        // Explicitly set min/max size to ensure hard limits are enforced by the layout manager
         contentContainer.setMinSize(MIN_WIDTH, MIN_HEIGHT);
         contentContainer.setMaxSize(MAX_WIDTH, MAX_HEIGHT);
     }
 
-    // This method can be used to set the modality if needed before calling showAndWait()
-    // Currently, showAndWait() defaults to APPLICATION_MODAL unless explicitly overridden.
     public EnhancedAlert setModal(boolean modal) {
-        // You could store this preference if you want a custom behavior for showAndWait().
-        // For simplicity, current showAndWait() has a 'modal' parameter.
         return this;
     }
 
     // Show and close methods
     public Optional<AlertResult> showAndWait() {
-        return showAndWait(true); // Default to application modal
+        return showAndWait(true);
     }
 
     public Optional<AlertResult> showAndWait(boolean modal) {
         popupStage.initModality(modal ? Modality.APPLICATION_MODAL : Modality.NONE);
 
-        // Reset animation state BEFORE showing, so it starts from the correct initial hidden position
+        synchronized (animationLock) {
+            // Wait for any global exit animation to complete
+            if (globalExitAnimation != null && globalExitAnimation.getStatus() == Timeline.Status.RUNNING) {
+                try {
+                    // Wait briefly for the exit animation to complete
+                    animationLock.wait(250);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        // Reset animation state and start entry animation
         resetAnimationState();
         createEntryAnimation().play();
 
@@ -453,19 +446,27 @@ public class EnhancedAlert {
     }
 
     private void closeWithAnimation() {
+        if (isClosing) return;
+        isClosing = true;
+
+        // Stop any current animation
+        if (currentAnimation != null) {
+            currentAnimation.stop();
+        }
+
         createExitAnimation().play();
     }
 
     // Animation methods
     private void resetAnimationState() {
         contentContainer.setOpacity(0);
-        contentContainer.setScaleX(0.85); // Slightly smaller at start
+        contentContainer.setScaleX(0.85);
         contentContainer.setScaleY(0.85);
-        contentContainer.setTranslateY(15); // Slightly offset from center at start
+        contentContainer.setTranslateY(15);
     }
 
     private Timeline createEntryAnimation() {
-        return new Timeline(
+        currentAnimation = new Timeline(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(contentContainer.opacityProperty(), 0, Interpolator.EASE_OUT),
                         new KeyValue(contentContainer.scaleXProperty(), 0.85, Interpolator.EASE_OUT),
@@ -479,10 +480,11 @@ public class EnhancedAlert {
                         new KeyValue(contentContainer.translateYProperty(), 0, Interpolator.EASE_OUT)
                 )
         );
+        return currentAnimation;
     }
 
     private Timeline createExitAnimation() {
-        Timeline timeline = new Timeline(
+        currentAnimation = new Timeline(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(contentContainer.opacityProperty(), 1, Interpolator.EASE_IN),
                         new KeyValue(contentContainer.scaleXProperty(), 1, Interpolator.EASE_IN),
@@ -493,14 +495,20 @@ public class EnhancedAlert {
                         new KeyValue(contentContainer.opacityProperty(), 0, Interpolator.EASE_IN),
                         new KeyValue(contentContainer.scaleXProperty(), 0.9, Interpolator.EASE_IN),
                         new KeyValue(contentContainer.scaleYProperty(), 0.9, Interpolator.EASE_IN),
-                        new KeyValue(contentContainer.translateYProperty(), 10, Interpolator.EASE_IN) // Slight drop on exit
+                        new KeyValue(contentContainer.translateYProperty(), 10, Interpolator.EASE_IN)
                 )
         );
-        timeline.setOnFinished(e -> {
-            // Do NOT call resetAnimationState() here. It causes a flicker.
-            // State is reset before next showAndWait().
+
+        // Store as global exit animation for synchronization
+        globalExitAnimation = currentAnimation;
+
+        currentAnimation.setOnFinished(e -> {
+            synchronized (animationLock) {
+                animationLock.notifyAll();
+            }
             popupStage.close();
         });
-        return timeline;
+
+        return currentAnimation;
     }
 }
