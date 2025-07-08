@@ -190,8 +190,7 @@ public class ShowAllController {
      * Gets owned nets for current user
      */
     private List<PetriNetRow> getOwnedNets() throws InputTypeException {
-        List<RecentNet> ownNets = PetriNetsDAO.getNetsWithTimestampByCreator(
-                ViewNavigator.getAuthenticatedUser());
+        List<RecentNet> ownNets = PetriNetsDAO.getNetsWithTimestampByCreator(ViewNavigator.getAuthenticatedUser());
         List<PetriNetRow> netsToShow = new ArrayList<>();
 
         for (RecentNet net : ownNets) {
@@ -226,11 +225,11 @@ public class ShowAllController {
     private Status determineNetStatus(RecentNet net) throws InputTypeException {
         String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
 
-        if(net.getComputation().getEndTimestamp()>0 & net.getTimestamp() == net.getComputation().getEndTimestamp()){
-            return Status.COMPLETED;
-        }
-        else if(net.getComputation().getStartTimestamp()<0){
+        if(net.getComputation() == null || net.getComputation().getStartTimestamp() <0){
             return Status.NOT_STARTED;
+        }
+        else if(net.getComputation().getEndTimestamp()>0 & net.getTimestamp() == net.getComputation().getEndTimestamp()){
+            return Status.COMPLETED;
         }
         else{
             if(net.getComputation().getNextStepType() == Computation.NEXT_STEP_TYPE.BOTH ||
