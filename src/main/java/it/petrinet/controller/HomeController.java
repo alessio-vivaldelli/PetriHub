@@ -13,6 +13,7 @@ import it.petrinet.model.database.UserDAO;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
 import it.petrinet.view.ViewNavigator;
+import it.petrinet.view.components.EnhancedAlert;
 import it.petrinet.view.components.table.DynamicPetriNetTableComponent;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -31,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -99,14 +101,14 @@ public class HomeController implements Initializable {
      * Sets up the user interface components
      */
     private void initializeUserInterface() {
-        configureNewNetButton();
+        configureView();
         updateWelcomeMessage();
     }
 
     /**
      * Configures the new net button based on user permissions
      */
-    private void configureNewNetButton() {
+    private void configureView() {
         boolean isAdmin = currentUser != null && currentUser.isAdmin();
 
         newNetButton.setText(NEW_NET_BUTTON_TEXT);
@@ -340,7 +342,7 @@ public class HomeController implements Initializable {
         Platform.runLater(() -> {
             currentUser = ViewNavigator.getAuthenticatedUser();
             updateWelcomeMessage();
-            configureNewNetButton();
+            configureView();
             loadInitialData();
         });
     }
@@ -397,7 +399,14 @@ public class HomeController implements Initializable {
 
     @FXML
     public void handleNewNetClick(ActionEvent event) {
-        safeNavigate(ViewNavigator::navigateToNetCreation);
+
+        safeNavigate(() -> {
+            try {
+                ViewNavigator.navigateToNetCreation(getValidNetName());
+            } catch (InputTypeException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     // Getters for testing purposes
@@ -412,4 +421,39 @@ public class HomeController implements Initializable {
     public static DynamicPetriNetTableComponent getPetriNetTable() {
         return petriNetTable;
     }
+
+    private String getValidNetName() throws InputTypeException {
+        String newName;
+        while (true) {
+            Optional<EnhancedAlert.AlertResult> result = EnhancedAlert.showTextInput( // Changed
+                    "Petri net creation",
+                    "Insert a name for your new Petri net",
+                    "New Petri net"
+            );
+
+            if (result.isPresent() && result.get().isOK()) {
+                newName = result.get().getTextInput();
+                if (newName == null || newName.trim().isEmpty()) {
+                    EnhancedAlert.showError( // Changed
+                            "Invalid Input",
+                            "You must provide a valide name for the Petri net."
+                    );
+                    continue;
+                }
+                if (PetriNetsDAO.getNetByName(newName) != null) {
+                    EnhancedAlert.showError(
+                            "This net Already exist",
+                            "You must provide a different name for new Petri net."
+                    );
+                    continue;
+                }
+                return newName;
+            } else {
+                // User cancelled (ESC or Cancel button)
+                System.out.println("Node creation cancelled by user.");
+                return null;
+            }
+        }
+    }
+
 }

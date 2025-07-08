@@ -28,6 +28,11 @@ public class NetCreationController implements Initializable {
 
     private PetriNetEditorPane canvas;
     private EditorToolBar toolbar;
+    private static String netName;
+
+    public static void setNetName(String netName) {
+        NetCreationController.netName = netName;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -39,7 +44,7 @@ public class NetCreationController implements Initializable {
      * Inizializza il canvas PetriNetCreationPane
      */
     private void setupCanvas() {
-        canvas = new PetriNetEditorPane("Net Creation", " ");
+        canvas = new PetriNetEditorPane(netName);
 
         // Il canvas deve occupare tutto lo spazio disponibile
         canvas.prefWidthProperty().bind(canvasContainer.widthProperty());
