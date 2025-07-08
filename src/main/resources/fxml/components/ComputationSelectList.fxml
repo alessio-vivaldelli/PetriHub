@@ -22,7 +22,7 @@
                 <TableColumn fx:id="initTimeCol" text="Start Date" prefWidth="140" minWidth="120" reorderable="false"/>
 
                 <!-- End Date Column -->
-                <TableColumn fx:id="endTimeCol" text="End Date" prefWidth="140" minWidth="120" reorderable="false"/>
+                <TableColumn fx:id="endTimeCol" text="Last Update" prefWidth="140" minWidth="120" reorderable="false"/>
 
                 <!-- Status Column -->
                 <TableColumn fx:id="statusCol" text="Status" prefWidth="120" minWidth="100" reorderable="false"/>

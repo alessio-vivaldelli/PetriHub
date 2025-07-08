@@ -37,10 +37,10 @@ import java.util.*;
 public class Computation {
 
   public enum NEXT_STEP_TYPE {
-    ADMIN,
+    NONE,
     USER,
-    BOTH,
-    NONE
+    ADMIN,
+    BOTH
   }
 
   private final String netId;
@@ -385,21 +385,20 @@ public class Computation {
    * @see #isStarted()
    */
   public boolean isFinished() {
-    return endTimestamp != -1L;
+    return !(endTimestamp <= 0);
   }
+
+  public long getEnd() {return endTimestamp;}
 
   /**
    * Returns the start time as a LocalDateTime in UTC.
    *
    * @return the start date/time in UTC timezone
-   * @throws IllegalStateException if the computation has not been started
    * @see #getStartTimestamp()
    * @see #isStarted()
    */
   public LocalDateTime getStartDate() {
-    if (!isStarted())
-      throw new IllegalStateException("Computation has not started yet");
-
+    if (!isStarted()) return null;
     return LocalDateTime.ofEpochSecond(startTimestamp, 0, ZoneOffset.UTC);
   }
 
@@ -407,13 +406,11 @@ public class Computation {
    * Returns the end time as a LocalDateTime in UTC.
    *
    * @return the end date/time in UTC timezone
-   * @throws IllegalStateException if the computation is not finished
    * @see #getEndTimestamp()
    * @see #isFinished()
    */
   public LocalDateTime getEndDate() {
-    if (!isFinished())
-      throw new IllegalStateException("Computation is not finished yet");
+    if (!isFinished()) return null;
 
     return LocalDateTime.ofEpochSecond(endTimestamp, 0, ZoneOffset.UTC);
   }
@@ -499,4 +496,5 @@ public class Computation {
       throw new IllegalArgumentException(fieldName + " cannot be null or empty");
     }
   }
+
 }

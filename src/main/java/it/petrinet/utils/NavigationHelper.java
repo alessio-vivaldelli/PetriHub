@@ -51,7 +51,7 @@ public class NavigationHelper {
      * Finds computation data for specific user and net
      */
     public static Computation findUserComputation(PetriNet net, String userId) throws InputTypeException {
-        return ComputationsDAO.getComputationsByNet(net.getNetName())
+        return ComputationsDAO.getComputationsByNet(net)
                 .stream()
                 .filter(computation -> computation.getUserId().equals(userId))
                 .findFirst()

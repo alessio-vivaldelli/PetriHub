@@ -14,35 +14,35 @@
 
             <columns>
                 <!-- Type Column -->
-                <TableColumn fx:id="typeCol" text="TYPE" prefWidth="120" minWidth="100" reorderable="false">
+                <TableColumn fx:id="typeCol" text="Type" prefWidth="120" minWidth="100" reorderable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="type"/>
                     </cellValueFactory>
                 </TableColumn>
 
                 <!-- Name Column -->
-                <TableColumn fx:id="nameCol" text="NOME" prefWidth="250" minWidth="200" reorderable="false">
+                <TableColumn fx:id="nameCol" text="Name" prefWidth="250" minWidth="200" reorderable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="Name"/>
                     </cellValueFactory>
                 </TableColumn>
 
                 <!-- Author Column -->
-                <TableColumn fx:id="authorCol" text="AUTHOR" prefWidth="150" minWidth="120" reorderable="false">
+                <TableColumn fx:id="authorCol" text="Author" prefWidth="150" minWidth="120" reorderable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="author"/>
                     </cellValueFactory>
                 </TableColumn>
 
                 <!-- Last Modified Column -->
-                <TableColumn fx:id="dateCol" text="LAST MODIFIED" prefWidth="140" minWidth="120" reorderable="false">
+                <TableColumn fx:id="dateCol" text="Creation Date" prefWidth="140" minWidth="120" reorderable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="lastModified"/>
                     </cellValueFactory>
                 </TableColumn>
 
                 <!-- Status Column -->
-                <TableColumn fx:id="statusCol" text="STATUS" prefWidth="120" minWidth="100" reorderable="false">
+                <TableColumn fx:id="statusCol" text="Status" prefWidth="120" minWidth="100" reorderable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="status"/>
                     </cellValueFactory>

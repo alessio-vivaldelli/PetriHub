@@ -41,4 +41,9 @@ public class PetriNetTableComponent extends GenericTableComponent<PetriNetRow> {
         statusCol.setCellFactory(column -> new BadgeCell<>(BadgeCell.Category.STATUS));
         typeCol.setCellFactory(column -> new BadgeCell<>(BadgeCell.Category.TYPE));
     }
+
+    public void dataColSubName(){
+        dateCol.setText("Last Update");
+    }
+
 }

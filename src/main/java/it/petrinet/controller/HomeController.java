@@ -202,7 +202,7 @@ public class HomeController implements Initializable {
      */
     private void updateDiscoverableNetsCount() {
         try {
-            int count = PetriNetsDAO.getUnknownNetsByUser(currentUser).size();
+            int count = PetriNetsDAO.getDiscoverableNetsByUser(currentUser).size();
             discoverableNetsLabel.setText(String.valueOf(count));
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Failed to get discoverable nets count", e);

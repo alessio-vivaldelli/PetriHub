@@ -2,22 +2,25 @@ package it.petrinet.controller;
 
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
+import it.petrinet.model.ComputationStep;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.TableRow.Status;
+import it.petrinet.model.database.ComputationStepDAO;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
-import it.petrinet.model.database.RecentNet;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.PetriNetTableComponent;
+import it.petrinet.model.Computation.NEXT_STEP_TYPE;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -27,6 +30,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static it.petrinet.utils.Safenavigate.safeNavigate;
+import static it.petrinet.utils.StatusByComputation.determineNetDate;
+import static it.petrinet.utils.StatusByComputation.getStatusByComputation;
 
 public class ShowAllController {
 
@@ -43,8 +48,8 @@ public class ShowAllController {
 
     @FXML
     public void initialize() throws InputTypeException {
-        initializeUserInterface();
         initializeTableComponent();
+        initializeUserInterface();
         loadShowAllData();
     }
 
@@ -54,6 +59,7 @@ public class ShowAllController {
     private void initializeUserInterface() {
         frameTitle.setText(" " + cardType.getDisplayName());
         IconUtils.setIcon(frameTitle, cardType.getDisplayName(), 30, 30, Color.WHITE);
+        if(cardType == NetCategory.SUBSCRIBED) petriNetTable.dataColSubName();
     }
 
     /**
@@ -71,11 +77,8 @@ public class ShowAllController {
      * Sets up event handlers based on card type
      */
     private void setupTableEventHandlers() {
-        if (cardType == NetCategory.OWNED) {
-            petriNetTable.setOnRowClickHandler(this::handleUserTableView);
-        } else {
-            petriNetTable.setOnRowClickHandler(this::handleTableRowClick);
-        }
+        if (cardType == NetCategory.OWNED) petriNetTable.setOnRowClickHandler(this::handleUserTableView);
+        else petriNetTable.setOnRowClickHandler(this::handleTableRowClick);
     }
 
     /**
@@ -141,120 +144,48 @@ public class ShowAllController {
      * Gets discoverable nets for current user
      */
     private List<PetriNetRow> getDiscoverableNets() throws InputTypeException {
-        List<RecentNet> unknownNets = PetriNetsDAO.getUnknownNetsByUser(ViewNavigator.getAuthenticatedUser());
-        List<PetriNetRow> netsToShow = new ArrayList<>();
-
-        for (RecentNet net : unknownNets) {
-            if(!(net.getNet().getNetName() == null)){
-                LocalDateTime creationDate = LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
-                netsToShow.add(new PetriNetRow(
-                        net.getNet().getNetName(),
-                        net.getNet().getCreatorId(),
-                        creationDate,
-                        Status.NOT_STARTED,
-                        NetCategory.DISCOVER
-                ));
-            }
-
-        }
-        return netsToShow;
+        List<PetriNet> unknownNets = PetriNetsDAO.getDiscoverableNetsByUser(ViewNavigator.getAuthenticatedUser());
+        return makeList(unknownNets, NetCategory.DISCOVER);
     }
 
     /**
      * Gets subscribed nets for current user
      */
     private List<PetriNetRow> getSubscribedNets() throws InputTypeException {
-        List<RecentNet> subscribedNets = ComputationsDAO.getRecentNetsSubscribedByUser(
+        List<PetriNet> subscribedNets = ComputationsDAO.getNetsSubscribedByUser(
                 ViewNavigator.getAuthenticatedUser());
-        List<PetriNetRow> netsToShow = new ArrayList<>();
-
-        System.out.println("Subscribed nets count: " + subscribedNets.size());
-
-        for (RecentNet net : subscribedNets) {
-            if (!(net.getNet().getNetName() == null)){
-                LocalDateTime date = determineNetDate(net);
-                netsToShow.add(new PetriNetRow(
-                        net.getNet().getNetName(),
-                        net.getNet().getCreatorId(),
-                        date,
-                        Status.NOT_STARTED,
-                        NetCategory.SUBSCRIBED
-                ));
-            }
-
-        }
-        return netsToShow;
+        return makeList(subscribedNets, NetCategory.SUBSCRIBED);
     }
 
     /**
      * Gets owned nets for current user
      */
     private List<PetriNetRow> getOwnedNets() throws InputTypeException {
-        List<RecentNet> ownNets = PetriNetsDAO.getNetsWithTimestampByCreator(ViewNavigator.getAuthenticatedUser());
-        List<PetriNetRow> netsToShow = new ArrayList<>();
+        List<PetriNet> ownNets = PetriNetsDAO.getNetsByCreator(ViewNavigator.getAuthenticatedUser());
+        return makeList(ownNets, NetCategory.OWNED);
+    }
 
-        for (RecentNet net : ownNets) {
-            if (!(net.getNet().getNetName() == null)){
-                LocalDateTime date = LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
+    private List<PetriNetRow> makeList(List<PetriNet> nets, NetCategory category) throws InputTypeException {
+        List<PetriNetRow> netsToShow = new ArrayList<>();
+        for (PetriNet net : nets) {
+            Computation computation = (category == NetCategory.OWNED) ?
+                    getFirstSubscribedNets(net) :
+                    findUserComputation(net);
+            if (!(net.getNetName() == null)){
                 netsToShow.add(new PetriNetRow(
-                        net.getNet().getNetName(),
-                        net.getNet().getCreatorId(),
-                        date,
-                        determineNetStatus(net),
-                        determineNetCategory(net)
+                        net.getNetName(),
+                        net.getCreatorId(),
+                        determineNetDate(computation, net.getCreationDate()),
+                        getStatusByComputation(computation),
+                        category
                 ));
             }
         }
         return netsToShow;
     }
 
-    /**
-     * Determines the appropriate date for a net (timestamp or creation date)
-     */
-    private LocalDateTime determineNetDate(RecentNet net) {
-        if (net.getTimestamp() == null) {
-            return LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
-        } else {
-            return LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
-        }
+    private Computation getFirstSubscribedNets(PetriNet net) throws InputTypeException {
+        ComputationStep step = ComputationStepDAO.getLastComputationStepForPetriNet(net.getNetName());
+        return (step != null) ? ComputationStepDAO.getComputationByStep(step) : null;
     }
-
-    /**
-     * Determines the status of a net for current user
-     */
-    private Status determineNetStatus(RecentNet net) throws InputTypeException {
-        String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
-
-        if(net.getComputation() == null || net.getComputation().getStartTimestamp() <0){
-            return Status.NOT_STARTED;
-        }
-        else if(net.getComputation().getEndTimestamp()>0 & net.getTimestamp() == net.getComputation().getEndTimestamp()){
-            return Status.COMPLETED;
-        }
-        else{
-            if(net.getComputation().getNextStepType() == Computation.NEXT_STEP_TYPE.BOTH ||
-                    (net.getComputation().getNextStepType() == Computation.NEXT_STEP_TYPE.ADMIN & ViewNavigator.getAuthenticatedUser().isAdmin())||
-                    (net.getComputation().getNextStepType() == Computation.NEXT_STEP_TYPE.USER & !ViewNavigator.getAuthenticatedUser().isAdmin())){
-                return Status.WAITING;
-            }
-            else{
-                return Status.IN_PROGRESS;
-            }
-        }
-    }
-
-    /**
-     * Determines the category of a net for current user
-     */
-    private NetCategory determineNetCategory(RecentNet net) throws InputTypeException {
-        String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
-
-        if (net.getNet().getCreatorId().equals(currentUsername)) {
-            return NetCategory.OWNED;
-        }
-
-        Computation computation = findUserComputation(net.getNet());
-        return computation != null ? NetCategory.SUBSCRIBED : NetCategory.DISCOVER;
-    }
-
 }

@@ -9,6 +9,7 @@ import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
+import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.ComputationSelectComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -20,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static it.petrinet.utils.StatusByComputation.determineNetDate;
+import static it.petrinet.utils.StatusByComputation.getStatusByComputation;
 
 public class ComputationListController {
 
@@ -58,6 +62,7 @@ public class ComputationListController {
         VBox.setVgrow(userTable, Priority.ALWAYS);
         tableContainer.getChildren().add(userTable);
     }
+
 
     /**
      * Handles table row click events - navigates to computation view
@@ -109,42 +114,22 @@ public class ComputationListController {
         }
 
         List<Computation> computations = ComputationsDAO.getComputationsByNet(net);
+
         List<ComputationRow> computationRows = new ArrayList<>();
 
         System.out.println(computations.size());
 
         for (Computation computation : computations) {
             int computationId = ComputationsDAO.getIdByComputation(computation);
-            Status status = determineComputationStatus(computation);
-
-            // Using placeholder dates - should be replaced with actual computation dates
-            LocalDateTime startDate = LocalDateTime.now(); // TODO: Get actual start date
-            LocalDateTime endDate = LocalDateTime.now().plusHours(1); // TODO: Get actual end date
 
             computationRows.add(new ComputationRow(
                     String.valueOf(computationId),
                     computation.getUserId(),
-                    startDate,
-                    endDate,
-                    status
+                    computation.getStartDate(),
+                    determineNetDate(computation, computation.getEnd()),
+                    getStatusByComputation(computation)
             ));
         }
-
         return computationRows;
-    }
-
-    /**
-     * Determines the status of a computation
-     */
-    private Status determineComputationStatus(Computation computation) {
-        if (!computation.isStarted()) {
-            return Status.NOT_STARTED;
-        } else if (computation.isFinished()) {
-            return Status.COMPLETED;
-        } else {
-            // TODO: Implement notification check logic
-            boolean hasNotifications = false;
-            return hasNotifications ? Status.WAITING : Status.IN_PROGRESS;
-        }
     }
 }

@@ -383,54 +383,59 @@ public class PetriNetsDAO implements DataAccessObject{
         return wantedNets;
     }
 
-    public static List<RecentNet> getUnknownNetsByUser(Object user) throws InputTypeException{
-        List<RecentNet> wantedNets = new ArrayList<RecentNet>();
+    /**
+     * Retrieves a list of discoverable Petri nets for a given user.
+     * A Petri net is discoverable if:
+     * 1. The user is not its creator.
+     * 2. The Petri net is marked as 'ready'.
+     * 3. There is no existing computation for this Petri net associated with the given user.
+     *
+     * @param user The user for whom to discover Petri nets.
+     * @return A list of discoverable PetriNet objects.
+     * @throws InputTypeException If the provided user object is null.
+     */
+    public static List<PetriNet> getDiscoverableNetsByUser(User user) throws InputTypeException {
+        if (user == null) throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
 
-        String searchCommand = "SELECT * " +
+
+        List<PetriNet> discoverableNets = new ArrayList<>();
+
+        String userId = user.getUsername(); // Or user.getUsername() if that's the ID
+
+        String command = "SELECT pn.* " +
                 "FROM petri_nets pn " +
-                "WHERE pn.creatorId <> ? AND pn.netName NOT IN (\n" +
-                "       SELECT netId\n" +
-                "       FROM computations\n" +
-                "       WHERE userId = ?\n" +
-                "   )\n" +
-                "ORDER BY pn.creationDate DESC;";
+                "LEFT JOIN computations c ON pn.netName = c.netId AND c.userId = ? " +
+                "WHERE pn.creatorId != ? AND pn.isReady = 1 AND c.netId IS NULL";
 
-        try{
-            if(user instanceof User u){
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(searchCommand)){
-                    p_statement.setString(1, u.getUsername());
-                    p_statement.setString(2, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command)) {
 
-                    System.out.println();
+            try (java.sql.Statement stmt = connection.createStatement()) {
+                stmt.execute("PRAGMA foreign_keys = ON;");
+            }
 
-                    while(result.next()){
-                        RecentNet NetRecord = new RecentNet(new PetriNet(
-                                result.getString(1),
-                                result.getString(2),
-                                result.getLong(3),
-                                result.getString(4),
-                                result.getString(5),
-                                result.getBoolean(6)
-                        ), result.getLong(3));
-                        wantedNets.add(NetRecord);
-                    }
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
+            p_statement.setString(1, userId); // For c.userId = ? in LEFT JOIN
+            p_statement.setString(2, userId); // For pn.creatorId != ? in WHERE
+
+            try (ResultSet result = p_statement.executeQuery()) {
+                while (result.next()) {
+                    discoverableNets.add(new PetriNet(
+                            result.getString(1),
+                            result.getString(2),
+                            result.getLong(3),
+                            result.getString(4),
+                            result.getString(5),
+                            result.getBoolean(6)
+                    ));
                 }
             }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
+        } catch (SQLException ex) {
+            System.err.println("Database error while fetching discoverable Petri nets: " + ex.getMessage());
+            ex.printStackTrace(); // Log the full stack trace for debugging
+            // Depending on your application's error handling, you might rethrow a custom
+            // runtime exception or a checked exception here.
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-        return wantedNets;
+        return discoverableNets;
     }
-
-
 }
 
