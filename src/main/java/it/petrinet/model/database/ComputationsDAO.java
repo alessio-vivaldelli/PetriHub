@@ -676,22 +676,25 @@ public class ComputationsDAO implements DataAccessObject{
                     ResultSet result = p_statement.executeQuery();
 
                     while(result.next()) {
-                        wantedNets.add(new RecentNet(new PetriNet(
-                                result.getString(1),
-                                result.getString(2),
-                                result.getLong(3),
-                                result.getString(4),
-                                result.getString(5),
-                                result.getBoolean(6)
-                            ), result.getLong(7),
-                                new Computation(result.getString(9),
-                                        result.getString(10),
-                                        result.getString(11),
-                                        result.getLong(12),
-                                        result.getLong(13),
-                                        Computation.toNextStepType(result.getInt(14)))
-                                )
+                        RecentNet rn = new RecentNet(
+                                new PetriNet( result.getString(1),
+                                        result.getString(2),
+                                        result.getLong(3),
+                                        result.getString(4),
+                                        result.getString(5),
+                                        result.getBoolean(6))
+                                ,result.getLong(7)
                         );
+                        int id = result.getInt(8);
+                        if(!result.wasNull()){
+                            rn.setComputation(new Computation(result.getString(9),
+                                    result.getString(10),
+                                    result.getString(11),
+                                    result.getLong(12),
+                                    result.getLong(13),
+                                    Computation.toNextStepType(result.getInt(14))));
+                        }
+                        wantedNets.add(rn);
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();

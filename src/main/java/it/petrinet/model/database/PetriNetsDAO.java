@@ -17,7 +17,6 @@ public class PetriNetsDAO implements DataAccessObject{
 //        insertNet(new PetriNet("net3", "ale", 1712924800L,"XML", "image", true));
         insertNet(new PetriNet("net14", "ale", 1710914120L,"XML", "image", true));
         System.out.println(getNetsWithTimestampByCreator(new User("a", "a", true)));
-        System.out.println(getAdminNameByNetName("net2"));
     }
 
     public void createTable() {
