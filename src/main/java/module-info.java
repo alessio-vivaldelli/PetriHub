@@ -12,7 +12,7 @@ module it.petrinet {
   requires java.xml;
   requires javafx.base;
   requires java.desktop;
-    requires org.slf4j;
+  requires org.slf4j;
 
   opens it.petrinet to javafx.fxml;
 
@@ -28,12 +28,17 @@ module it.petrinet {
   opens it.petrinet.model;
   opens it.petrinet.view.components;
   opens it.petrinet.utils;
-    exports it.petrinet.model.TableRow;
-    opens it.petrinet.model.TableRow;
-  exports it.petrinet.view.components.table;
-  opens it.petrinet.view.components.table;
-    exports it.petrinet.view.components.toolbar;
-    opens it.petrinet.view.components.toolbar;
 
+  exports it.petrinet.model.TableRow;
+
+  opens it.petrinet.model.TableRow;
+
+  exports it.petrinet.view.components.table;
+
+  opens it.petrinet.view.components.table;
+
+  exports it.petrinet.view.components.toolbar;
+
+  opens it.petrinet.view.components.toolbar;
 
 }

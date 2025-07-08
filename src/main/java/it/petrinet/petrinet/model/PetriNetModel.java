@@ -23,7 +23,7 @@ public class PetriNetModel {
    * Constructs a PetriNetModel with the specified nodes and arcs.
    * 
    * @param places the list of nodes
-   * @param arcs  the list of arcs
+   * @param arcs   the list of arcs
    * @throws IllegalConnectionException
    */
   public PetriNetModel(String name, List<Place> places, List<Transition> transition, List<Arc> arcs, Place startNode,
@@ -48,15 +48,19 @@ public class PetriNetModel {
       allNodes.put(node, false);
     }
 
+    if (!adjacencyList.containsKey(startNode) || !adjacencyList.containsKey(finishNode)) {
+      throw new IllegalConnectionException("Start node or finish node are not present in the petri net nodes");
+    }
+
     for (Arc arc : arcs) {
       Node fromNode = getNodeByName(arc.getFrom());
       Node toNode = getNodeByName(arc.getTo());
 
       if (fromNode.equals(finishNode)) {
-        throw new IllegalConnectionException("Arc cannot connect to the finish node: %s".formatted(arc.getFrom()));
+        throw new IllegalConnectionException("Arc cannot start from the finish node: %s".formatted(arc.getFrom()));
       }
       if (toNode.equals(startNode)) {
-        throw new IllegalConnectionException("Arc cannot connect from the start node: %s".formatted(arc.getTo()));
+        throw new IllegalConnectionException("Arc cannot connect to the start node: %s".formatted(arc.getTo()));
       }
       if (!adjacencyList.containsKey(fromNode) || !adjacencyList.containsKey(toNode)) {
         throw new IllegalConnectionException("Arc connects nodes not present in the Petri net: %s->%s".formatted(
@@ -114,6 +118,9 @@ public class PetriNetModel {
   public void addArc(Node from, Node to) throws IllegalConnectionException {
     if (!areCompatible(from, to)) {
       throw new IllegalConnectionException("Nodes %s->%s are not compatible for connection".formatted(from, to));
+    }
+    if (!adjacencyList.containsKey(from) || !adjacencyList.containsKey(to)) {
+      throw new IllegalConnectionException("from node or to node are not present in the net model");
     }
     adjacencyList.putIfAbsent(from, new ArrayList<>());
     adjacencyList.putIfAbsent(to, new ArrayList<>());
@@ -190,7 +197,17 @@ public class PetriNetModel {
    * @return the node with the specified name
    */
   public Node getNodeByName(String name) {
-    Node n = adjacencyList.keySet().stream().filter(e -> e.getName().equals(name)).findFirst().get();
+    Node n = null;
+
+    try {
+      n = adjacencyList.keySet().stream().filter(e -> e.getName().equals(name)).findFirst().get();
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Node with name " + name + " is not a valid Place or Transition.");
+    }
+
+    if (n == null) {
+      throw new IllegalArgumentException("Node with name " + name + " is not a valid Place or Transition.");
+    }
 
     if (n instanceof Place p) {
       return p;

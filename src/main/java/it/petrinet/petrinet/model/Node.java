@@ -16,6 +16,9 @@ public abstract class Node {
    * @param position
    */
   public Node(String name, Point2D position) {
+    if (name.isBlank()) {
+      throw new IllegalArgumentException("Name can't be empty");
+    }
     this.name = name;
     this.position = position;
   }

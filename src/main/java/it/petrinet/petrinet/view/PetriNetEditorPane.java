@@ -125,8 +125,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     saveNetAction(name, description);
   }
 
-
-  //TODO: non salva ancora con il nome, aggiungere Alert per il nome
+  // TODO: non salva ancora con il nome, aggiungere Alert per il nome
   /**
    * Handles the action of saving the Petri Net.
    * Shows a confirmation dialog, builds the model, serializes it, and invokes the
@@ -144,7 +143,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     petriNetBuilder.setPetriName(name);
 
     Optional<EnhancedAlert.AlertResult> result = EnhancedAlert.showConfirmation( // Changed
-            "Save Petri Net", "Do you want to save the Petri Net?");
+        "Save Petri Net", "Do you want to save the Petri Net?");
 
     if (result.isPresent() && result.get().isYes()) {
       System.out.println("Saving Petri Net...");
@@ -220,18 +219,17 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       // Loop to ensure unique label
       while (!unique) {
         Optional<EnhancedAlert.AlertResult> result = EnhancedAlert.showTextInput( // Changed
-                "Create " + currentNodeType.toString(),
-                "Enter a unique label for the new " + currentNodeType.toString() + ":",
-                nodeLabel // Pass default text to showTextInput
+            "Create " + currentNodeType.toString(),
+            "Enter a unique label for the new " + currentNodeType.toString() + ":",
+            nodeLabel // Pass default text to showTextInput
         );
 
         if (result.isPresent() && result.get().isOK()) {
           String newName = result.get().getTextInput();
           if (newName == null || newName.trim().isEmpty()) {
             EnhancedAlert.showError( // Changed
-                    "Invalid Input",
-                    "You must provide a label for the new " + currentNodeType.toString() + "."
-            );
+                "Invalid Input",
+                "You must provide a label for the new " + currentNodeType.toString() + ".");
             continue;
           }
 
@@ -241,9 +239,8 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
             unique = true;
           } else {
             EnhancedAlert.showError( // Changed
-                    "Duplicate Label",
-                    "The label '" + nodeLabel + "' already exists. Please choose a different one."
-            );
+                "Duplicate Label",
+                "The label '" + nodeLabel + "' already exists. Please choose a different one.");
           }
         } else {
           // User cancelled (ESC or Cancel button)
@@ -304,11 +301,11 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       if (currentType.equals("Transition")) {
         TRANSITION_TYPE current = ((Transition) element.element()).getType();
         userTypeItem = new MenuItem(
-                (current.equals(TRANSITION_TYPE.ADMIN)) ? "Change to User"
-                        : "Change to Admin"); // Default, since not implemented yet
+            (current.equals(TRANSITION_TYPE.ADMIN)) ? "Change to User"
+                : "Change to Admin"); // Default, since not implemented yet
         userTypeItem.setOnAction(_ -> {
           TRANSITION_TYPE newType = (current.equals(TRANSITION_TYPE.ADMIN)) ? TRANSITION_TYPE.USER
-                  : TRANSITION_TYPE.ADMIN;
+              : TRANSITION_TYPE.ADMIN;
           setTransitionType(newType, element);
         });
         IconUtils.setIcon(userTypeItem, !current.equals(TRANSITION_TYPE.ADMIN) ? "AdminMode.png" : "UserMode.png", 20);
@@ -366,17 +363,17 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       MenuItem infoItem = new MenuItem("Show Info");
       infoItem.setOnAction(_ -> {
         EnhancedAlert.showInformation("Node Information", // Changed
-                "Name: " + element.element().getName() +
-                        "\nType: " + element.element().getShapeType() +
-                        "\nVertex ID: " + element.toString());
+            "Name: " + element.element().getName() +
+                "\nType: " + element.element().getShapeType() +
+                "\nVertex ID: " + element.toString());
       });
 
       if (userTypeItem != null) {
         contextMenu.getItems().addAll(editLabelItem,
-                userTypeItem, new SeparatorMenuItem(), infoItem, deleteItem);
+            userTypeItem, new SeparatorMenuItem(), infoItem, deleteItem);
       } else {
         contextMenu.getItems().addAll(editLabelItem, normalPlaceItem, startPlaceItem, endPlaceItem,
-                new SeparatorMenuItem(), infoItem, deleteItem);
+            new SeparatorMenuItem(), infoItem, deleteItem);
       }
 
       // Show context menu at cursor position
@@ -408,17 +405,17 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
             // only connection with place -> transition or transition -> place are allowed
             if (!areCompatible(firstSelectedVertex.element(), element.element())) {
               EnhancedAlert.showError("Connection Error", // Changed
-                      "Cannot connect " + firstSelectedVertex.element().getName() +
-                              " to " + element.element().getName() +
-                              ". Only Place to Transition or Transition to Place connections are allowed.");
+                  "Cannot connect " + firstSelectedVertex.element().getName() +
+                      " to " + element.element().getName() +
+                      ". Only Place to Transition or Transition to Place connections are allowed.");
               firstSelectedVertex = null; // Reset selection
               return;
             }
             addArcToGraph(firstSelectedVertex.element().getName(), element.element().getName(), edgeLabel);
           } else {
             System.out.println("Edge already exists between " +
-                    firstSelectedVertex.element().getName() + " and " +
-                    element.element().getName());
+                firstSelectedVertex.element().getName() + " and " +
+                element.element().getName());
           }
         } else {
           System.out.println("Cannot connect vertex to itself");
@@ -466,7 +463,7 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
   protected void removeEdgeFromGraph(Edge<String, Node> edge) {
     super.removeEdgeFromGraph(edge);
     petriNetBuilder.removeArc(edge.vertices()[0].element().getName(),
-            edge.vertices()[1].element().getName());
+        edge.vertices()[1].element().getName());
   }
 
   @Override
@@ -520,7 +517,4 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       return node1 instanceof Transition && node2 instanceof Place; // Transition can connect to Place
     // Other combinations are not allowed
   }
-
-  // Removed the old PopupMenu methods as they are no longer needed
-  // EnhancedAlert handles all the dialog functionality now
 }
