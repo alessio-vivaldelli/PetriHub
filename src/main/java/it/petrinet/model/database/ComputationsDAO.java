@@ -14,8 +14,9 @@ public class ComputationsDAO implements DataAccessObject{
         ComputationsDAO d = new ComputationsDAO();
         d.createTable();
 //        insertComputation(new Computation("net1","a","Davide", 34,-1 ,Computation.NEXT_STEP_TYPE.ADMIN));
-        insertComputation(new Computation("net10","Davide","a", 34, Computation.NEXT_STEP_TYPE.BOTH));
+        //insertComputation(new Computation("net14","ale","a", 34, Computation.NEXT_STEP_TYPE.BOTH));
 //        insertComputation(new Computation("net4","anto","Davide", 34, Computation.NEXT_STEP_TYPE.USER));
+        System.out.println(getNetsSubscribedByUser(new User("a", "a", true)).size());
     }
 
     public void createTable() {                          //metodo per creazione tabelle

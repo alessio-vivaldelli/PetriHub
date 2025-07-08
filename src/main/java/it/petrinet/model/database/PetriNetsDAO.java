@@ -15,8 +15,9 @@ public class PetriNetsDAO implements DataAccessObject{
         //insertNet(new PetriNet("net16", "a", 0L,"XML", "image", true));
 //        insertNet(new PetriNet("net2", "ale", 456787654L,"XML", "image", true));
 //        insertNet(new PetriNet("net3", "ale", 1712924800L,"XML", "image", true));
-//        insertNet(new PetriNet("net4", "anto", 1710914120L,"XML", "image", true));
+        insertNet(new PetriNet("net14", "ale", 1710914120L,"XML", "image", true));
         System.out.println(getNetsWithTimestampByCreator(new User("a", "a", true)));
+        System.out.println(getAdminNameByNetName("net2"));
     }
 
     public void createTable() {
@@ -108,6 +109,36 @@ public class PetriNetsDAO implements DataAccessObject{
         catch(InputTypeException e){
             e.ErrorPrinter();
         }
+    }
+
+    public static String getAdminNameByNetName(Object netName) throws InputTypeException{
+        String name = null;
+        try{
+            if(netName instanceof String n){
+                String command = "SELECT p.creatorId FROM petri_nets p WHERE netName = ?";
+
+                try (Connection connection = DatabaseManager.getDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command);
+                     Statement statement = connection.createStatement()){
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setString(1, n);
+                    ResultSet result = p_statement.executeQuery();
+                    if(result.next()){
+                       name = result.getString(1);
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+            }
+        }
+        catch(InputTypeException e){
+            e.ErrorPrinter();
+        }
+        return name;
     }
 
     public static void setReady(Object p_net) throws InputTypeException{
