@@ -39,11 +39,9 @@ public class LoginController {
         loginButton.setDefaultButton(true);
 
         // Check if there's a pending success message from registration
-        String pendingMessage = ViewNavigator.getPendingMessage();
-        if (pendingMessage != null) {
-            showSuccess(pendingMessage);
-            ViewNavigator.clearPendingMessage();
-        }
+        String pendingMessage = ViewNavigator.consumePendingMessage();
+        if (pendingMessage != null) showSuccess(pendingMessage);
+
     }
 
     @FXML
@@ -73,7 +71,7 @@ public class LoginController {
 
     @FXML
     private void handleRegister() {
-        safeNavigate(ViewNavigator::navigateToRegister);
+        safeNavigate(ViewNavigator::toRegister);
     }
 
     private void loadLogoImage() {
@@ -87,7 +85,7 @@ public class LoginController {
 
     private void proceedToMainView(ActionEvent event, User user) {
         ViewNavigator.setAuthenticatedUser(user);
-        ViewNavigator.HomeScene();
+        ViewNavigator.homeScene();
     }
 
     private void showError(String message) {

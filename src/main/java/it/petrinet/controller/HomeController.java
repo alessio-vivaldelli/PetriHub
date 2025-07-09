@@ -51,7 +51,7 @@ public class HomeController implements Initializable {
     @FXML private Label discoverableNetsLabel;
     @FXML private Label subscribedNetsLabel;
     @FXML private Button newNetButton;
-    @FXML private VBox activityFeedContainer;
+    @FXML private VBox activityFeedContainer; //TODO: Implement activity feed
     @FXML private Label userNameLabel;
     @FXML private VBox tableContainer;
     @FXML private VBox ownedStats;
@@ -272,9 +272,9 @@ public class HomeController implements Initializable {
 
         try {
             switch (category) {
-                case OWNED -> safeNavigate(() -> ViewNavigator.navigateToUserList(netName));
+                case OWNED -> safeNavigate(() -> ViewNavigator.toUserList(netName));
                 case SUBSCRIBED -> handleSubscribedNetClick(netName);
-                case DISCOVER -> safeNavigate(ViewNavigator::navigateToDiscover);
+                case DISCOVER -> safeNavigate(ViewNavigator::toDiscoverNets);
                 default -> LOGGER.info("Clicked on net: " + netName);
             }
         } catch (Exception e) {
@@ -358,23 +358,23 @@ public class HomeController implements Initializable {
 
     @FXML
     public void handleSubscribedNetsClick(MouseEvent event) {
-        safeNavigate(ViewNavigator::navigateToSubNets);
+        safeNavigate(ViewNavigator::toSubscribedNets);
     }
 
     @FXML
     public void handleDiscoverableNetsClick(MouseEvent event) {
-        safeNavigate(ViewNavigator::navigateToDiscover);
+        safeNavigate(ViewNavigator::toDiscoverNets);
     }
 
     @FXML
     public void handleOwnedNetsClick(MouseEvent event) {
-        safeNavigate(ViewNavigator::navigateToMyNets);
+        safeNavigate(ViewNavigator::toMyNets);
     }
 
     @FXML
     public void handleNewNetClick(ActionEvent event)  {
         String netName = getValidNetName();
-        if(netName != null) safeNavigate(() -> ViewNavigator.navigateToNetCreation(netName));
+        if(netName != null) safeNavigate(() -> ViewNavigator.toNetCreation(netName));
     }
 
     // Getters for testing purposes
@@ -424,5 +424,7 @@ public class HomeController implements Initializable {
             }
         }
     }
+
+
 
 }

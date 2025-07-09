@@ -18,7 +18,7 @@ public class MainController {
         // Register this controller with the ViewNavigator
         ViewNavigator.init(this);
         // Load the home view by default
-        ViewNavigator.navigateToLogin();
+        ViewNavigator.toLogin();
 
     }
 

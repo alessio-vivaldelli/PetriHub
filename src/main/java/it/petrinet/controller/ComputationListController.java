@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,14 +29,11 @@ public class ComputationListController {
     @FXML private Label frameTitle;
     @FXML private VBox tableContainer;
     private ComputationSelectComponent userTable;
-    private static String netID;
+    private String netID;
 
-    public static void setNetID(String netID) {
-        ComputationListController.netID = netID;
-    }
+    public void initData(String netID) {
+        this.netID = Objects.requireNonNull(netID, "Category cannot be null");
 
-    @FXML
-    public void initialize()  {
         initializeUserInterface();
         initializeTableComponent();
         loadSubUserData();

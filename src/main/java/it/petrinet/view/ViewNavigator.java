@@ -20,14 +20,21 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
- * Simple navigation utility for managing views and user authentication.
+ * REFACTOR: A Facade and Mediator for view navigation.
+ * This class is a static utility that provides a single point of control for switching scenes,
+ * passing data to controllers safely without using static controller state.
  */
 public final class ViewNavigator {
 
+    private static final String FXML_RESOURCE_PATH = "/fxml/";
+
     private static MainController mainController;
     private static User authenticatedUser;
+    private static String pendingMessage;
+    private static boolean isAdmin;
 
     private ViewNavigator() {}
 
@@ -35,51 +42,147 @@ public final class ViewNavigator {
         mainController = Objects.requireNonNull(controller, "MainController cannot be null");
     }
 
-    // Navigation methods
-    public static void LoginScene() {
+    // =================================================================================
+    // PRIMARY NAVIGATION SCENES
+    // =================================================================================
+
+    public static void loginScene() {
         mainController.setNavBar(null);
         resizeStage(500, 400, "PH - Petri Nets Hub");
         authenticatedUser = null; // Reset authenticated user
         loadView("LoginView.fxml");
     }
 
-    public static void HomeScene() {
+    public static void homeScene() {
         mainController.setNavBar(new NavBar());
-        resizeStage(0, 0, " ");
+        resizeStage(0, 0, "PH - Home");
         loadView("HomeView.fxml");
     }
 
-    public static void navigateToLogin() {
+    public static void exitPetriNetScene() {
+        mainController.setNavBar(new NavBar());
+        homeScene();
+    }
+
+    // =================================================================================
+    // SECONDARY NAVIGATION METHODS
+    // =================================================================================
+
+    public static void toLogin() {
         loadView("LoginView.fxml");
     }
 
-    public static void navigateToRegister() {
+    public static void toRegister() {
         loadView("RegisterView.fxml");
     }
 
-    public static void navigateToMyNets() { navigateToShowAll(NetCategory.OWNED);}
-
-    public static void navigateToSubNets() { navigateToShowAll(NetCategory.SUBSCRIBED);}
-
-    public static void navigateToDiscover() { navigateToShowAll(NetCategory.DISCOVER);}
-
-    private static void navigateToShowAll(NetCategory type) {
-        ShowAllController.setType(type);
-        loadView("ShowAllView.fxml");
-    }
-
-    public static void navigateToUserList(String id) {
-        ComputationListController.setNetID(id);
-        loadView("ComputationListView.fxml");
-    }
-
-    public static void navigateToHome() {
+    public static void toHome(){
+        mainController.setNavBar(new NavBar());
         loadView("HomeView.fxml");
     }
 
-    // User authentication
+    public static void toMyNets() {
+        navigateToShowAll(NetCategory.OWNED);
+    }
+
+    public static void toSubscribedNets() {
+        navigateToShowAll(NetCategory.SUBSCRIBED);
+    }
+
+    public static void toDiscoverNets() {
+        navigateToShowAll(NetCategory.DISCOVER);
+    }
+
+    public static void toUserList(String netId) {
+        // REFACTOR: Use the new initializer pattern
+        loadView("ComputationListView.fxml", ComputationListController.class, controller -> controller.initData(netId));
+    }
+
+    public static void toNetCreation(String netName) {
+        mainController.setNavBar(null);
+        // REFACTOR: Use the new initializer pattern
+        loadView("NetCreationView.fxml", NetCreationController.class, controller -> controller.initData(netName));
+    }
+
+    public static void toNetVisual(PetriNet model, Computation data, VisualState state) {
+        mainController.setNavBar(null);
+        // REFACTOR: Use the new initializer pattern
+        loadView("NetVisualView.fxml", NetVisualController.class, controller -> controller.initData(model, data, state));
+    }
+
+    private static void navigateToShowAll(NetCategory type) {
+        // REFACTOR: Use the new initializer pattern
+        loadView("ShowAllView.fxml", ShowAllController.class, controller -> controller.initData(type));
+    }
+
+    // =================================================================================
+    // CORE VIEW LOADING LOGIC
+    // =================================================================================
+
+    /**
+     * REFACTOR: Overloaded helper for loading views that don't need initial data.
+     */
+    private static void loadView(String fxmlName) {
+        loadView(fxmlName, Object.class, controller -> {});
+    }
+
+    /**
+     * REFACTOR: This is the new core method for loading views. It's generic and type-safe.
+     * It loads the FXML, gets the controller instance, sets the content, and then runs the
+     * provided initializer lambda on the controller after the view is loaded.
+     *
+     * @param fxmlName The name of the FXML file.
+     * @param controllerClass The class of the controller (for type safety).
+     * @param initializer A lambda function to run on the controller instance after it's loaded.
+     */
+    private static <T> void loadView(String fxmlName, Class<T> controllerClass, Consumer<T> initializer) {
+        if (mainController == null) {
+            throw new IllegalStateException("ViewNavigator not initialized. Call ViewNavigator.init() first.");
+        }
+
+        try {
+            String path = FXML_RESOURCE_PATH + fxmlName;
+            URL resource = Main.class.getResource(path);
+            if (resource == null) {
+                throw new IOException("FXML resource not found: " + path);
+            }
+
+            FXMLLoader loader = new FXMLLoader(resource);
+            Pane view = loader.load();
+
+            // Get the controller instance
+            T controller = loader.getController();
+            if (controller == null) {
+                throw new IllegalStateException("Controller not found for FXML: " + fxmlName);
+            }
+
+            // Set the content first
+            mainController.setContent(view);
+
+            // CRITICAL FIX: Run initializer on the JavaFX Application Thread after the view is displayed
+            Platform.runLater(() -> {
+                try {
+                    initializer.accept(controller);
+                } catch (Exception e) {
+                    System.err.println("Error initializing controller for '" + fxmlName + "': " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+
+        } catch (IOException e) {
+            System.err.println("Error loading view '" + fxmlName + "': " + e.getMessage());
+            e.printStackTrace();
+            // Optionally, show an error alert to the user
+        }
+    }
+
+    // =================================================================================
+    // SESSION AND MESSAGE MANAGEMENT
+    // =================================================================================
+
     public static void setAuthenticatedUser(User user) {
         authenticatedUser = user;
+        isAdmin = user != null && user.isAdmin();
     }
 
     public static User getAuthenticatedUser() {
@@ -87,126 +190,51 @@ public final class ViewNavigator {
     }
 
     public static boolean userIsAdmin() {
-        return authenticatedUser.isAdmin();
+        return isAdmin;
     }
 
-    // Load FXML view
-    private static void loadView(String fxmlName) {
-        if (mainController == null) {
-            throw new IllegalStateException("ViewNavigator not initialized. Call ViewNavigator.init() first.");
-        }
-
-        String path = "/fxml/" + fxmlName;
-        URL resource = Main.class.getResource(path);
-        if (resource == null) {
-            throw new IllegalStateException("FXML resource not found: " + path);
-        }
-
-        try {
-            FXMLLoader loader = new FXMLLoader(resource);
-            Pane view = loader.load();
-            mainController.setContent(view);
-        } catch (IOException e) {
-            System.err.println("Error loading view '" + fxmlName + "': " + e.getMessage());
-            e.printStackTrace();
-        }
+    public static void toLoginWithMessage(String message) {
+        pendingMessage = message;
+        toLogin();
     }
 
-    // Resize window with animation
+    public static String consumePendingMessage() {
+        String message = pendingMessage;
+        pendingMessage = null;
+        return message;
+    }
+
+    // =================================================================================
+    // STAGE AND ANIMATION MANAGEMENT
+    // =================================================================================
+
     private static void resizeStage(double width, double height, String title) {
         Stage stage = Main.getPrimaryStage();
-
         stage.setMaximized(false);
 
-        // Calculate target size
-        boolean maximize = (width == 0 && height == 0);
-        if (maximize) {
-            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-            width = bounds.getWidth();
-            height = bounds.getHeight();
-        }
+        final boolean maximize = (width == 0 && height == 0);
+        final double targetWidth = maximize ? Screen.getPrimary().getVisualBounds().getWidth() : width;
+        final double targetHeight = maximize ? Screen.getPrimary().getVisualBounds().getHeight() : height;
 
-        final double targetWidth = width;
-        final double targetHeight = height;
-        final boolean shouldMaximize = maximize;
+        Timeline fadeOut = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(stage.opacityProperty(), 0.0)));
+        PauseTransition pause = new PauseTransition(Duration.millis(50));
+        Timeline fadeIn = new Timeline(new KeyFrame(Duration.millis(300), new KeyValue(stage.opacityProperty(), 1.0)));
 
-        // Fade out
-        Timeline fadeOut = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(stage.opacityProperty(), 1.0)),
-                new KeyFrame(Duration.millis(250), new KeyValue(stage.opacityProperty(), 0.0))
-        );
-
-        // Pause
-        PauseTransition pause = new PauseTransition(Duration.millis(100));
-
-        // Fade in
-        Timeline fadeIn = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(stage.opacityProperty(), 0.0)),
-                new KeyFrame(Duration.millis(350), new KeyValue(stage.opacityProperty(), 1.0))
-        );
-
-        // Apply changes during pause
         pause.setOnFinished(e -> {
             stage.setWidth(targetWidth);
             stage.setHeight(targetHeight);
+            stage.setTitle(title);
 
-            if (shouldMaximize) {
-                Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-                stage.setX(bounds.getMinX());
-                stage.setY(bounds.getMinY());
+            if (maximize) {
+                stage.setMaximized(true);
             } else {
-                // Center the window after resize
-                Platform.runLater(() -> {
-                    Rectangle2D screen = Screen.getPrimary().getVisualBounds();
-                    double centerX = screen.getMinX() + (screen.getWidth() - stage.getWidth()) / 2;
-                    double centerY = screen.getMinY() + (screen.getHeight() - stage.getHeight()) / 2;
-                    stage.setX(centerX);
-                    stage.setY(centerY);
-                });
+                // Center the window
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - targetWidth) / 2);
+                stage.setY((screenBounds.getHeight() - targetHeight) / 2);
             }
         });
 
-        Main.getPrimaryStage().setTitle(title);
-        // Play animation sequence
         new SequentialTransition(fadeOut, pause, fadeIn).play();
-
-    }
-
-    public static void navigateToNetCreation(String id) {
-        mainController.setNavBar(null);
-        NetCreationController.setNetName(id);
-        loadView("NetCreationView.fxml");
-    }
-
-    public static void exitPetriNet() {
-        mainController.setNavBar(new NavBar());
-        loadView("HomeView.fxml");
-    }
-
-    public static void navigateToNetVisual(PetriNet model, Computation data, VisualState state) {
-        mainController.setNavBar(null);
-        NetVisualController.setVisuals(model, data, state);
-        loadView("NetVisualView.fxml");
-    }
-
-    //Message handling
-
-    private static String pendingMessage = null;
-
-    public static void navigateToLoginWithMessage(String message) {
-        setPendingMessage(message);
-        navigateToLogin();
-    }
-
-    public static void setPendingMessage(String message) {
-        pendingMessage = message;
-    }
-
-    public static String getPendingMessage() {
-        return pendingMessage;
-    }
-
-    public static void clearPendingMessage() {
-        pendingMessage = null;
     }
 }

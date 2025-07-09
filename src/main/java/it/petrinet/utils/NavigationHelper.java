@@ -30,7 +30,7 @@ public class NavigationHelper {
     public static void setupNavigationToNetVisualForUser(PetriNet net, String userId)  {
         String path = netDirectory + net.getXML_PATH();
         Computation data = makeComputation(net, userId);
-        safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, data, getVisualState(data)));
+        safeNavigate(() -> ViewNavigator.toNetVisual(net, data, getVisualState(data)));
     }
 
     private static VisualState getVisualState(Computation data) {
@@ -45,7 +45,7 @@ public class NavigationHelper {
      * Sets up navigation to table discover view for current user
      */
     public static void setupNavigationToTableDiscoverForUser(PetriNet net, String username) {
-        safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, null, VisualState.SUBSCRIBABLE));
+        safeNavigate(() -> ViewNavigator.toNetVisual(net, null, VisualState.SUBSCRIBABLE));
     }
 
     private static Computation makeComputation(PetriNet net, String userId)  {

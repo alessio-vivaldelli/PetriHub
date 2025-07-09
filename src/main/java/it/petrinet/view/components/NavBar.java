@@ -58,9 +58,9 @@ public class NavBar extends VBox {
 
     private void setupButtons() {
         // Create buttons
-        Button homeBtn = createButton("Home", "home.png", "home", ViewNavigator::navigateToHome);
-        Button subNetsBtn = createButton("My Subs", "Subscriptions.png", "subNets", ViewNavigator::navigateToSubNets);
-        Button discoverBtn = createButton("Discover", "Discover.png", "discover", ViewNavigator::navigateToDiscover);
+        Button homeBtn = createButton("Home", "home.png", "home", ViewNavigator::toHome);
+        Button subNetsBtn = createButton("My Subs", "Subscriptions.png", "subNets", ViewNavigator::toSubscribedNets);
+        Button discoverBtn = createButton("Discover", "Discover.png", "discover", ViewNavigator::toDiscoverNets);
 
         // Spacer to push logout to bottom
         Region spacer = new Region();
@@ -72,7 +72,7 @@ public class NavBar extends VBox {
         getChildren().addAll(homeBtn, subNetsBtn, discoverBtn);
 
         if (ViewNavigator.userIsAdmin()) {
-            Button myNetsBtn = createButton("My Nets", "Creations.png", "myNets", ViewNavigator::navigateToMyNets);
+            Button myNetsBtn = createButton("My Nets", "Creations.png", "myNets", ViewNavigator::toMyNets);
             getChildren().add(2, myNetsBtn); // Insert after homeBtn
         }
 
@@ -89,12 +89,9 @@ public class NavBar extends VBox {
         return button;
     }
 
-    private void handleDiscover() {
-       safeNavigate(ViewNavigator::navigateToSubNets);
-    }
 
     private void handleLogout() {
         ViewNavigator.setAuthenticatedUser(null);
-        ViewNavigator.LoginScene();
+        ViewNavigator.loginScene();
     }
 }

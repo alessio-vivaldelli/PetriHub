@@ -27,7 +27,6 @@ public abstract class GenericTableComponent<T> extends BaseTableComponent {
     public void initialize() {
         setupTableColumns();
         setupTableBehavior();
-        System.out.println("Initializing GenericTableComponent with FXML: " + getFXMLPath());
         initializeData();
     }
 

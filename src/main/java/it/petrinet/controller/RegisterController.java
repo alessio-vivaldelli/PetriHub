@@ -59,12 +59,12 @@ public class RegisterController {
         UserDAO.insertUser(newUser);
 
         // Navigate to login with success message
-        safeNavigate(() -> ViewNavigator.navigateToLoginWithMessage("Registration successful!"));
+        safeNavigate(() -> ViewNavigator.toLoginWithMessage("Registration successful!"));
     }
 
     @FXML
     private void handleBackToLogin() {
-        ViewNavigator.navigateToLogin();
+        ViewNavigator.toLogin();
     }
 
     private void showError(String message) {

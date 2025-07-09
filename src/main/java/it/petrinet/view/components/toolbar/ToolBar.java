@@ -93,7 +93,7 @@ public abstract class ToolBar extends HBox {
      */
     private Button createHomeButton() {
         Button home = new Button();
-        home.setOnAction(e -> ViewNavigator.exitPetriNet());
+        home.setOnAction(e -> ViewNavigator.toHome());
         configureButton(home, "home.png", "Return to Home");
         return home;
     }

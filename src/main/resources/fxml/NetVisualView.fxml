@@ -3,6 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.control.Button?>
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="it.petrinet.controller.NetVisualController">
@@ -17,6 +18,7 @@
                   alignment="TOP_CENTER"
                   pickOnBounds="false"
                   style="-fx-padding: 10;" />
+
         </StackPane>
     </center>
 </BorderPane>

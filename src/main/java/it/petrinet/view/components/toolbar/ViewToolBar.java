@@ -3,81 +3,109 @@ package it.petrinet.view.components.toolbar;
 import it.petrinet.controller.NetVisualController;
 import it.petrinet.petrinet.view.PetriNetViewerPane;
 import it.petrinet.utils.IconUtils;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
-public class ViewToolBar extends ToolBar{
+/**
+ * REFACTOR: Questa classe rappresenta la toolbar della vista, il cui contenuto
+ * cambia in base allo stato della computazione. Implementa lo State Pattern,
+ * dove i suoi metodi di configurazione vengono chiamati dal NetVisualController (il Context).
+ */
+public class ViewToolBar extends ToolBar {
 
-    private PetriNetViewerPane board;
-    private NetVisualController controller;
+    private final PetriNetViewerPane board;
+    private final NetVisualController controller;
 
     public ViewToolBar(PetriNetViewerPane board, NetVisualController controller) {
         super();
+        // REFACTOR: Le dipendenze vengono impostate come final per garantire che non cambino dopo la costruzione.
         this.board = board;
         this.controller = controller;
     }
 
-    public void subButton() {
-        Button play = createPlayButton();
-        IconUtils.changeIconColor(play, Color.GRAY);
-        play.setDisable(true);
-        setupManageButtons(
+    /**
+     * Configura la toolbar per lo stato SUBSCRIBABLE (l'utente non è iscritto).
+     */
+    public void configureForSubscribable() {
+        Button playButton = createPlayButton();
+        IconUtils.changeIconColor(playButton, Color.GRAY); // L'icona viene resa grigia
+        playButton.setDisable(true); // Il pulsante è disabilitato
+
+        updateToolbar(
                 createGap(),
-                play,
+                playButton,
                 createGap(3)
         );
     }
 
-    public void startableButton() {
-        setupManageButtons(
+    /**
+     * Configura la toolbar per lo stato NOT_STARTED (l'utente è iscritto ma non ha avviato la rete).
+     */
+    public void configureForStartable() {
+        updateToolbar(
                 createGap(),
                 createPlayButton(),
-                createGap(3)
+                createGap(3),
+                createInfoButton()
         );
     }
 
-    public void startedButton() {
-        setupManageButtons(
-                createUnSubButton(),
+    /**
+     * Configura la toolbar per lo stato STARTED (la rete è in esecuzione).
+     */
+    public void configureForStarted() {
+        updateToolbar(
+                createUnsubscribeButton(),
                 createRestartButton(),
-                createGap(3)
+                createGap(3),
+                createInfoButton()
         );
     }
 
-    private void setupManageButtons(Node... labels) {
-        this.getChildren().clear();
-
-        for (Node label : labels) {
-            this.getChildren().add(label);
-        }
-
-        addStaticButtons(board);
+    /**
+     * REFACTOR: Metodo factory generico e riutilizzabile per la creazione di qualsiasi pulsante della toolbar.
+     * Centralizza la logica di configurazione comune (azione, icona, tooltip).
+     *
+     * @param iconName Il nome del file dell'icona (es. "play.png").
+     * @param tooltipText Il testo da mostrare al passaggio del mouse.
+     * @param action L'azione da eseguire al click.
+     * @return Un'istanza di Button configurata.
+     */
+    private Button createToolbarButton(String iconName, String tooltipText, EventHandler<ActionEvent> action) {
+        Button button = new Button();
+        button.setOnAction(action);
+        configureButton(button, iconName, tooltipText); // Metodo ereditato da ToolBar
+        return button;
     }
 
-
+    // REFACTOR: I metodi di creazione specifici ora usano la factory generica, riducendo la duplicazione.
     private Button createRestartButton() {
-        Button restartButton = new Button();
-        restartButton.setOnAction(e -> controller.restartAction());
-        configureButton(restartButton, "restart.png", "Restart Petri Net");
-        return restartButton;
+        return createToolbarButton("restart.png", "Restart Petri Net", e -> controller.restartAction());
     }
 
-    private Button createUnSubButton() {
-        Button unSubScribeButton = new Button();
-        unSubScribeButton.setOnAction(e -> controller.unsubscribeAction());
-        configureButton(unSubScribeButton, "unsubscribe.png", "Unsubscribe from Petri Net");
-        return unSubScribeButton;
+    private Button createUnsubscribeButton() {
+        return createToolbarButton("unsubscribe.png", "Unsubscribe from Petri Net", e -> controller.unsubscribeAction());
     }
 
     private Button createPlayButton() {
-        Button playButton = new Button();
-        playButton.setOnAction(e -> controller.startAction());
-
-        configureButton(playButton, "play.png", "Start Petri Net");
-        return playButton;
+        return createToolbarButton("play.png", "Start Petri Net", e -> controller.startAction());
     }
 
+    private Button createInfoButton() {
+        // REFACTOR: Aggiornata la chiamata al metodo corretto del controller refattorizzato.
+        return createToolbarButton("info.png", "Show/Hide History", e -> controller.toggleHistory());
+    }
+
+    /**
+     * Metodo helper che pulisce la toolbar e la ripopola con i nuovi nodi (pulsanti, spazi, ecc.).
+     * @param nodes I componenti della UI da aggiungere alla toolbar.
+     */
+    private void updateToolbar(Node... nodes) {
+        this.getChildren().clear();
+        this.getChildren().addAll(nodes);
+        addStaticButtons(board); // Aggiunge pulsanti statici definiti nella classe padre ToolBar
+    }
 }

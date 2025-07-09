@@ -730,3 +730,176 @@
     -fx-border-width: 2px;
     -fx-effect: innershadow(gaussian, -fx-catppuccin-mocha-peach, 3, 0.1, 0, 0);
 }
+
+
+/* ============================================================================
+ * 12. HISTORY PANE - FIXED BACKGROUND
+ * ============================================================================ */
+
+.history-pane {
+    -fx-background-color: -fx-catppuccin-mocha-surface0;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: rgba(108, 112, 134, 0.2);
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0.1, 0, 2);
+    -fx-padding: 15px;
+}
+
+/* Fix for list view background */
+.history-list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 5px 0 0 0;
+    -fx-control-inner-background: transparent; /* Crucial fix */
+}
+
+.history-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 10px 0; /* Bottom spacing */
+}
+
+/* List cell container - fix background */
+.history-item-container {
+    -fx-background-color: -fx-catppuccin-mocha-base;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 16px;
+    -fx-spacing: 12px;
+    -fx-cursor: default;
+}
+
+.history-title {
+    -fx-text-fill: -fx-catppuccin-mocha-text;
+    -fx-font-size: 18px; /* Increased from 16px */
+    -fx-font-weight: 700; /* Bold instead of semi-bold */
+    -fx-font-family: "Segoe UI Semibold", "Roboto Medium", "Arial", sans-serif;
+    -fx-padding: 0 0 0 4px; /* Better alignment */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0.2, 0, 1);
+}
+
+.history-header {
+    -fx-alignment: center-left;
+    -fx-spacing: 12px;
+    -fx-padding: 0 0 15px 0;
+}
+
+.history-close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-catppuccin-mocha-subtext0;
+    -fx-font-size: 16px; /* Slightly larger */
+    -fx-font-weight: 300; /* Thin weight for X */
+    -fx-padding: 4px 10px 6px 10px; /* Better vertical centering */
+    -fx-background-radius: 100%; /* Perfect circle */
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease;
+}
+
+.history-close-button:hover {
+    -fx-background-color: rgba(30, 30, 46, 0.2); /* Subtle red tint */
+    -fx-text-fill: -fx-catppuccin-mocha-red; /* Red color on hover */
+    -fx-effect: dropshadow(gaussian, rgba(30, 30, 46, 0.3), 8, 0.2, 0, 0);
+}
+
+.history-close-button:pressed {
+    -fx-background-color: rgba(30, 30, 46, 0.3);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+/* Status indicators */
+.history-indicator {
+    -fx-stroke: transparent;
+}
+
+.history-start-step {
+    -fx-background-color: rgba(166, 227, 161, 0.1);
+}
+
+.history-start-step .history-indicator {
+    -fx-fill: #a6e3a1;
+}
+
+.history-latest-transition {
+    -fx-background-color: rgba(243, 139, 168, 0.1);
+}
+
+.history-latest-transition .history-indicator {
+    -fx-fill: #f38ba8;
+}
+
+.history-transition-label {
+    -fx-text-fill: -fx-catppuccin-mocha-text;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+.history-timestamp-label {
+    -fx-text-fill: -fx-catppuccin-mocha-subtext0;
+    -fx-font-size: 12px;
+    -fx-font-family: "Roboto Mono", monospace;
+}
+
+/* Fix for empty list placeholder */
+.history-list-view .placeholder .label {
+    -fx-text-fill: -fx-catppuccin-mocha-subtext0;
+    -fx-font-size: 14px;
+    -fx-font-style: italic;
+    -fx-background-color: transparent;
+}
+
+/* Scrollbar styling - ensure background is transparent */
+.history-list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-padding: 2px;
+}
+
+.history-list-view .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.history-list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(108, 112, 134, 0.3);
+    -fx-background-radius: 4px;
+}
+
+/* Remove default list cell selection colors */
+.history-list-view .list-cell:filled:selected,
+.history-list-view .list-cell:filled:selected:hover {
+    -fx-background-color: transparent;
+    -fx-text-fill: inherit;
+}
+
+/* Subscribe Button - ensure it's on top */
+.subscribe-button {
+    -fx-background-color: -fx-catppuccin-mocha-green;
+    -fx-text-fill: -fx-catppuccin-mocha-base;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-background-radius: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.subscribe-button:hover {
+    -fx-background-color: derive(-fx-catppuccin-mocha-green, 20%);
+}
+
+/* Smooth scrolling for the list */
+.list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #6c7086;
+    -fx-background-radius: 3;
+}
+
+/* Remove focus border */
+.list-view:focused {
+    -fx-background-insets: 0;
+}

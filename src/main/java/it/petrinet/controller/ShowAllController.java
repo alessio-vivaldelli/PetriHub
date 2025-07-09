@@ -18,9 +18,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,39 +30,44 @@ import static it.petrinet.utils.Safenavigate.safeNavigate;
 import static it.petrinet.utils.NetStatusGetter.determineNetDate;
 import static it.petrinet.utils.NetStatusGetter.getStatusByComputation;
 
+/**
+ * Controller for displaying different categories of Petri nets in a table format.
+ * Handles owned, subscribed, and discoverable nets with appropriate actions.
+ */
 public class ShowAllController {
 
     private static final Logger LOGGER = Logger.getLogger(ShowAllController.class.getName());
+    private static final int ICON_SIZE = 30;
 
     @FXML private Label frameTitle;
     @FXML private VBox tableContainer;
+
     private PetriNetTableComponent petriNetTable;
-    private static NetCategory cardType;
+    private NetCategory category;
 
-    public static void setType(NetCategory type) {
-        cardType = type;
-    }
+    /**
+     * Initializes the controller with the specified category and sets up the view.
+     * This method should be called after FXML loading to provide the necessary data.
+     *
+     * @param category The category of nets to display (OWNED, SUBSCRIBED, or DISCOVER)
+     */
+    public void initData(NetCategory category) {
+        this.category = Objects.requireNonNull(category, "Category cannot be null");
 
-    @FXML
-    public void initialize()  {
-        initializeTableComponent();
-        initializeUserInterface();
-        loadShowAllData();
+        try {
+            initializeComponents();
+            setupUserInterface();
+            loadAndDisplayData();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to initialize ShowAllController", e);
+            // Could show error dialog here
+        }
     }
 
     /**
-     * Initializes the user interface components
+     * Initializes the table component and adds it to the container.
      */
-    private void initializeUserInterface() {
-        frameTitle.setText(" " + cardType.getDisplayName());
-        IconUtils.setIcon(frameTitle, cardType.getDisplayName(), 30, 30, Color.WHITE);
-        if(cardType == NetCategory.SUBSCRIBED) petriNetTable.dataColSubName();
-    }
-
-    /**
-     * Initializes the table component and sets up event handlers
-     */
-    private void initializeTableComponent() {
+    private void initializeComponents() {
         petriNetTable = new PetriNetTableComponent();
         setupTableEventHandlers();
 
@@ -69,124 +76,150 @@ public class ShowAllController {
     }
 
     /**
-     * Sets up event handlers based on card type
+     * Sets up the user interface based on the category.
+     */
+    private void setupUserInterface() {
+        frameTitle.setText(" " + category.getDisplayName());
+        IconUtils.setIcon(frameTitle, category.getDisplayName(), ICON_SIZE, ICON_SIZE, Color.WHITE);
+
+        if (category == NetCategory.SUBSCRIBED) {
+            petriNetTable.dataColSubName();
+        }
+    }
+
+    /**
+     * Sets up event handlers for table row clicks based on the category.
      */
     private void setupTableEventHandlers() {
-        if (cardType == NetCategory.OWNED) petriNetTable.setOnRowClickHandler(this::handleUserTableView);
-        else petriNetTable.setOnRowClickHandler(this::handleTableRowClick);
+        Function<PetriNetRow, Void> handler = (category == NetCategory.OWNED)
+                ? this::handleOwnedNetClick
+                : this::handleOtherNetClick;
+
+        petriNetTable.setOnRowClickHandler(handler::apply);
     }
 
     /**
-     * Handles clicks on owned nets - navigates to user list
+     * Handles clicks on owned nets - navigates to user list.
      */
-    private void handleUserTableView(PetriNetRow petriNetRow) {
-        String netName = petriNetRow.nameProperty().get();
-        safeNavigate(() -> ViewNavigator.navigateToUserList(netName));
+    private Void handleOwnedNetClick(PetriNetRow row) {
+        String netName = row.nameProperty().get();
+        safeNavigate(() -> ViewNavigator.toUserList(netName));
+        return null;
     }
 
     /**
-     * Handles clicks on subscribed/discover nets
+     * Handles clicks on subscribed/discoverable nets.
      */
-    private void handleTableRowClick(PetriNetRow petriNetRow) {
+    private Void handleOtherNetClick(PetriNetRow row) {
         try {
-            String netName = petriNetRow.nameProperty().get();
-            PetriNet net = PetriNetsDAO.getNetByName(netName);
+            String netName = row.nameProperty().get();
+            Optional<PetriNet> netOpt = Optional.ofNullable(PetriNetsDAO.getNetByName(netName));
 
-            if (net == null) {
+            if (netOpt.isEmpty()) {
                 LOGGER.warning("Net not found: " + netName);
-                return;
+                return null;
             }
 
-            switch (cardType) {
-                case SUBSCRIBED -> setupNavigationToNetVisual(net, ViewNavigator.getAuthenticatedUser().getUsername());
-                case DISCOVER -> setupNavigationToNetDiscover(net, ViewNavigator.getAuthenticatedUser().getUsername());
-                default -> throw new Exception();
+            PetriNet net = netOpt.get();
+            String username = ViewNavigator.getAuthenticatedUser().getUsername();
+
+            switch (category) {
+                case SUBSCRIBED -> NavigationHelper.setupNavigationToNetVisualForUser(net, username);
+                case DISCOVER -> NavigationHelper.setupNavigationToTableDiscoverForUser(net, username);
+                default -> LOGGER.warning("Unexpected category: " + category);
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error handling table row click", e);
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error handling table row click for category: " + category, e);
+        }
+        return null;
+    }
+
+    /**
+     * Loads and displays data based on the current category.
+     */
+    private void loadAndDisplayData() {
+        try {
+            List<PetriNetRow> rows = loadDataForCategory();
+            petriNetTable.setData(rows);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to load data for category: " + category, e);
+            petriNetTable.setData(Collections.emptyList());
         }
     }
 
     /**
-     * Sets up navigation to net visual view for subscribed nets
+     * Loads data based on the current category.
      */
-    private void setupNavigationToNetVisual(PetriNet net, String userId)  {
-        NavigationHelper.setupNavigationToNetVisualForUser(net, userId);
-    }
-
-    /**
-     * Sets up navigation to net discover view for discoverable nets
-     */
-    private void setupNavigationToNetDiscover(PetriNet net, String username) {
-        NavigationHelper.setupNavigationToTableDiscoverForUser(net, username);
-    }
-
-    /**
-     * Finds computation data for current user and net
-     */
-    private Computation findUserComputation(PetriNet net)  {
-        return NavigationHelper.findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
-    }
-
-    /**
-     * Loads data based on card type
-     */
-    private void loadShowAllData() {
-        List<PetriNetRow> allNets = switch (cardType) {
-            case OWNED -> getOwnedNets();
-            case SUBSCRIBED -> getSubscribedNets();
-            case DISCOVER -> getDiscoverableNets();
+    private List<PetriNetRow> loadDataForCategory() {
+        return switch (category) {
+            case OWNED -> createRowsFromNets(
+                    PetriNetsDAO.getNetsByCreator(ViewNavigator.getAuthenticatedUser()),
+                    this::getFirstSubscribedComputation
+            );
+            case SUBSCRIBED -> createRowsFromNets(
+                    ComputationsDAO.getNetsSubscribedByUser(ViewNavigator.getAuthenticatedUser()),
+                    this::findUserComputation
+            );
+            case DISCOVER -> createRowsFromNets(
+                    PetriNetsDAO.getDiscoverableNetsByUser(ViewNavigator.getAuthenticatedUser()),
+                    this::findUserComputation
+            );
         };
-        petriNetTable.setData(allNets);
     }
 
     /**
-     * Gets discoverable nets for current user
+     * Creates table rows from a list of PetriNet objects.
+     *
+     * @param nets The list of PetriNet objects
+     * @param computationProvider Function to get computation for each net
+     * @return List of PetriNetRow objects for the table
      */
-    private List<PetriNetRow> getDiscoverableNets()  {
-        List<PetriNet> unknownNets = PetriNetsDAO.getDiscoverableNetsByUser(ViewNavigator.getAuthenticatedUser());
-        return makeList(unknownNets, NetCategory.DISCOVER);
-    }
-
-    /**
-     * Gets subscribed nets for current user
-     */
-    private List<PetriNetRow> getSubscribedNets()  {
-        List<PetriNet> subscribedNets = ComputationsDAO.getNetsSubscribedByUser(
-                ViewNavigator.getAuthenticatedUser());
-        return makeList(subscribedNets, NetCategory.SUBSCRIBED);
-    }
-
-    /**
-     * Gets owned nets for current user
-     */
-    private List<PetriNetRow> getOwnedNets()  {
-        List<PetriNet> ownNets = PetriNetsDAO.getNetsByCreator(ViewNavigator.getAuthenticatedUser());
-        return makeList(ownNets, NetCategory.OWNED);
-    }
-
-    private List<PetriNetRow> makeList(List<PetriNet> nets, NetCategory category)  {
-        List<PetriNetRow> netsToShow = new ArrayList<>();
-        for (PetriNet net : nets) {
-            Computation computation = (category == NetCategory.OWNED) ?
-                    getFirstSubscribedNets(net) :
-                    findUserComputation(net);
-            if (!(net.getNetName() == null)){
-                netsToShow.add(new PetriNetRow(
-                        net.getNetName(),
-                        net.getCreatorId(),
-                        determineNetDate(computation, net.getCreationDate()),
-                        getStatusByComputation(computation),
-                        category
-                ));
-            }
+    private List<PetriNetRow> createRowsFromNets(List<PetriNet> nets, Function<PetriNet, Computation> computationProvider) {
+        if (nets == null || nets.isEmpty()) {
+            return Collections.emptyList();
         }
-        return netsToShow;
+
+        return nets.stream()
+                .filter(net -> net.getNetName() != null)
+                .map(net -> createRowFromNet(net, computationProvider.apply(net)))
+                .toList();
     }
 
-    private Computation getFirstSubscribedNets(PetriNet net) {
-        ComputationStep step = ComputationStepDAO.getLastComputationStepForPetriNet(net.getNetName());
-        return (step != null) ? ComputationStepDAO.getComputationByStep(step) : null;
+    /**
+     * Creates a PetriNetRow from a PetriNet and its computation.
+     */
+    private PetriNetRow createRowFromNet(PetriNet net, Computation computation) {
+        return new PetriNetRow(
+                net.getNetName(),
+                net.getCreatorId(),
+                determineNetDate(computation, net.getCreationDate()),
+                getStatusByComputation(computation),
+                category
+        );
+    }
+
+    /**
+     * Finds computation data for the current user and given net.
+     */
+    private Computation findUserComputation(PetriNet net) {
+        try {
+            return NavigationHelper.findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to find user computation for net: " + net.getNetName(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the first subscribed computation for a net (used for owned nets).
+     */
+    private Computation getFirstSubscribedComputation(PetriNet net) {
+        try {
+            ComputationStep step = ComputationStepDAO.getLastComputationStepForPetriNet(net.getNetName());
+            return (step != null) ? ComputationStepDAO.getComputationByStep(step) : null;
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to get first subscribed computation for net: " + net.getNetName(), e);
+            return null;
+        }
     }
 }
