@@ -138,7 +138,7 @@ public class NetVisualController implements Initializable {
       } else if (t.getType().equals(TRANSITION_TYPE.USER)
           && username.equals(computation.getCreatorId())) {
         tmp = new Notification(
-            computation.getCreatorId(), username, baseNet, -1, msgTitle,
+            username, computation.getUserId(), baseNet, -1, msgTitle,
             getNotificationText(isFinished, username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
       }
       if (tmp != null) {
