@@ -103,7 +103,7 @@ public class ShowAllController {
             }
 
             switch (cardType) {
-                case SUBSCRIBED -> setupNavigationToNetVisual(net);
+                case SUBSCRIBED -> setupNavigationToNetVisual(net, ViewNavigator.getAuthenticatedUser().getUsername());
                 case DISCOVER -> LOGGER.info("Discover functionality not implemented yet");
                 default -> throw new InputTypeException();
             }
@@ -116,8 +116,8 @@ public class ShowAllController {
     /**
      * Sets up navigation to net visual view
      */
-    private void setupNavigationToNetVisual(PetriNet net) throws InputTypeException {
-        NavigationHelper.setupNavigationToNetVisualForCurrentUser(net);
+    private void setupNavigationToNetVisual(PetriNet net, String userId) throws InputTypeException {
+        NavigationHelper.setupNavigationToNetVisualForUser(net, userId);
     }
 
     /**

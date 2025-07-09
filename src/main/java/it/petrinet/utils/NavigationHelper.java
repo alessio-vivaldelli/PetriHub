@@ -43,7 +43,7 @@ public class NavigationHelper {
     private static Computation makeComputation(PetriNet net, String userId) throws InputTypeException {
         Computation data = findUserComputation(net, userId);
         List<ComputationStep> steps = ComputationStepDAO.getStepsByComputation(data);
-        if(!(data == null)) data.addSteps(steps);
+        data.addSteps(steps);
         return data;
     }
 

@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="it.petrinet.controller.NetVisualController">
 
     <top>
-        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10;">
-            <!-- Left spacer with fixed width matching finish button area -->
-            <Region prefWidth="100" HBox.hgrow="NEVER"/>
-
+        <HBox alignment="TOP_CENTER" spacing="10" style="-fx-padding: 10;">
             <!-- Centered toolbar container -->
-            <HBox fx:id="toolbarContainer" alignment="CENTER" HBox.hgrow="ALWAYS"
+            <HBox fx:id="toolbarContainer" alignment="TOP_CENTER"
                   style="-fx-padding: 0;"/>
         </HBox>
     </top>
