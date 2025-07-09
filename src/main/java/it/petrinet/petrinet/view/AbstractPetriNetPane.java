@@ -393,9 +393,10 @@ public abstract class AbstractPetriNetPane extends Pane {
     graphView.update();
   }
 
-  protected boolean setNodeLabel(Vertex<Node> node, String newLabel) {
+  protected boolean setNodeLabel(Node n, Vertex<Node> node, String newLabel) {
     if (!newLabel.isEmpty() && !newLabel.equals(node.element().getName()) && isLabelUnique(node, newLabel)) {
       node.element().setName(newLabel);
+      n.setName(newLabel);
       graphView.update();
       return true;
     }
