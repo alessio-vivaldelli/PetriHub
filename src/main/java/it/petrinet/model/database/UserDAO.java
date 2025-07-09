@@ -1,8 +1,6 @@
 package it.petrinet.model.database;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.User;
-import javafx.scene.chart.PieChart;
 
 import java.sql.*;
 import java.util.ArrayList;

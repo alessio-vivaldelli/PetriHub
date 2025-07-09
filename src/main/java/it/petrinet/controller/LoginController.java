@@ -1,6 +1,5 @@
 package it.petrinet.controller;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.User;
 import it.petrinet.model.database.UserDAO;
 import it.petrinet.view.ViewNavigator;
@@ -48,7 +47,7 @@ public class LoginController {
     }
 
     @FXML
-    private void handleLogin(ActionEvent event) throws InputTypeException{
+    private void handleLogin(ActionEvent event){
         clearError();
 
         String username = usernameField.getText();

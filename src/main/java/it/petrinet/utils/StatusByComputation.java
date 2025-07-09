@@ -1,6 +1,5 @@
 package it.petrinet.utils;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
 import it.petrinet.model.TableRow.Status;
@@ -37,7 +36,7 @@ public class StatusByComputation {
     /**
      * Determines the appropriate date for a net (timestamp or net date)
      */
-    public static LocalDateTime determineNetDate(Computation computation, long netDate) throws InputTypeException {
+    public static LocalDateTime determineNetDate(Computation computation, long netDate)  {
         LocalDateTime creationDate = LocalDateTime.ofEpochSecond(netDate, 0, ZoneOffset.UTC);
         if(computation == null) return creationDate;
 

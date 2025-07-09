@@ -1,6 +1,5 @@
 package it.petrinet.controller;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
 import it.petrinet.model.PetriNet;
@@ -47,7 +46,7 @@ public class ShowAllController {
     }
 
     @FXML
-    public void initialize() throws InputTypeException {
+    public void initialize()  {
         initializeTableComponent();
         initializeUserInterface();
         loadShowAllData();
@@ -105,7 +104,7 @@ public class ShowAllController {
             switch (cardType) {
                 case SUBSCRIBED -> setupNavigationToNetVisual(net, ViewNavigator.getAuthenticatedUser().getUsername());
                 case DISCOVER -> LOGGER.info("Discover functionality not implemented yet");
-                default -> throw new InputTypeException();
+                default -> throw new Exception();
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error handling table row click", e);
@@ -116,26 +115,25 @@ public class ShowAllController {
     /**
      * Sets up navigation to net visual view
      */
-    private void setupNavigationToNetVisual(PetriNet net, String userId) throws InputTypeException {
+    private void setupNavigationToNetVisual(PetriNet net, String userId)  {
         NavigationHelper.setupNavigationToNetVisualForUser(net, userId);
     }
 
     /**
      * Finds computation data for current user and net
      */
-    private Computation findUserComputation(PetriNet net) throws InputTypeException {
+    private Computation findUserComputation(PetriNet net)  {
         return NavigationHelper.findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
     }
 
     /**
      * Loads data based on card type
      */
-    private void loadShowAllData() throws InputTypeException {
+    private void loadShowAllData() {
         List<PetriNetRow> allNets = switch (cardType) {
             case OWNED -> getOwnedNets();
             case SUBSCRIBED -> getSubscribedNets();
             case DISCOVER -> getDiscoverableNets();
-            default -> throw new InputTypeException();
         };
         petriNetTable.setData(allNets);
     }
@@ -143,7 +141,7 @@ public class ShowAllController {
     /**
      * Gets discoverable nets for current user
      */
-    private List<PetriNetRow> getDiscoverableNets() throws InputTypeException {
+    private List<PetriNetRow> getDiscoverableNets()  {
         List<PetriNet> unknownNets = PetriNetsDAO.getDiscoverableNetsByUser(ViewNavigator.getAuthenticatedUser());
         return makeList(unknownNets, NetCategory.DISCOVER);
     }
@@ -151,7 +149,7 @@ public class ShowAllController {
     /**
      * Gets subscribed nets for current user
      */
-    private List<PetriNetRow> getSubscribedNets() throws InputTypeException {
+    private List<PetriNetRow> getSubscribedNets()  {
         List<PetriNet> subscribedNets = ComputationsDAO.getNetsSubscribedByUser(
                 ViewNavigator.getAuthenticatedUser());
         return makeList(subscribedNets, NetCategory.SUBSCRIBED);
@@ -160,12 +158,12 @@ public class ShowAllController {
     /**
      * Gets owned nets for current user
      */
-    private List<PetriNetRow> getOwnedNets() throws InputTypeException {
+    private List<PetriNetRow> getOwnedNets()  {
         List<PetriNet> ownNets = PetriNetsDAO.getNetsByCreator(ViewNavigator.getAuthenticatedUser());
         return makeList(ownNets, NetCategory.OWNED);
     }
 
-    private List<PetriNetRow> makeList(List<PetriNet> nets, NetCategory category) throws InputTypeException {
+    private List<PetriNetRow> makeList(List<PetriNet> nets, NetCategory category)  {
         List<PetriNetRow> netsToShow = new ArrayList<>();
         for (PetriNet net : nets) {
             Computation computation = (category == NetCategory.OWNED) ?
@@ -184,7 +182,7 @@ public class ShowAllController {
         return netsToShow;
     }
 
-    private Computation getFirstSubscribedNets(PetriNet net) throws InputTypeException {
+    private Computation getFirstSubscribedNets(PetriNet net) {
         ComputationStep step = ComputationStepDAO.getLastComputationStepForPetriNet(net.getNetName());
         return (step != null) ? ComputationStepDAO.getComputationByStep(step) : null;
     }

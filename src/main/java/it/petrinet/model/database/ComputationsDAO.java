@@ -1,6 +1,5 @@
 package it.petrinet.model.database;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;

@@ -1,6 +1,5 @@
 package it.petrinet.controller;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;

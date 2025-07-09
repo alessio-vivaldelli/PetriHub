@@ -1,5 +1,5 @@
 package it.petrinet.model.database;
-import it.petrinet.exceptions.InputTypeException;
+
 import it.petrinet.model.Notification;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
@@ -8,14 +8,22 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NotificationsDAO implements DataAccessObject{
-    public static void main(String args[])  {
+/**
+ * Data Access Object for handling operations related to notifications in the database.
+ */
+public class NotificationsDAO implements DataAccessObject {
+
+    public static void main(String args[]) {
         deleteTable();
         NotificationsDAO not = new NotificationsDAO();
         not.createTable();
     }
 
-    public void createTable(){
+    /**
+     * Creates the notifications table if it does not already exist.
+     * Includes foreign key constraints to users and Petri nets.
+     */
+    public void createTable() {
         String table = "CREATE TABLE IF NOT EXISTS notifications (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "sender TEXT NOT NULL, " +
@@ -25,398 +33,237 @@ public class NotificationsDAO implements DataAccessObject{
                 "title TEXT NOT NULL, " +
                 "text TEXT NOT NULL, " +
                 "timestamp LONG NOT NULL, " +
-                "UNIQUE(sender, receiver, timestamp), " +
                 "FOREIGN KEY(sender) REFERENCES users(username), " +
                 "FOREIGN KEY(receiver) REFERENCES users(username), " +
-                "FOREIGN KEY(netId) REFERENCES petri_nets(netName)" +
+                "FOREIGN KEY(netId) REFERENCES petri_nets(netName) ON DELETE CASCADE" +
                 ")";
-        ;
         try (Connection conn = DatabaseManager.getDBConnection();
              Statement statement = conn.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             statement.executeUpdate(table);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("createNotificationsTable", ex);
         }
     }
 
-    public static void deleteTable(){
+    /**
+     * Drops the notifications table from the database.
+     */
+    public static void deleteTable() {
         String command = "DROP TABLE notifications;";
-
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON;");
+
+            DatabaseManager.enableForeignKeys(statement);
+
             statement.execute(command);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("deleteNotificationsTable", ex);
         }
     }
 
-    public static void insertNotification(Object notification)  {
+    /**
+     * Inserts a new notification into the database.
+     *
+     * @param notification the notification to insert
+     */
+    public static void insertNotification(Notification notification) {
         String command = "INSERT INTO notifications(sender, receiver, netId, type, title, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try {
-            if (notification instanceof Notification not) {
-                try{
-                    if (!DatabaseManager.tableExists("notifications")) {
-                        NotificationsDAO dao = new NotificationsDAO();
-                        dao.createTable();
-                    }
-                }
-                catch(SQLException e){
-                    e.printStackTrace();
-                }
-
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, not.getSender());
-                    p_statement.setString(2, not.getReceiver());
-                    p_statement.setString(3, not.getNetId());
-                    p_statement.setInt(4, not.getType());
-                    p_statement.setString(5, not.getTitle());
-                    p_statement.setString(6, not.getText());
-                    p_statement.setLong(7, not.getTimestamp());
-                    p_statement.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-    }
-    public static void removeNotification(Notification notification) {
-        String command = "DELETE FROM notifications WHERE id = ?";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
-             Statement statement = connection.createStatement()){
-            statement.execute("PRAGMA foreign_keys = ON;");
-            p_statement.setInt(1, getIdByNotification(notification));
+             Statement statement = connection.createStatement()) {
+
+            if (!DatabaseManager.tableExists("notifications")) {
+                NotificationsDAO dao = new NotificationsDAO();
+                dao.createTable();
+            }
+
+            DatabaseManager.enableForeignKeys(statement);
+            p_statement.setString(1, notification.getSender());
+            p_statement.setString(2, notification.getReceiver());
+            p_statement.setString(3, notification.getNetId());
+            p_statement.setInt(4, notification.getType());
+            p_statement.setString(5, notification.getTitle());
+            p_statement.setString(6, notification.getText());
+            p_statement.setLong(7, notification.getTimestamp());
             p_statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("insertNotification", e);
         }
     }
 
+    /**
+     * Removes all notifications related to a specific Petri net.
+     *
+     * @param net the Petri net whose notifications should be removed
+     */
     public static void removeNotificationsFromNet(PetriNet net) {
         String command = "DELETE FROM notifications WHERE netId = ?";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
-             Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setString(1, net.getNetName());
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, net.getNetName());
             p_statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("removeNotificationsFromNet", e);
         }
     }
 
-    public static void removeNotificationsByReceiver(Object receiver) {
-        try{
-            if(receiver instanceof User user) {
-                String command = "DELETE FROM notifications WHERE receiver = ?";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, user.getUsername());
-                    p_statement.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
-            }
-        }
-        catch (InputTypeException e){
-            e.ErrorPrinter();
-        }
-
-    }
-
-    public static List<Notification> getNotificationsBySender(Object sender) {
-        List <Notification> filteredNotifications = new ArrayList<Notification>();
-        try{
-            if(sender instanceof User user) {
-
-                if (UserDAO.getUserByUsername(user.getUsername()) == null) {
-                    System.out.println("No result for indicated user. " + sender + " doesn't exist.");
-                    return filteredNotifications;
-                }
-                String command = "SELECT * FROM notifications WHERE sender = ? ";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, user.getUsername());
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        filteredNotifications.add(new Notification(
-                                result.getString("sender"),
-                                result.getString("receiver"),
-                                result.getString("netId"),
-                                result.getInt("type"),
-                                result.getString("title"),
-                                result.getString("text"),
-                                result.getInt("timestamp")));
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
-            }
-        }
-        catch (InputTypeException e){
-            e.ErrorPrinter();
-        }
-        return filteredNotifications;
-    }
-
-    public static List<Notification> getNotificationsByReceiver(Object receiver) {
-        List<Notification> filteredNotifications = new ArrayList<Notification>();
-        try{
-            if(receiver instanceof User user) {
-                if (UserDAO.getUserByUsername(user.getUsername()) == null) {
-                    System.out.println("No result for indicated user. " + receiver + " doesn't exist.");
-                    return filteredNotifications;
-                }
-                String command = "SELECT * FROM notifications WHERE receiver = ? ";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, user.getUsername());
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        filteredNotifications.add(new Notification(
-                                result.getString("sender"),
-                                result.getString("receiver"),
-                                result.getString("netId"),
-                                result.getInt("type"),
-                                result.getString("title"),
-                                result.getString("text"),
-                                result.getInt("timestamp")));
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-
-        return filteredNotifications;
-    }
-
-    public static List<Notification> getNotificationsByType(Object type){
-        List<Notification> filteredNotifications = new ArrayList<Notification>();
-        try{
-            if(type instanceof Integer t){
-                String command = "SELECT * FROM notifications WHERE type = ? ";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setInt(1, t);
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        filteredNotifications.add(new Notification(
-                                result.getString("sender"),
-                                result.getString("receiver"),
-                                result.getString("netId"),
-                                result.getInt("type"),
-                                result.getString("title"),
-                                result.getString("text"),
-                                result.getInt("timestamp")));
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-
-        return filteredNotifications;
-    }
-
-    public static List<Notification> getNotificationsByTimestamp(Object timestamp) {
-        List<Notification> filteredNotifications = new ArrayList<Notification>();
-        try{
-            if(timestamp instanceof Integer time){
-                String command = "SELECT * FROM notifications WHERE timestamp = ? ";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setInt(1, time);
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        filteredNotifications.add(new Notification(
-                                result.getString("sender"),
-                                result.getString("receiver"),
-                                result.getString("netId"),
-                                result.getInt("type"),
-                                result.getString("title"),
-                                result.getString("text"),
-                                result.getInt("timestamp")));
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-        return filteredNotifications;
-    }
-
-    public static User getReceiverByNotification(Notification notification) {
-        String command = "SELECT userId FROM notifications WHERE id = ?";
-
+    /**
+     * Removes all notifications received by a specific user.
+     *
+     * @param receiver the user who received the notifications
+     */
+    public static void removeNotificationsByReceiver(User receiver) {
+        String command = "DELETE FROM notifications WHERE receiver = ?";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
-             Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setInt(1, NotificationsDAO.getIdByNotification(notification));
-            ResultSet result = p_statement.executeQuery();
+             Statement statement = connection.createStatement()) {
 
-            if(result.next()){
-                return UserDAO.getUserByUsername(result.getString(1));
-            }
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, receiver.getUsername());
+            p_statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("removeNotificationsByReceiver", e);
         }
-        return null;
     }
 
-    public static int getIdByNotification(Object notification) {
-        try {
-            if (notification instanceof Notification not) {
-                String command = "SELECT id FROM notifications WHERE sender = and receiver = ? and timestamp = ?";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1,not.getSender());
-                    p_statement.setString(2, not.getReceiver());
-                    p_statement.setLong(3, not.getTimestamp());
-                    ResultSet result = p_statement.executeQuery();
-
-                    if(result.next()){
-                        return result.getInt(1);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-        return -1;
-    }
-
-    public static Notification getNotificationById(int id){
-                String command = "SELECT * FROM notifications WHERE id = ? ";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                    statement.execute("PRAGMA foreign_keys = ON;");
-                    p_statement.setInt(1, id);
-                    ResultSet result = p_statement.executeQuery();
-                    if(result.next()){
-                        return new Notification(
-                                result.getString("sender"),
-                                result.getString("receiver"),
-                                result.getString("netId"),
-                                result.getInt("type"),
-                                result.getString("title"),
-                                result.getString("text"),
-                                result.getLong("timestamp"));
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-        return null;
-    }
-
-    public static int getIdByNotification(Notification notification){
-        String command = "SELECT id FROM notifications WHERE sender = ?, receiver = ?, timestamp = ? ";
-
+    /**
+     * Retrieves all notifications received by a specific user.
+     *
+     * @param receiver the user who received the notifications
+     * @return list of notifications received
+     */
+    public static List<Notification> getNotificationsByReceiver(User receiver) {
+        List<Notification> filteredNotifications = new ArrayList<>();
+        String command = "SELECT * FROM notifications WHERE receiver = ?";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
-             Statement statement = connection.createStatement()){
-            statement.execute("PRAGMA foreign_keys = ON;");
-            p_statement.setString(1, notification.getSender());
-            p_statement.setString(2, notification.getReceiver());
-            p_statement.setLong(3, notification.getTimestamp());
-            ResultSet result = p_statement.executeQuery();
-            if(result.next()){
-                return result.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
+             Statement statement = connection.createStatement()) {
 
-    public static Notification extractNotificationById(int id){
-        String command = "SELECT * FROM notifications WHERE id = ? ";
+            DatabaseManager.enableForeignKeys(statement);
 
-        try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command);
-             Statement statement = connection.createStatement()){
-            statement.execute("PRAGMA foreign_keys = ON;");
-            p_statement.setInt(1, id);
+            p_statement.setString(1, receiver.getUsername());
             ResultSet result = p_statement.executeQuery();
-            if(result.next()){
-                Notification not = new Notification(
+            while (result.next()) {
+                filteredNotifications.add(new Notification(
                         result.getString("sender"),
                         result.getString("receiver"),
                         result.getString("netId"),
                         result.getInt("type"),
                         result.getString("title"),
                         result.getString("text"),
-                        result.getLong("timestamp"));
-
-                removeNotification(not);
-                return not;
+                        result.getLong("timestamp")));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("getNotificationsByReceiver", e);
         }
-        return null;
+        return filteredNotifications;
     }
 
+    /**
+     * Retrieves all notifications of a given type.
+     *
+     * @param type the notification type
+     * @return list of matching notifications
+     */
+    public static List<Notification> getNotificationsByType(int type) {
+        List<Notification> filteredNotifications = new ArrayList<>();
+        String command = "SELECT * FROM notifications WHERE type = ?";
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setInt(1, type);
+            ResultSet result = p_statement.executeQuery();
+            while (result.next()) {
+                filteredNotifications.add(new Notification(
+                        result.getString("sender"),
+                        result.getString("receiver"),
+                        result.getString("netId"),
+                        result.getInt("type"),
+                        result.getString("title"),
+                        result.getString("text"),
+                        result.getLong("timestamp")));
+            }
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("getNotificationsByType", e);
+        }
+        return filteredNotifications;
+    }
+
+    /**
+     * Retrieves all notifications with a specific timestamp.
+     *
+     * @param timestamp the notification timestamp
+     * @return list of matching notifications
+     */
+    public static List<Notification> getNotificationsByTimestamp(long timestamp) {
+        List<Notification> filteredNotifications = new ArrayList<>();
+        String command = "SELECT * FROM notifications WHERE timestamp = ?";
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setLong(1, timestamp);
+            ResultSet result = p_statement.executeQuery();
+            while (result.next()) {
+                filteredNotifications.add(new Notification(
+                        result.getString("sender"),
+                        result.getString("receiver"),
+                        result.getString("netId"),
+                        result.getInt("type"),
+                        result.getString("title"),
+                        result.getString("text"),
+                        result.getLong("timestamp")));
+            }
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("getNotificationsByTimestamp", e);
+        }
+        return filteredNotifications;
+    }
+
+
+    /**
+     * Retrieves a notification by the receiver and deletes it from the database.
+     *
+     * @param receiver the notification receiver
+     * @return the removed notification or null
+     */
+    public static List<Notification> extractNotificationsByReceiver(User receiver) {
+        List<Notification> myNots = new ArrayList<Notification>();
+        String command = "SELECT * FROM notifications WHERE receiver = ?";
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, receiver.getUsername());
+            ResultSet result = p_statement.executeQuery();
+            while (result.next()) {
+                myNots.add(new Notification(
+                        result.getString("sender"),
+                        result.getString("receiver"),
+                        result.getString("netId"),
+                        result.getInt("type"),
+                        result.getString("title"),
+                        result.getString("text"),
+                        result.getLong("timestamp")));
+            }
+
+            removeNotificationsByReceiver(receiver);
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("extractNotificationById", e);
+        }
+        return myNots;
+    }
 }

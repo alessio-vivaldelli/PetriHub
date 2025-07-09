@@ -1,6 +1,5 @@
 package it.petrinet.controller;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.ComputationRow;
@@ -39,7 +38,7 @@ public class ComputationListController {
     }
 
     @FXML
-    public void initialize() throws InputTypeException {
+    public void initialize()  {
         initializeUserInterface();
         initializeTableComponent();
         loadSubUserData();
@@ -84,21 +83,21 @@ public class ComputationListController {
     /**
      * Sets up navigation to net visual view for specific user
      */
-    private void setupNavigationToNetVisual(PetriNet net, String userId) throws InputTypeException {
+    private void setupNavigationToNetVisual(PetriNet net, String userId)  {
         NavigationHelper.setupNavigationToNetVisualForUser(net, userId);
     }
 
     /**
      * Finds computation data for specific user and net
      */
-    private Computation findUserComputation(PetriNet net, String userId) throws InputTypeException {
+    private Computation findUserComputation(PetriNet net, String userId)  {
         return NavigationHelper.findUserComputation(net, userId);
     }
 
     /**
      * Loads subscriber user data for the table
      */
-    private void loadSubUserData() throws InputTypeException {
+    private void loadSubUserData()  {
         List<ComputationRow> subUsers = fetchSubUsers();
         userTable.setData(subUsers);
     }
@@ -106,7 +105,7 @@ public class ComputationListController {
     /**
      * Fetches subscriber users and their computation data
      */
-    private List<ComputationRow> fetchSubUsers() throws InputTypeException {
+    private List<ComputationRow> fetchSubUsers()  {
         PetriNet net = PetriNetsDAO.getNetByName(netID.trim());
         if (net == null) {
             LOGGER.warning("Net not found: " + netID);

@@ -1,9 +1,9 @@
 package it.petrinet.model.database;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
 
+import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +33,10 @@ public class ComputationStepDAO implements DataAccessObject{
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             statement.execute(table);
-        } catch (SQLException ex) {
-            System.err.println("Error creating computationSteps table: " + ex.getMessage());
-            ex.printStackTrace();
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("createNotificationsTable", e);
         }
     }
 
@@ -46,41 +45,28 @@ public class ComputationStepDAO implements DataAccessObject{
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             statement.execute(command);
-        } catch (SQLException ex) {
-            System.err.println("Error deleting computationSteps table: " + ex.getMessage());
-            ex.printStackTrace();
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("deleteNotificationsTable", e);
         }
     }
 
     public static void insertStep(ComputationStep step) {
         String command = "INSERT INTO computationSteps(computationId, netId, transitionName, markingState, timestamp) VALUES (?, ?, ?, ?, ?)";
 
-        try {
-            // Nota: La creazione della tabella dovrebbe essere gestita altrove, non per ogni insert.
-            // try{
-            //     if (!DatabaseManager.tableExists("computationSteps")) { // Corretto il nome della tabella
-            //         ComputationStepDAO dao = new ComputationStepDAO();
-            //         dao.createTable();
-            //     }
-            // }catch(SQLException e){
-            //     e.printStackTrace();
-            // }
-
-            try (Connection connection = DatabaseManager.getDBConnection();
-                 PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
-                setupForeignKeys(connection); // Helper per PRAGMA
-                p_statement.setInt(1, step.getComputationId());
-                p_statement.setString(2, step.getNetId());
-                p_statement.setString(3, step.getTransitionName());
-                p_statement.setString(4, step.getTempMarkingState());
-                p_statement.setLong(5, step.getTimestamp());
-                p_statement.executeUpdate();
-            }
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) { // Rimosso Statement non usato
+            DatabaseManager.enableForeignKeys(statement); // Helper per PRAGMA
+            p_statement.setInt(1, step.getComputationId());
+            p_statement.setString(2, step.getNetId());
+            p_statement.setString(3, step.getTransitionName());
+            p_statement.setString(4, step.getTempMarkingState());
+            p_statement.setLong(5, step.getTimestamp());
+            p_statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error inserting ComputationStep: " + e.getMessage());
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("insertStep", e);
         }
     }
 
@@ -88,32 +74,34 @@ public class ComputationStepDAO implements DataAccessObject{
         String command = "DELETE FROM computationSteps WHERE id = ? AND computationId = ? AND netId = ?";
 
         try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
-            setupForeignKeys(connection); // Helper per PRAGMA
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement); // Helper per PRAGMA
+
             p_statement.setLong(1, step.getId());
             p_statement.setInt(2, step.getComputationId());
             p_statement.setString(3, step.getNetId());
             p_statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error removing ComputationStep: " + e.getMessage());
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("removeStep", e);
         }
     }
 
     public static void removeAllStepsByComputation(Computation computation) {
         String command = "DELETE FROM computationSteps WHERE computationId = ? AND netId = ?";
-    
 
         try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
-            setupForeignKeys(connection); // Helper per PRAGMA
-            // Assumo che getIdByComputation non lanci eccezioni e ritorni un ID valido o gestisca internamente errori
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
             p_statement.setInt(1, ComputationsDAO.getIdByComputation(computation));
             p_statement.setString(2, computation.getNetId());
             p_statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error removing all ComputationSteps by computation: " + e.getMessage());
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("removeAllStepsByComputation", e);
         }
     }
 
@@ -123,8 +111,11 @@ public class ComputationStepDAO implements DataAccessObject{
     
 
         try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
-            setupForeignKeys(connection); // Helper per PRAGMA
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
             int computationId = ComputationsDAO.getIdByComputation(computation);
             p_statement.setInt(1, computationId);
             p_statement.setString(2, computation.getNetId());
@@ -132,8 +123,7 @@ public class ComputationStepDAO implements DataAccessObject{
             p_statement.setString(4, computation.getNetId());
             p_statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error resetting computation steps: " + e.getMessage());
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("resetComputationSteps", e);
         }
     }
 
@@ -141,8 +131,9 @@ public class ComputationStepDAO implements DataAccessObject{
         String command = "SELECT id, computationId, netId, transitionName, markingState, timestamp FROM computationSteps WHERE timestamp = ?";
 
         try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command)) {
-            setupForeignKeys(connection); // Helper per PRAGMA
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+            DatabaseManager.enableForeignKeys(statement); // Helper per PRAGMA
             p_statement.setLong(1, timestamp);
             try (ResultSet result = p_statement.executeQuery()) {
                 if (result.next()) {
@@ -156,9 +147,8 @@ public class ComputationStepDAO implements DataAccessObject{
                     );
                 }
             }
-        } catch (SQLException ex) {
-            System.err.println("Error getting ComputationStep by timestamp: " + ex.getMessage());
-            ex.printStackTrace();
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("getComputationStepByTimestamp", e);
         }
         return null;
     }
@@ -166,19 +156,22 @@ public class ComputationStepDAO implements DataAccessObject{
     public static ComputationStep getLastComputationStep(Computation computation)  {
         int id = ComputationsDAO.getIdByComputation(computation);
         if (id < 0) {
-            System.err.println("The computation given is not in the database.");
+            System.err.println("Computation given not in database.");
             return null;
         }
         String command = "SELECT id, computationId, netId, transitionName, markingState, timestamp " +
                 "FROM computationSteps " +
                 "WHERE computationId = ? " +
-                "ORDER BY timestamp DESC " + // Ordina per timestamp discendente
-                "LIMIT 1;"; // Prendi solo il primo risultato (il più recente)
+                "ORDER BY timestamp DESC " +
+                "LIMIT 1;";
 
         try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command)) {
-            setupForeignKeys(connection); // Helper per PRAGMA
-            p_statement.setInt(1, id); // Usa setInt perché l'ID della computazione è un INT
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setInt(1, id);
 
             try (ResultSet result = p_statement.executeQuery()) {
                 if (result.next()) {
@@ -192,9 +185,8 @@ public class ComputationStepDAO implements DataAccessObject{
                     );
                 }
             }
-        } catch (SQLException ex) {
-            System.err.println("Error getting last ComputationStep for computation: " + ex.getMessage());
-            ex.printStackTrace();
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("getLastComputationStep", e);
         }
         return null;
     }
@@ -204,14 +196,18 @@ public class ComputationStepDAO implements DataAccessObject{
 
         String command = "SELECT id, computationId, netId, transitionName, markingState, timestamp " +
                 "FROM computationSteps " +
-                "WHERE computationId = ? AND netId = ? " + // Corretto i parametri
-                "ORDER BY timestamp ASC;"; // Ordina in ordine crescente per visualizzare la storia
+                "WHERE computationId = ? AND netId = ? " +
+                "ORDER BY timestamp ASC;";
 
         try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
-            setupForeignKeys(connection); // Helper per PRAGMA
-            p_statement.setInt(1, ComputationsDAO.getIdByComputation(computation)); // get id of computation
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setInt(1, ComputationsDAO.getIdByComputation(computation));
             p_statement.setString(2, computation.getNetId());
+
             try (ResultSet result = p_statement.executeQuery()) {
                 while (result.next()) {
                     wantedSteps.add( new ComputationStep(
@@ -224,9 +220,8 @@ public class ComputationStepDAO implements DataAccessObject{
                     ));
                 }
             }
-        } catch (SQLException ex) {
-            System.err.println("Error getting steps by computation: " + ex.getMessage());
-            ex.printStackTrace();
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("getStepsByComputation", e);
         }
         return wantedSteps;
     }
@@ -235,18 +230,20 @@ public class ComputationStepDAO implements DataAccessObject{
         String command = "SELECT computationId FROM computationSteps WHERE id = ? AND netId = ?";
 
         try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
-            setupForeignKeys(connection); // Helper per PRAGMA
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
             p_statement.setLong(1, step.getId());
-            p_statement.setString(2, step.getNetId()); // Corretto l'indice del parametro
+            p_statement.setString(2, step.getNetId());
             try (ResultSet result = p_statement.executeQuery()) {
                 if(result.next()){
                     return ComputationsDAO.getComputationById(result.getInt(1));
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting Computation by step: " + e.getMessage());
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("getComputationByStep", e);
         }
         return null;
     }
@@ -267,8 +264,11 @@ public class ComputationStepDAO implements DataAccessObject{
                 "LIMIT 1;";
 
         try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(query)) {
-            setupForeignKeys(connection); // Abilita le foreign keys
+             PreparedStatement p_statement = connection.prepareStatement(query);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
             p_statement.setString(1, petriNetId);
 
             try (ResultSet result = p_statement.executeQuery()) {
@@ -283,23 +283,9 @@ public class ComputationStepDAO implements DataAccessObject{
                     );
                 }
             }
-        } catch (SQLException ex) {
-            System.err.println("Error retrieving last ComputationStep for PetriNet '" + petriNetId + "': " + ex.getMessage());
-            ex.printStackTrace();
-            // Puoi scegliere di rilanciare l'eccezione o gestirla in modo diverso qui
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("getLastComputationStepForPetriNet", e);
         }
         return lastStep;
-    }
-
-
-
-    /**
-     * Helper method to enable foreign keys for SQLite.
-     * This should ideally be handled once per connection or globally.
-     */
-    private static void setupForeignKeys(Connection connection) throws SQLException {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON;");
-        }
     }
 }
