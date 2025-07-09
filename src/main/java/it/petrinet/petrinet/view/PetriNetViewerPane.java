@@ -78,7 +78,6 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
       if (node instanceof Place p) {
         p.setPlaceTokens(initialMarking.getOrDefault(p.getName(), 0));
       }
-      addNodeToGraph(node);
     });
     computeAndApplyFirableTransitions();
   }
