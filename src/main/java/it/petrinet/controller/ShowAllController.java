@@ -104,7 +104,7 @@ public class ShowAllController {
 
             switch (cardType) {
                 case SUBSCRIBED -> setupNavigationToNetVisual(net, ViewNavigator.getAuthenticatedUser().getUsername());
-                case DISCOVER -> LOGGER.info("Discover functionality not implemented yet");
+                case DISCOVER -> setupNavigationToNetVisual(net, ViewNavigator.getAuthenticatedUser().getUsername());
                 default -> throw new InputTypeException();
             }
         } catch (Exception e) {

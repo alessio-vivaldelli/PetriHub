@@ -10,8 +10,6 @@ import java.util.List;
 
 public class ComputationStepDAO implements DataAccessObject{
 
-    private static final String typeErrorMessage = "Invalid input type provided."; // Definizione del messaggio di errore
-
     public static void main(String[] args) throws InputTypeException {
         ComputationStepDAO dao = new ComputationStepDAO();
         dao.createTable();

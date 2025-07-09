@@ -313,9 +313,7 @@ public class HomeController implements Initializable {
     private void handleSubscribedNetClick(String netName) {
         try {
             PetriNet net = PetriNetsDAO.getNetByName(netName);
-            if (net != null) {
-                setupNavigationToNetVisual(net);
-            }
+            if (net != null) setupNavigationToNetVisual(net);
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Failed to handle subscribed net click", e);
         }
