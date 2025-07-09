@@ -3,16 +3,16 @@ package it.petrinet.model;
 public class Notification {
 
     private String sender;
-    private String recipient;
+    private String receiver;
     private String netId;
     private int type;
     private String title;
     private String text;
-    private int timestamp;
+    private long timestamp;
 
     public Notification() {
         this.sender= "unknown sender";
-        this.recipient = "unknown recipient";
+        this.receiver = "unknown receiver";
         this.netId = "id";
         this.type = 0;
         this.title = "title";
@@ -20,9 +20,9 @@ public class Notification {
         this.timestamp = 0;
     }
 
-    public Notification(String sender, String recipient, String netId, int type, String title, String text, int timestamp) {
+    public Notification(String sender, String receiver, String netId, int type, String title, String text, long timestamp) {
         this.sender= sender;
-        this.recipient = recipient;
+        this.receiver = receiver;
         this.netId = netId;
         this.type = type;
         this.title = title;
@@ -34,8 +34,8 @@ public class Notification {
         return sender;
     }
 
-    public String getRecipient(){
-        return recipient;
+    public String getReceiver(){
+        return receiver;
     }
 
     public String getNetId() {
@@ -54,7 +54,7 @@ public class Notification {
         return text;
     }
 
-    public int getTimestamp(){
+    public long getTimestamp(){
         return timestamp;
     }
 }

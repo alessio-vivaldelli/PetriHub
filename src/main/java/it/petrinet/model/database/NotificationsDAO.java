@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationsDAO implements DataAccessObject{
-    public static void main(String args[]) throws InputTypeException {
+    public static void main(String args[])  {
+        deleteTable();
         NotificationsDAO not = new NotificationsDAO();
         not.createTable();
     }
@@ -18,15 +19,15 @@ public class NotificationsDAO implements DataAccessObject{
         String table = "CREATE TABLE IF NOT EXISTS notifications (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "sender TEXT NOT NULL, " +
-                "recipient TEXT NOT NULL, " +
+                "receiver TEXT NOT NULL, " +
                 "netId TEXT NOT NULL, " +
                 "type INTEGER NOT NULL, " +
                 "title TEXT NOT NULL, " +
                 "text TEXT NOT NULL, " +
-                "timestamp INTEGER NOT NULL, " +
-                "UNIQUE(sender, recipient, timestamp), " +
+                "timestamp LONG NOT NULL, " +
+                "UNIQUE(sender, receiver, timestamp), " +
                 "FOREIGN KEY(sender) REFERENCES users(username), " +
-                "FOREIGN KEY(recipient) REFERENCES users(username), " +
+                "FOREIGN KEY(receiver) REFERENCES users(username), " +
                 "FOREIGN KEY(netId) REFERENCES petri_nets(netName)" +
                 ")";
         ;
@@ -51,8 +52,8 @@ public class NotificationsDAO implements DataAccessObject{
         }
     }
 
-    public static void insertNotification(Object notification) throws InputTypeException {
-        String command = "INSERT INTO notifications(sender, recipient, netId, type, title, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    public static void insertNotification(Object notification)  {
+        String command = "INSERT INTO notifications(sender, receiver, netId, type, title, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             if (notification instanceof Notification not) {
                 try{
@@ -71,12 +72,12 @@ public class NotificationsDAO implements DataAccessObject{
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                      p_statement.setString(1, not.getSender());
-                    p_statement.setString(2, not.getRecipient());
+                    p_statement.setString(2, not.getReceiver());
                     p_statement.setString(3, not.getNetId());
                     p_statement.setInt(4, not.getType());
                     p_statement.setString(5, not.getTitle());
                     p_statement.setString(6, not.getText());
-                    p_statement.setInt(7, not.getTimestamp());
+                    p_statement.setLong(7, not.getTimestamp());
                     p_statement.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -89,35 +90,36 @@ public class NotificationsDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
     }
-
-    public static void deleteNotificationsFromNet(Object net) throws InputTypeException{
-        String command = "DELETE FROM notifications WHERE netId = ?";
-        try{
-            if(net instanceof PetriNet pNet){
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, pNet.getNetName());
-                    p_statement.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
-            }
+    public static void removeNotification(Notification notification) {
+        String command = "DELETE FROM notifications WHERE id = ?";
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setInt(1, getIdByNotification(notification));
+            p_statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-
     }
 
-    public static void deleteNotificationsByRecipient(Object recipient) throws InputTypeException{
+    public static void removeNotificationsFromNet(PetriNet net) {
+        String command = "DELETE FROM notifications WHERE netId = ?";
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, net.getNetName());
+            p_statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeNotificationsByReceiver(Object receiver) {
         try{
-            if(recipient instanceof User user) {
-                String command = "DELETE FROM notifications WHERE recipient = ?";
+            if(receiver instanceof User user) {
+                String command = "DELETE FROM notifications WHERE receiver = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command); 
@@ -139,7 +141,7 @@ public class NotificationsDAO implements DataAccessObject{
 
     }
 
-    public static List<Notification> getNotificationsBySender(Object sender) throws InputTypeException{
+    public static List<Notification> getNotificationsBySender(Object sender) {
         List <Notification> filteredNotifications = new ArrayList<Notification>();
         try{
             if(sender instanceof User user) {
@@ -159,7 +161,7 @@ public class NotificationsDAO implements DataAccessObject{
                     while(result.next()){
                         filteredNotifications.add(new Notification(
                                 result.getString("sender"),
-                                result.getString("recipient"),
+                                result.getString("receiver"),
                                 result.getString("netId"),
                                 result.getInt("type"),
                                 result.getString("title"),
@@ -180,15 +182,15 @@ public class NotificationsDAO implements DataAccessObject{
         return filteredNotifications;
     }
 
-    public static List<Notification> getNotificationsByRecipient(Object recipient) throws InputTypeException{
+    public static List<Notification> getNotificationsByReceiver(Object receiver) {
         List<Notification> filteredNotifications = new ArrayList<Notification>();
         try{
-            if(recipient instanceof User user) {
+            if(receiver instanceof User user) {
                 if (UserDAO.getUserByUsername(user.getUsername()) == null) {
-                    System.out.println("No result for indicated user. " + recipient + " doesn't exist.");
+                    System.out.println("No result for indicated user. " + receiver + " doesn't exist.");
                     return filteredNotifications;
                 }
-                String command = "SELECT * FROM notifications WHERE recipient = ? ";
+                String command = "SELECT * FROM notifications WHERE receiver = ? ";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command); 
@@ -199,7 +201,7 @@ public class NotificationsDAO implements DataAccessObject{
                     while(result.next()){
                         filteredNotifications.add(new Notification(
                                 result.getString("sender"),
-                                result.getString("recipient"),
+                                result.getString("receiver"),
                                 result.getString("netId"),
                                 result.getInt("type"),
                                 result.getString("title"),
@@ -236,7 +238,7 @@ public class NotificationsDAO implements DataAccessObject{
                     while(result.next()){
                         filteredNotifications.add(new Notification(
                                 result.getString("sender"),
-                                result.getString("recipient"),
+                                result.getString("receiver"),
                                 result.getString("netId"),
                                 result.getInt("type"),
                                 result.getString("title"),
@@ -258,7 +260,7 @@ public class NotificationsDAO implements DataAccessObject{
         return filteredNotifications;
     }
 
-    public static List<Notification> getNotificationsByTimestamp(Object timestamp) throws InputTypeException{
+    public static List<Notification> getNotificationsByTimestamp(Object timestamp) {
         List<Notification> filteredNotifications = new ArrayList<Notification>();
         try{
             if(timestamp instanceof Integer time){
@@ -273,7 +275,7 @@ public class NotificationsDAO implements DataAccessObject{
                     while(result.next()){
                         filteredNotifications.add(new Notification(
                                 result.getString("sender"),
-                                result.getString("recipient"),
+                                result.getString("receiver"),
                                 result.getString("netId"),
                                 result.getInt("type"),
                                 result.getString("title"),
@@ -294,46 +296,37 @@ public class NotificationsDAO implements DataAccessObject{
         return filteredNotifications;
     }
 
-    public static User getRecipientByNotification(Object notification) throws InputTypeException{
-        try {
-            if (notification instanceof Notification not) {
-                String command = "SELECT userId FROM notifications WHERE id = ?";
+    public static User getReceiverByNotification(Notification notification) {
+        String command = "SELECT userId FROM notifications WHERE id = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setInt(1,NotificationsDAO.getIdByNotification(not));
-                    ResultSet result = p_statement.executeQuery();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setInt(1, NotificationsDAO.getIdByNotification(notification));
+            ResultSet result = p_statement.executeQuery();
 
-                    if(result.next()){
-                        return UserDAO.getUserByUsername(result.getString(1));
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.NOTIFICATION);
+            if(result.next()){
+                return UserDAO.getUserByUsername(result.getString(1));
             }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    public static int getIdByNotification(Object notification) throws InputTypeException{
+    public static int getIdByNotification(Object notification) {
         try {
             if (notification instanceof Notification not) {
-                String command = "SELECT id FROM notifications WHERE sender = and recipient = ? and timestamp = ?";
+                String command = "SELECT id FROM notifications WHERE sender = and receiver = ? and timestamp = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command); 
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
                      p_statement.setString(1,not.getSender());
-                    p_statement.setString(2, not.getRecipient());
-                    p_statement.setInt(3, not.getTimestamp());
+                    p_statement.setString(2, not.getReceiver());
+                    p_statement.setLong(3, not.getTimestamp());
                     ResultSet result = p_statement.executeQuery();
 
                     if(result.next()){
@@ -351,6 +344,79 @@ public class NotificationsDAO implements DataAccessObject{
             e.ErrorPrinter();
         }
         return -1;
+    }
+
+    public static Notification getNotificationById(int id){
+                String command = "SELECT * FROM notifications WHERE id = ? ";
+
+                try (Connection connection = DatabaseManager.getDBConnection();
+                     PreparedStatement p_statement = connection.prepareStatement(command);
+                     Statement statement = connection.createStatement()){
+                    statement.execute("PRAGMA foreign_keys = ON;");
+                    p_statement.setInt(1, id);
+                    ResultSet result = p_statement.executeQuery();
+                    if(result.next()){
+                        return new Notification(
+                                result.getString("sender"),
+                                result.getString("receiver"),
+                                result.getString("netId"),
+                                result.getInt("type"),
+                                result.getString("title"),
+                                result.getString("text"),
+                                result.getLong("timestamp"));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+        return null;
+    }
+
+    public static int getIdByNotification(Notification notification){
+        String command = "SELECT id FROM notifications WHERE sender = ?, receiver = ?, timestamp = ? ";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setString(1, notification.getSender());
+            p_statement.setString(2, notification.getReceiver());
+            p_statement.setLong(3, notification.getTimestamp());
+            ResultSet result = p_statement.executeQuery();
+            if(result.next()){
+                return result.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static Notification extractNotificationById(int id){
+        String command = "SELECT * FROM notifications WHERE id = ? ";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setInt(1, id);
+            ResultSet result = p_statement.executeQuery();
+            if(result.next()){
+                Notification not = new Notification(
+                        result.getString("sender"),
+                        result.getString("receiver"),
+                        result.getString("netId"),
+                        result.getInt("type"),
+                        result.getString("title"),
+                        result.getString("text"),
+                        result.getLong("timestamp"));
+
+                removeNotification(not);
+                return not;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

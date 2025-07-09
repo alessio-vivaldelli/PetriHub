@@ -45,4 +45,14 @@ public class DatabaseManager {
         }
         return exists;
     }
+
+    /**
+     * Enables foreign key support in SQLite.
+     *
+     * @param statement the statement on which to enable foreign keys
+     * @throws SQLException if SQL execution fails
+     */
+    protected static void enableForeignKeys(Statement statement) throws SQLException {
+        statement.execute("PRAGMA foreign_keys = ON;");
+    }
 }

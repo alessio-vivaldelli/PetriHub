@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ComputationsDAO implements DataAccessObject{
-    public static void main(String[] args) throws InputTypeException {
-        ComputationsDAO d = new ComputationsDAO();
-        d.createTable();
+    public static void main(String[] args)  {
+//        ComputationsDAO d = new ComputationsDAO();
+//        d.createTable();
 //        insertComputation(new Computation("net1","a","Davide", 34,-1 ,Computation.NEXT_STEP_TYPE.ADMIN));
         //insertComputation(new Computation("net14","ale","a", 34, Computation.NEXT_STEP_TYPE.BOTH));
 //        insertComputation(new Computation("net4","anto","Davide", 34, Computation.NEXT_STEP_TYPE.USER));
-        System.out.println(getNetsSubscribedByUser(new User("a", "a", true)).size());
+        System.out.println(getRecentNetsSubscribedByUser(new User("a", "a", true)));
     }
 
     public void createTable() {                          //metodo per creazione tabelle
@@ -54,89 +54,64 @@ public class ComputationsDAO implements DataAccessObject{
         }
     }
 
-    public static void insertComputation(Object computation) throws InputTypeException{
-        try{
-            if(computation instanceof Computation c){
-                String command = "INSERT INTO computations(netId, creatorId, userId, startDate, endDate, nextStep) VALUES (?, ?, ?, ?, ?, ?)";
+    public static void insertComputation(Computation computation) {
+        String command = "INSERT INTO computations(netId, creatorId, userId, startDate, endDate, nextStep) VALUES (?, ?, ?, ?, ?, ?)";
 
-                try{
-                    if(!DatabaseManager.tableExists("computations")){
-                        ComputationsDAO dao = new ComputationsDAO();
-                        dao.createTable();
-                    }
-                }
-                catch(SQLException e){
-                    e.printStackTrace();
-                }
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, c.getNetId());
-                    p_statement.setString(2, c.getCreatorId());
-                    p_statement.setString(3, c.getUserId());
-                    if(c.getStartTimestamp()>0){
-                        p_statement.setLong(4, c.getStartTimestamp());
-                    }
-                    if(c.getEndTimestamp()>0){
-                        p_statement.setLong(5, c.getEndTimestamp());
-                    }
-                    p_statement.setInt(6, c.getNextStepType().ordinal());
-                    p_statement.executeUpdate();
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
+            if(!DatabaseManager.tableExists("computations")){
+                ComputationsDAO dao = new ComputationsDAO();
+                dao.createTable();
             }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, computation.getNetId());
+            p_statement.setString(2, computation.getCreatorId());
+            p_statement.setString(3, computation.getUserId());
+            if(computation.getStartTimestamp()>0){
+                p_statement.setLong(4, computation.getStartTimestamp());
             }
+            if(computation.getEndTimestamp()>0){
+                p_statement.setLong(5, computation.getEndTimestamp());
+            }
+            p_statement.setInt(6, computation.getNextStepType().ordinal());
+            p_statement.executeUpdate();
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
     }
 
-    public static Computation getComputationById(Object id)throws InputTypeException{
-        try{
-            if(id instanceof Integer i){
-                String command = "SELECT * FROM computations WHERE id = ?";
+    public static Computation getComputationById(int id){
+        String command = "SELECT * FROM computations WHERE id = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setInt(1, i);
-                    ResultSet result = p_statement.executeQuery();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setInt(1, id);
+            ResultSet result = p_statement.executeQuery();
 
-                    if(result.next()){
-                        return new Computation(
-                                result.getString(2),
-                                result.getString(3),
-                                result.getString(4),
-                                result.getLong(5),
-                                result.getLong(6),
-                                Computation.toNextStepType(result.getInt(7))
+            if(result.next()){
+                return new Computation(
+                        result.getString(2),
+                        result.getString(3),
+                        result.getString(4),
+                        result.getLong(5),
+                        result.getLong(6),
+                        Computation.toNextStepType(result.getInt(7))
 
-                        );
-                    }
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+                );
             }
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
         return null;
     }
 
-    private static void removeComputation(int id) throws InputTypeException{
+    private static void removeComputation(int id) {
         String command = "DELETE FROM computations WHERE id = ?";
 
         try (Connection connection = DatabaseManager.getDBConnection();
@@ -153,227 +128,146 @@ public class ComputationsDAO implements DataAccessObject{
         }
     }
 
-    public static void removeComputation(Object computation) throws InputTypeException{
-        try{
-            if(computation instanceof Computation c){
-                removeComputation(getIdByComputation(c));
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
+    public static void removeComputation(Computation computation) {
+        removeComputation(getIdByComputation(computation));
+    }
+
+    public static void resetComputation(Computation computation) {
+        String command = "Update computations SET endDate = ? WHERE id = ?";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setNull(1, Types.BIGINT);
+            p_statement.setInt(2, getIdByComputation(computation));
+            p_statement.executeUpdate();
+
+            ComputationStepDAO.resetComputationSteps(computation);
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
     }
 
-    //TODO CHECK
-    public static void resetComputation(Object computation) throws InputTypeException{
-        try{
-            if(computation instanceof Computation c){
-                String command = "Update computations SET endDate = ? WHERE id = ?";
+    public static void deleteComputation(Computation computation) {
+        String command = "Update computations SET endDate = ?, startDate = ? WHERE id = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                    statement.execute("PRAGMA foreign_keys = ON;");
-                    p_statement.setNull(1, Types.BIGINT);
-                    p_statement.setInt(2, getIdByComputation(c));
-                    p_statement.executeUpdate();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setNull(1, Types.BIGINT);
+            p_statement.setNull(2, Types.BIGINT);
+            p_statement.setInt(3, getIdByComputation(computation));
+            p_statement.executeUpdate();
 
-                    ComputationStepDAO.resetComputationSteps(c);
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
+            ComputationStepDAO.removeAllStepsByComputation(computation);
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-    }
-    //TODO CHECK
-    public static void deleteComputation(Object computation) throws InputTypeException{
-        try{
-            if(computation instanceof Computation c){
-                String command = "Update computations SET endDate = ?, startDate = ? WHERE id = ?";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                    statement.execute("PRAGMA foreign_keys = ON;");
-                    p_statement.setNull(1, Types.BIGINT);
-                    p_statement.setNull(2, Types.BIGINT);
-                    p_statement.setInt(3, getIdByComputation(c));
-                    p_statement.executeUpdate();
-
-                    ComputationStepDAO.removeAllStepsByComputation(c);
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
     }
 
-    public static boolean isComplete(Object computation) throws InputTypeException{
-        try{
-            if(computation instanceof Computation com){
-                String command = "SELECT endDate FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
+    public static boolean isComplete(Computation computation) {
+        String command = "SELECT endDate FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, com.getNetId());
-                    p_statement.setString(2, com.getCreatorId());
-                    p_statement.setString(3, com.getUserId());
-                    ResultSet result = p_statement.executeQuery();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, computation.getNetId());
+            p_statement.setString(2, computation.getCreatorId());
+            p_statement.setString(3, computation.getUserId());
+            ResultSet result = p_statement.executeQuery();
 
-                    if(result.next()){
-                        result.getInt(1);
-                        return !result.wasNull();   //se è not null, c'è una data inserita, quindi ritorna vero
-                    }
-
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
+            if(result.next()){
+                result.getInt(1);
+                return !result.wasNull();   //se è not null, c'è una data inserita, quindi ritorna vero
             }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
+
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
         return false;
     }
 
-    public static void setAsStarted(Object computation, Object startDate) throws InputTypeException{
-        try{
-            if(computation instanceof Computation c){
-                if(startDate instanceof Integer date){
-                    String command = "UPDATE computations SET startDate = ? WHERE netId = ? AND userId = ? AND creatorId = ?";
+    public static void setAsStarted(Computation computation, long startDate) {
+        String command = "UPDATE computations SET startDate = ? WHERE netId = ? AND userId = ? AND creatorId = ?";
 
-                    try (Connection connection = DatabaseManager.getDBConnection();
-                         PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                         p_statement.setInt(1, date);
-                        p_statement.setString(2, c.getNetId());
-                        p_statement.setString(3, c.getUserId());
-                        p_statement.setString(4, c.getCreatorId());
-                        p_statement.executeUpdate();
-                    }
-                    catch(SQLException ex){
-                        ex.printStackTrace();
-                    }
-                }
-                else{
-                    throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+         Statement statement = connection.createStatement()){
+         statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setLong(1, startDate);
+            p_statement.setString(2, computation.getNetId());
+            p_statement.setString(3, computation.getUserId());
+            p_statement.setString(4, computation.getCreatorId());
+            p_statement.executeUpdate();
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex) {
+            ex.printStackTrace();
         }
     }
 
-    public static void setAsCompleted(Object computation, Object endDate) throws InputTypeException{
-        try{
-            if(computation instanceof Computation c){
-                if(endDate instanceof Integer date){
-                    String command = "UPDATE computations SET endDate = ? WHERE netId = ? AND userId = ? AND creatorId = ?";
+    public static void setAsCompleted(Computation computation, long endDate) {
+        String command = "UPDATE computations SET endDate = ? WHERE netId = ? AND userId = ? AND creatorId = ?";
 
-                    try (Connection connection = DatabaseManager.getDBConnection();
-                         PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                         p_statement.setInt(1, date);
-                        p_statement.setString(2, c.getNetId());
-                        p_statement.setString(3, c.getUserId());
-                        p_statement.setString(4, c.getCreatorId());
-                        p_statement.executeUpdate();
-                    }
-                    catch(SQLException ex){
-                        ex.printStackTrace();
-                    }
-                }
-                else{
-                    throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+         Statement statement = connection.createStatement()){
+         statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setLong(1, endDate);
+            p_statement.setString(2, computation.getNetId());
+            p_statement.setString(3, computation.getUserId());
+            p_statement.setString(4, computation.getCreatorId());
+            p_statement.executeUpdate();
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
     }
 
-    public static List<Computation> getComputationsByNet(Object petriNet) throws InputTypeException{
+    public static List<Computation> getComputationsByNet(PetriNet net) {
         List<Computation> wantedComputations = new ArrayList<Computation>();
-        try{
-            if(petriNet instanceof PetriNet net){
-                String command = "SELECT * FROM computations WHERE netId = ?";
+        String command = "SELECT * FROM computations WHERE netId = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
 
-                    statement.execute("PRAGMA foreign_keys = ON;");
-                    p_statement.setString(1, net.getNetName());
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setString(1, net.getNetName());
 
-                    ResultSet result = p_statement.executeQuery();
+            ResultSet result = p_statement.executeQuery();
 
-                    while (result.next()) {
-                        long sDate = result.getLong(5);
-                        if(result.wasNull()){
-                            sDate = -1L;
-                        }
-                        long eDate = result.getLong(6);
-                        if(result.wasNull()){
-                            eDate = -1L;
-                        }
-                        wantedComputations.add(new Computation(
-                                result.getString(2),
-                                result.getString(3),
-                                result.getString(4),
-                                sDate,
-                                eDate,
-                                Computation.toNextStepType(result.getInt(7))
-                        ));
-                    }
+            while (result.next()) {
+                long sDate = result.getLong(5);
+                if(result.wasNull()){
+                    sDate = -1L;
                 }
-                catch(SQLException ex){
-                    ex.printStackTrace();
+                long eDate = result.getLong(6);
+                if(result.wasNull()){
+                    eDate = -1L;
                 }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+                wantedComputations.add(new Computation(
+                        result.getString(2),
+                        result.getString(3),
+                        result.getString(4),
+                        sDate,
+                        eDate,
+                        Computation.toNextStepType(result.getInt(7))
+                ));
             }
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
-        return wantedComputations;
+return wantedComputations;
     }
 
-    public static int getIdByComputation(Object computation) throws InputTypeException{
+    public static int getIdByComputation(Computation computation) {
         try {
             if (computation instanceof Computation c) {
                 String command = "SELECT id FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
@@ -403,262 +297,191 @@ public class ComputationsDAO implements DataAccessObject{
         return -1;
     }
 
-    public static List<Computation> getComputationsByUser(Object user) throws InputTypeException{
+    public static List<Computation> getComputationsByUser(User user) {
         List<Computation> wantedComputations = new ArrayList<Computation>();
-        try{
-            if(user instanceof User u){
-                String command = "SELECT * FROM computations WHERE creatorId = ?";
+        String command = "SELECT * FROM computations WHERE creatorId = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        long sDate = result.getLong(5);
-                        if(result.wasNull()){
-                            sDate = -1L;
-                        }
-                        long eDate = result.getLong(6);
-                        if(result.wasNull()){
-                            eDate = -1L;
-                        }
-                        wantedComputations.add( new Computation(
-                                result.getString(2),
-                                result.getString(3),
-                                result.getString(4),
-                                eDate,
-                                sDate,
-                                Computation.toNextStepType(result.getInt(7))
-                        ));
-                    }
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, user.getUsername());
+            ResultSet result = p_statement.executeQuery();
+            while(result.next()){
+                long sDate = result.getLong(5);
+                if(result.wasNull()){
+                    sDate = -1L;
                 }
-                catch(SQLException ex){
-                    ex.printStackTrace();
+                long eDate = result.getLong(6);
+                if(result.wasNull()){
+                    eDate = -1L;
                 }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+                wantedComputations.add( new Computation(
+                        result.getString(2),
+                        result.getString(3),
+                        result.getString(4),
+                        eDate,
+                        sDate,
+                        Computation.toNextStepType(result.getInt(7))
+                ));
             }
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
-
-        return wantedComputations;
-    }
-
-    public static List<Computation> getComputationsByAdmin(Object user) throws InputTypeException{
-        List<Computation> wantedComputations = new ArrayList<Computation>();
-        try{
-            if(user instanceof User u){
-                String command = "SELECT * FROM computations WHERE Id = ?";
-
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        long sDate = result.getLong(5);
-                        if(result.wasNull()){
-                            sDate = -1L;
-                        }
-                        long eDate = result.getLong(6);
-                        if(result.wasNull()){
-                            eDate = -1L;
-                        }
-                        wantedComputations.add( new Computation(
-                                result.getString(2),
-                                result.getString(3),
-                                result.getString(4),
-                                sDate,
-                                eDate,
-                                Computation.toNextStepType(result.getInt(7))
-                        ));
-                    }
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
         return wantedComputations;
     }
 
-    public static List<Computation> getComputationsByAdminAndUser(Object user, Object admin) throws InputTypeException{
+    public static List<Computation> getComputationsByAdmin(User user) {
         List<Computation> wantedComputations = new ArrayList<Computation>();
-        try{
-            if(user instanceof User u){
-                if(admin instanceof User a) {
-                    String command = "SELECT * FROM computations WHERE userId = ? AND creatorId = ?";
+        String command = "SELECT * FROM computations WHERE Id = ?";
 
-                    try (Connection connection = DatabaseManager.getDBConnection();
-                         PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                         p_statement.setString(1, u.getUsername());
-                        p_statement.setString(1, a.getUsername());
-                        ResultSet result = p_statement.executeQuery();
-
-                        while (result.next()) {
-                            long sDate = result.getLong(5);
-                            if(result.wasNull()){
-                                sDate = -1L;
-                            }
-                            long eDate = result.getLong(6);
-                            if(result.wasNull()){
-                                eDate = -1L;
-                            }
-                            wantedComputations.add( new Computation(
-                                    result.getString(2),
-                                    result.getString(3),
-                                    result.getString(4),
-                                    sDate,
-                                    eDate,
-                                    Computation.toNextStepType(result.getInt(7))
-                            ));
-                        }
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                    }
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, user.getUsername());
+            ResultSet result = p_statement.executeQuery();
+            while(result.next()){
+                long sDate = result.getLong(5);
+                if(result.wasNull()){
+                    sDate = -1L;
                 }
-                else{
-                    throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+                long eDate = result.getLong(6);
+                if(result.wasNull()){
+                    eDate = -1L;
                 }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+                wantedComputations.add( new Computation(
+                        result.getString(2),
+                        result.getString(3),
+                        result.getString(4),
+                        sDate,
+                        eDate,
+                        Computation.toNextStepType(result.getInt(7))
+                ));
             }
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex) {
+            ex.printStackTrace();
         }
         return wantedComputations;
     }
 
-    public static Computation getComputationByUserAndNet(Object user, Object net) throws InputTypeException{
-        try{
-            if(user instanceof User u){
-                if(net instanceof PetriNet n) {
-                    String command = "SELECT * FROM computations WHERE userId = ? AND netId = ?";
+    public static List<Computation> getComputationsByAdminAndUser(User user, User admin) {
+        List<Computation> wantedComputations = new ArrayList<Computation>();
+        String command = "SELECT * FROM computations WHERE userId = ? AND creatorId = ?";
 
-                    try (Connection connection = DatabaseManager.getDBConnection();
-                         PreparedStatement p_statement = connection.prepareStatement(command);
-                         Statement statement = connection.createStatement()){
-                        statement.execute("PRAGMA foreign_keys = ON;");
-                        p_statement.setString(1, u.getUsername());
-                        p_statement.setString(2, n.getNetName());
-                        ResultSet result = p_statement.executeQuery();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+         Statement statement = connection.createStatement()){
+         statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, user.getUsername());
+            p_statement.setString(1, admin.getUsername());
+            ResultSet result = p_statement.executeQuery();
 
-                        if (result.next()) {
-                            long sDate = result.getLong(5);
-                            if(result.wasNull()){
-                                sDate = -1L;
-                            }
-                            long eDate = result.getLong(6);
-                            if(result.wasNull()){
-                                eDate = -1L;
-                            }
-
-                            return new Computation(
-                                    result.getString(2),
-                                    result.getString(3),
-                                    result.getString(4),
-                                    sDate,
-                                    eDate,
-                                    Computation.toNextStepType(result.getInt(7))
-                            );
-                        }
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                    }
+            while (result.next()) {
+                long sDate = result.getLong(5);
+                if(result.wasNull()){
+                    sDate = -1L;
                 }
-                else{
-                    throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+                long eDate = result.getLong(6);
+                if(result.wasNull()){
+                    eDate = -1L;
                 }
+                wantedComputations.add( new Computation(
+                        result.getString(2),
+                        result.getString(3),
+                        result.getString(4),
+                        sDate,
+                        eDate,
+                        Computation.toNextStepType(result.getInt(7))
+                ));
             }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        return wantedComputations;
+    }
+
+    public static Computation getComputationByUserAndNet(User user, PetriNet net) {
+        String command = "SELECT * FROM computations WHERE userId = ? AND netId = ?";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setString(1, user.getUsername());
+            p_statement.setString(2, net.getNetName());
+            ResultSet result = p_statement.executeQuery();
+
+            if (result.next()) {
+                long sDate = result.getLong(5);
+                if(result.wasNull()){
+                    sDate = -1L;
+                }
+                long eDate = result.getLong(6);
+                if(result.wasNull()){
+                    eDate = -1L;
+                }
+
+                return new Computation(
+                        result.getString(2),
+                        result.getString(3),
+                        result.getString(4),
+                        sDate,
+                        eDate,
+                        Computation.toNextStepType(result.getInt(7))
+                );
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
         return null;
     }
 
-    public static List<User> getSubscribedUsersByNet(Object p_net){
+    public static List<User> getSubscribedUsersByNet(PetriNet net){
         List<User> subscribedUsers = new ArrayList<User>();
-        try{
-            if(p_net instanceof PetriNet net){
-                String command = "SELECT userId FROM computations WHERE netId = ?";
+        String command = "SELECT userId FROM computations WHERE netId = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, net.getNetName());
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        subscribedUsers.add(UserDAO.getUserByUsername(result.getString(1))
-                        );
-                    }
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, net.getNetName());
+            ResultSet result = p_statement.executeQuery();
+            while(result.next()){
+                subscribedUsers.add(UserDAO.getUserByUsername(result.getString(1))
+                );
             }
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
         return subscribedUsers;
     }
 
-    public static List<PetriNet> getNetsSubscribedByUser(Object user) throws InputTypeException{
+    public static List<PetriNet> getNetsSubscribedByUser(User user){
         String command = "SELECT netId FROM computations WHERE userId = ? ";
         List <PetriNet> wantedNets = new ArrayList<PetriNet>();
-        try{
-            if(user instanceof User u){
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, user.getUsername());
+            ResultSet result = p_statement.executeQuery();
 
-                    while(result.next()) {
-                        wantedNets.add(PetriNetsDAO.getNetByName(result.getString(1))
-                        );
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            while(result.next()) {
+                wantedNets.add(PetriNetsDAO.getNetByName(result.getString(1))
+                );
             }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
-        }
-        catch (InputTypeException e){
-            e.ErrorPrinter();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return wantedNets;
 
     }
 
-    public static List<RecentNet> getRecentNetsSubscribedByUser(Object user) throws InputTypeException{
+    public static List<RecentNet> getRecentNetsSubscribedByUser(User user) {
         String command = "SELECT pn.*, MAX(cs.timestamp), c.* " +
                 "FROM petri_nets pn " +
                 "JOIN computations c ON pn.netName = c.netId " +
@@ -666,49 +489,56 @@ public class ComputationsDAO implements DataAccessObject{
                 "WHERE c.userId = ? " +
                 "ORDER BY pn.netName, cs.timestamp;";
         List <RecentNet> wantedNets = new ArrayList<RecentNet>();
-        try{
-            if(user instanceof User u){
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, user.getUsername());
+            ResultSet result = p_statement.executeQuery();
 
-                    while(result.next()) {
-                        RecentNet rn = new RecentNet(
-                                new PetriNet( result.getString(1),
-                                        result.getString(2),
-                                        result.getLong(3),
-                                        result.getString(4),
-                                        result.getString(5),
-                                        result.getBoolean(6))
-                                ,result.getLong(7)
-                        );
-                        int id = result.getInt(8);
-                        if(!result.wasNull()){
-                            rn.setComputation(new Computation(result.getString(9),
-                                    result.getString(10),
-                                    result.getString(11),
-                                    result.getLong(12),
-                                    result.getLong(13),
-                                    Computation.toNextStepType(result.getInt(14))));
-                        }
-                        wantedNets.add(rn);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            while(result.next()) {
+                RecentNet rn = new RecentNet(
+                        new PetriNet( result.getString(1),
+                                result.getString(2),
+                                result.getLong(3),
+                                result.getString(4),
+                                result.getString(5),
+                                result.getBoolean(6))
+                        ,result.getLong(7)
+                );
+                int id = result.getInt(8);
+                if(!result.wasNull()){
+                    rn.setComputation(new Computation(result.getString(9),
+                            result.getString(10),
+                            result.getString(11),
+                            result.getLong(12),
+                            result.getLong(13),
+                            Computation.toNextStepType(result.getInt(14))));
                 }
+                wantedNets.add(rn);
             }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
-        }
-        catch (InputTypeException e){
-            e.ErrorPrinter();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return wantedNets;
 
     }
+
+    public static void setNextStepType(Computation computation, int type) {
+        String command = "UPDATE computations SET nextStep = ? WHERE id = ?";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setInt(1, type);
+            p_statement.setInt(2, getIdByComputation(computation));
+            p_statement.executeUpdate();
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+    }
+
 
 }
