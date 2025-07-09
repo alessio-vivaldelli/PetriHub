@@ -69,6 +69,7 @@ public abstract class ToolBar extends HBox {
         this.setSpacing(4);
         this.setMinHeight(50);
         this.setPrefHeight(50);
+        this.setPickOnBounds(false);
     }
 
     /**

@@ -3,9 +3,11 @@ package it.petrinet.view;
 import it.petrinet.Main;
 import it.petrinet.controller.*;
 import it.petrinet.model.Computation;
+import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.User;
 import it.petrinet.view.components.NavBar;
+import it.petrinet.controller.NetVisualController.VisualState;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -116,10 +118,6 @@ public final class ViewNavigator {
 
         stage.setMaximized(false);
 
-        if (stage == null) {
-            throw new IllegalStateException("Primary stage is null");
-        }
-
         // Calculate target size
         boolean maximize = (width == 0 && height == 0);
         if (maximize) {
@@ -185,9 +183,9 @@ public final class ViewNavigator {
         loadView("HomeView.fxml");
     }
 
-    public static void navigateToNetVisual(String path, Computation data) {
+    public static void navigateToNetVisual(PetriNet model, Computation data, VisualState state) {
         mainController.setNavBar(null);
-        NetVisualController.setVisuals(path, data);
+        NetVisualController.setVisuals(model, data, state);
         loadView("NetVisualView.fxml");
     }
 

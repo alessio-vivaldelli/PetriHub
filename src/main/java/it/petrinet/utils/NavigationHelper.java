@@ -1,5 +1,6 @@
 package it.petrinet.utils;
 
+import it.petrinet.controller.NetVisualController.VisualState;
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
@@ -28,7 +29,15 @@ public class NavigationHelper {
     public static void setupNavigationToNetVisualForCurrentUser(PetriNet net)  {
         String path = netDirectory + net.getXML_PATH();
         Computation data = findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
-        safeNavigate(() -> ViewNavigator.navigateToNetVisual(path, data));
+        safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, data, getVisualState(data)));
+    }
+
+    private static VisualState getVisualState(Computation data) {
+        return switch (data){
+            case Computation computation when computation.getSteps().isEmpty() -> VisualState.NOT_STARTED;
+            case null -> VisualState.SUBSCRIBABLE;
+            default -> VisualState.STARTED;
+        };
     }
 
     /**
@@ -37,7 +46,14 @@ public class NavigationHelper {
     public static void setupNavigationToNetVisualForUser(PetriNet net, String userId)  {
         String path = netDirectory + net.getXML_PATH();
         Computation data = makeComputation(net, userId);
-        safeNavigate(() -> ViewNavigator.navigateToNetVisual(path, data));
+        safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, data, getVisualState(data)));
+    }
+
+    /**
+     * Sets up navigation to table discover view for current user
+     */
+    public static void setupNavigationToTableDiscoverForUser(PetriNet net, String username) {
+        safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, null, VisualState.SUBSCRIBABLE));
     }
 
     private static Computation makeComputation(PetriNet net, String userId)  {
