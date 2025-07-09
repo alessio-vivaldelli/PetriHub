@@ -26,6 +26,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import jdk.jshell.spi.ExecutionControlProvider;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -188,13 +189,8 @@ public class HomeController implements Initializable {
      * Updates owned nets count label
      */
     private void updateOwnedNetsCount() {
-        try {
             int count = UserDAO.getNumberOfOwnedNetsByUser(currentUser);
             ownedNetsLabel.setText(count < 0 ? ERROR_DISPLAY : String.valueOf(count));
-        } catch (InputTypeException e) {
-            LOGGER.log(Level.WARNING, "Failed to get owned nets count", e);
-            ownedNetsLabel.setText(ERROR_DISPLAY);
-        }
     }
 
     /**
@@ -214,11 +210,12 @@ public class HomeController implements Initializable {
      * Updates subscribed nets count label
      */
     private void updateSubscribedNetsCount() {
-        try {
+        try{
             int count = UserDAO.getNumberOfSubscribedNetsByUser(currentUser);
             subscribedNetsLabel.setText(count < 0 ? ERROR_DISPLAY : String.valueOf(count));
-        } catch (InputTypeException e) {
-            LOGGER.log(Level.WARNING, "Failed to get subscribed nets count", e);
+        }
+        catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to load subscribed nets count", e);
             subscribedNetsLabel.setText(ERROR_DISPLAY);
         }
     }
@@ -226,7 +223,7 @@ public class HomeController implements Initializable {
     /**
      * CRITICAL: Refresh table data without recreating structure
      */
-    public void refreshTableData() throws InputTypeException {
+    public void refreshTableData()  {
         LOGGER.info("Refreshing table data...");
 
         if (petriNetTable == null) {
@@ -243,7 +240,7 @@ public class HomeController implements Initializable {
     /**
      * Builds the list of recent nets for display
      */
-    private List<PetriNetRow> buildRecentNetsList() throws InputTypeException {
+    private List<PetriNetRow> buildRecentNetsList()  {
         List<PetriNetRow> recentNets = new ArrayList<>();
         List<RecentNet> wantedNets = PetriNetsDAO.getMostRecentlyModifiedNets(
                 ViewNavigator.getAuthenticatedUser(), RECENT_NETS_LIMIT);
@@ -324,14 +321,14 @@ public class HomeController implements Initializable {
     /**
      * Sets up navigation to net visual view
      */
-    private void setupNavigationToNetVisual(PetriNet net) throws InputTypeException {
+    private void setupNavigationToNetVisual(PetriNet net)  {
         NavigationHelper.setupNavigationToNetVisualForCurrentUser(net);
     }
 
     /**
      * Finds computation data for current user and net
      */
-    private Computation findUserComputation(PetriNet net) throws InputTypeException {
+    private Computation findUserComputation(PetriNet net)  {
         return NavigationHelper.findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
     }
 
@@ -399,7 +396,7 @@ public class HomeController implements Initializable {
     }
 
     @FXML
-    public void handleNewNetClick(ActionEvent event) throws InputTypeException {
+    public void handleNewNetClick(ActionEvent event)  {
         String netName = getValidNetName();
         if(netName != null) safeNavigate(() -> ViewNavigator.navigateToNetCreation(netName));
     }
@@ -417,7 +414,7 @@ public class HomeController implements Initializable {
         return petriNetTable;
     }
 
-    private String getValidNetName() throws InputTypeException {
+    private String getValidNetName()  {
         String newName = "New Petri net";
         while (true) {
             Optional<EnhancedAlert.AlertResult> result = EnhancedAlert.showTextInput( // Changed

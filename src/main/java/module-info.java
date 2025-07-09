@@ -13,8 +13,9 @@ module it.petrinet {
   requires javafx.base;
   requires java.desktop;
   requires org.slf4j;
+    requires jdk.jshell;
 
-  opens it.petrinet to javafx.fxml;
+    opens it.petrinet to javafx.fxml;
 
   exports it.petrinet;
   exports it.petrinet.view;

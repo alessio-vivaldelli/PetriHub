@@ -12,7 +12,7 @@ public class ComputationStepDAO implements DataAccessObject{
 
     private static final String typeErrorMessage = "Invalid input type provided."; // Definizione del messaggio di errore
 
-    public static void main(String[] args) throws InputTypeException {
+    public static void main(String[] args)  {
         ComputationStepDAO dao = new ComputationStepDAO();
         dao.createTable();
 //        insertStep(new ComputationStep(5, 2, "net3", "T4", "p2:1,p3:1", 1686302400L));
@@ -54,11 +54,8 @@ public class ComputationStepDAO implements DataAccessObject{
         }
     }
 
-    public static void insertStep(Object step) throws InputTypeException{
+    public static void insertStep(ComputationStep step) {
         String command = "INSERT INTO computationSteps(computationId, netId, transitionName, markingState, timestamp) VALUES (?, ?, ?, ?, ?)";
-        if (!(step instanceof ComputationStep s)) {
-            throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
-        }
 
         try {
             // Nota: La creazione della tabella dovrebbe essere gestita altrove, non per ogni insert.
@@ -74,11 +71,11 @@ public class ComputationStepDAO implements DataAccessObject{
             try (Connection connection = DatabaseManager.getDBConnection();
                  PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
                 setupForeignKeys(connection); // Helper per PRAGMA
-                p_statement.setInt(1, s.getComputationId());
-                p_statement.setString(2, s.getNetId());
-                p_statement.setString(3, s.getTransitionName());
-                p_statement.setString(4, s.getTempMarkingState());
-                p_statement.setLong(5, s.getTimestamp());
+                p_statement.setInt(1, step.getComputationId());
+                p_statement.setString(2, step.getNetId());
+                p_statement.setString(3, step.getTransitionName());
+                p_statement.setString(4, step.getTempMarkingState());
+                p_statement.setLong(5, step.getTimestamp());
                 p_statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -87,18 +84,15 @@ public class ComputationStepDAO implements DataAccessObject{
         }
     }
 
-    public static void removeStep(Object step) throws InputTypeException{
+    public static void removeStep(ComputationStep step) {
         String command = "DELETE FROM computationSteps WHERE id = ? AND computationId = ? AND netId = ?";
-        if (!(step instanceof ComputationStep s)) {
-            throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
-        }
 
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
             setupForeignKeys(connection); // Helper per PRAGMA
-            p_statement.setLong(1, s.getId());
-            p_statement.setInt(2, s.getComputationId());
-            p_statement.setString(3, s.getNetId());
+            p_statement.setLong(1, step.getId());
+            p_statement.setInt(2, step.getComputationId());
+            p_statement.setString(3, step.getNetId());
             p_statement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error removing ComputationStep: " + e.getMessage());
@@ -106,18 +100,16 @@ public class ComputationStepDAO implements DataAccessObject{
         }
     }
 
-    public static void removeAllStepsByComputation(Object computation) throws InputTypeException{
+    public static void removeAllStepsByComputation(Computation computation) {
         String command = "DELETE FROM computationSteps WHERE computationId = ? AND netId = ?";
-        if (!(computation instanceof Computation c)) {
-            throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
-        }
+    
 
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
             setupForeignKeys(connection); // Helper per PRAGMA
             // Assumo che getIdByComputation non lanci eccezioni e ritorni un ID valido o gestisca internamente errori
-            p_statement.setInt(1, ComputationsDAO.getIdByComputation(c));
-            p_statement.setString(2, c.getNetId());
+            p_statement.setInt(1, ComputationsDAO.getIdByComputation(computation));
+            p_statement.setString(2, computation.getNetId());
             p_statement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error removing all ComputationSteps by computation: " + e.getMessage());
@@ -125,21 +117,19 @@ public class ComputationStepDAO implements DataAccessObject{
         }
     }
 
-    public static void resetComputationSteps(Object computation) throws InputTypeException{
+    public static void resetComputationSteps(Computation computation) {
         String command = "DELETE FROM computationSteps WHERE computationId = ? AND netId = ? " +
                 "AND timestamp > (SELECT MIN(timestamp) FROM computationSteps WHERE computationId = ? AND netId = ?);";
-        if (!(computation instanceof Computation c)) {
-            throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
-        }
+    
 
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
             setupForeignKeys(connection); // Helper per PRAGMA
-            int computationId = ComputationsDAO.getIdByComputation(c);
+            int computationId = ComputationsDAO.getIdByComputation(computation);
             p_statement.setInt(1, computationId);
-            p_statement.setString(2, c.getNetId());
+            p_statement.setString(2, computation.getNetId());
             p_statement.setInt(3, computationId);
-            p_statement.setString(4, c.getNetId());
+            p_statement.setString(4, computation.getNetId());
             p_statement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error resetting computation steps: " + e.getMessage());
@@ -147,17 +137,13 @@ public class ComputationStepDAO implements DataAccessObject{
         }
     }
 
-    public static ComputationStep getComputationStepByTimestamp(Object timestamp) throws InputTypeException {
-        if (!(timestamp instanceof Long time)) {
-            throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
-        }
-
+    public static ComputationStep getComputationStepByTimestamp(long timestamp)  {
         String command = "SELECT id, computationId, netId, transitionName, markingState, timestamp FROM computationSteps WHERE timestamp = ?";
 
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) {
             setupForeignKeys(connection); // Helper per PRAGMA
-            p_statement.setLong(1, time);
+            p_statement.setLong(1, timestamp);
             try (ResultSet result = p_statement.executeQuery()) {
                 if (result.next()) {
                     return new ComputationStep(
@@ -177,17 +163,12 @@ public class ComputationStepDAO implements DataAccessObject{
         return null;
     }
 
-    public static ComputationStep getLastComputationStep(Object computation) throws InputTypeException {
-        if (!(computation instanceof Computation c)) {
-            throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
-        }
-
-        int id = ComputationsDAO.getIdByComputation(c);
+    public static ComputationStep getLastComputationStep(Computation computation)  {
+        int id = ComputationsDAO.getIdByComputation(computation);
         if (id < 0) {
             System.err.println("The computation given is not in the database.");
             return null;
         }
-
         String command = "SELECT id, computationId, netId, transitionName, markingState, timestamp " +
                 "FROM computationSteps " +
                 "WHERE computationId = ? " +
@@ -218,11 +199,8 @@ public class ComputationStepDAO implements DataAccessObject{
         return null;
     }
 
-    public static List<ComputationStep> getStepsByComputation(Object computation) throws InputTypeException{
+    public static List<ComputationStep> getStepsByComputation(Computation computation) {
         List<ComputationStep> wantedSteps = new ArrayList<>();
-        if (!(computation instanceof Computation c)) {
-            throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
-        }
 
         String command = "SELECT id, computationId, netId, transitionName, markingState, timestamp " +
                 "FROM computationSteps " +
@@ -232,8 +210,8 @@ public class ComputationStepDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
             setupForeignKeys(connection); // Helper per PRAGMA
-            p_statement.setInt(1, ComputationsDAO.getIdByComputation(c)); // get id of computation
-            p_statement.setString(2, c.getNetId());
+            p_statement.setInt(1, ComputationsDAO.getIdByComputation(computation)); // get id of computation
+            p_statement.setString(2, computation.getNetId());
             try (ResultSet result = p_statement.executeQuery()) {
                 while (result.next()) {
                     wantedSteps.add( new ComputationStep(
@@ -253,17 +231,14 @@ public class ComputationStepDAO implements DataAccessObject{
         return wantedSteps;
     }
 
-    public static Computation getComputationByStep(Object step) throws InputTypeException{
+    public static Computation getComputationByStep(ComputationStep step) {
         String command = "SELECT computationId FROM computationSteps WHERE id = ? AND netId = ?";
-        if (!(step instanceof ComputationStep s)) {
-            throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION_STEP);
-        }
 
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command)) { // Rimosso Statement non usato
             setupForeignKeys(connection); // Helper per PRAGMA
-            p_statement.setLong(1, s.getId());
-            p_statement.setString(2, s.getNetId()); // Corretto l'indice del parametro
+            p_statement.setLong(1, step.getId());
+            p_statement.setString(2, step.getNetId()); // Corretto l'indice del parametro
             try (ResultSet result = p_statement.executeQuery()) {
                 if(result.next()){
                     return ComputationsDAO.getComputationById(result.getInt(1));
@@ -281,13 +256,9 @@ public class ComputationStepDAO implements DataAccessObject{
      *
      * @param petriNetId The ID (netName) of the PetriNet.
      * @return The last ComputationStep for the specified PetriNet, or null if none is found.
-     * @throws InputTypeException If the provided petriNetId is null or empty.
+     * @ If the provided petriNetId is null or empty.
      */
-    public static ComputationStep getLastComputationStepForPetriNet(String petriNetId) throws InputTypeException {
-        if (petriNetId == null || petriNetId.trim().isEmpty()) {
-            throw new InputTypeException("PetriNet ID cannot be null or empty.", InputTypeException.ExceptionType.PETRI_NET);
-        }
-
+    public static ComputationStep getLastComputationStepForPetriNet(String petriNetId)  {
         ComputationStep lastStep = null;
         String query = "SELECT id, computationId, netId, transitionName, markingState, timestamp " +
                 "FROM computationSteps " +
@@ -319,6 +290,8 @@ public class ComputationStepDAO implements DataAccessObject{
         }
         return lastStep;
     }
+
+
 
     /**
      * Helper method to enable foreign keys for SQLite.
