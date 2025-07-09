@@ -1,6 +1,5 @@
 package it.petrinet.controller;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.petrinet.view.PetriNetEditorPane;

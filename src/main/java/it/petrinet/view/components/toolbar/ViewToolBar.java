@@ -1,7 +1,6 @@
 package it.petrinet.view.components.toolbar;
 
 import it.petrinet.controller.NetVisualController;
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.petrinet.view.PetriNetViewerPane;
 import it.petrinet.utils.IconUtils;
 import javafx.scene.Node;
