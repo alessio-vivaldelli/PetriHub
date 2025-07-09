@@ -1,6 +1,5 @@
 package it.petrinet.controller;
 
-import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
@@ -9,7 +8,6 @@ import it.petrinet.model.PetriNet;
 import it.petrinet.model.database.ComputationStepDAO;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.petrinet.view.PetriNetViewerPane;
-import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.EnhancedAlert;
 import it.petrinet.view.components.toolbar.ViewToolBar;
@@ -103,7 +101,7 @@ public class NetVisualController implements Initializable {
         ? computation.getUserId()
         : computation.getCreatorId();
     String text = "%s just reached finish place!".formatted(ViewNavigator.getAuthenticatedUser().getUsername());
-    Notification tmp = new Notification(ViewNavigator.getAuthenticatedUser().getUsername(), reciver, baseNet, -1,
+    Notification tmp = new Notification(ViewNavigator.getAuthenticatedUser().getUsername(), reciver, netModel.getNetName(), -1,
         "Net finished!", text, System.currentTimeMillis() / 1000);
     NotificationsDAO.insertNotification(tmp);
   }
@@ -123,11 +121,12 @@ public class NetVisualController implements Initializable {
 
     // - Create a new ComputationStep with: clicked transition, new marking state.
     // - Add this step to the DB
-    ComputationStep newComputationStep = new ComputationStep(ComputationsDAO.getIdByComputation(computation), baseNet,
+    ComputationStep newComputationStep = new ComputationStep(ComputationsDAO.getIdByComputation(computation), netModel.getNetName(),
         transitionName,
         newMarkingState,
         System.currentTimeMillis() / 1000);
     ComputationStepDAO.insertStep(newComputationStep);
+    
 
     // - Compute the new nextStep state based on "newTransition" types
     // - Update this value for the current computation in the DB
@@ -147,19 +146,19 @@ public class NetVisualController implements Initializable {
     // can fire
     newTransition.forEach(t -> {
       String username = ViewNavigator.getAuthenticatedUser().getUsername();
-      String msgTitle = "Activity on %s net!".formatted(baseNet);
+      String msgTitle = "Activity on %s net!".formatted(netModel.getNetName());
       Notification tmp = null;
 
       if (t.getType().equals(TRANSITION_TYPE.ADMIN)
           && !username.equals(computation.getCreatorId())) {
         tmp = new Notification(username,
-            computation.getCreatorId(), baseNet, -1, msgTitle,
+            computation.getCreatorId(), netModel.getNetName(), -1, msgTitle,
             getNotificationText(isFinished, username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
 
       } else if (t.getType().equals(TRANSITION_TYPE.USER)
           && username.equals(computation.getCreatorId())) {
         tmp = new Notification(
-            username, computation.getUserId(), baseNet, -1, msgTitle,
+            username, computation.getUserId(), netModel.getNetName(), -1, msgTitle,
             getNotificationText(isFinished, username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
       }
       if (tmp != null) {
@@ -195,13 +194,7 @@ public class NetVisualController implements Initializable {
         Button subscribe = new Button("Subscribe");
         subscribe.setMaxWidth(350);
         subscribe.setStyle("-fx-background-color: #89b4fa; -fx-text-fill: #1E1E2E; -fx-font-size: 16; -fx-background-radius: 8; -fx-padding: 10;");
-        subscribe.setOnAction(e -> {
-            try {
-                handleSubscribe();
-            } catch (InputTypeException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        subscribe.setOnAction(e -> handleSubscribe());
         subscribe.setPickOnBounds(false);
         StackPane.setAlignment(subscribe, Pos.BOTTOM_CENTER);
         StackPane.setMargin(subscribe, new Insets(10, 10, 40, 10));
@@ -219,7 +212,7 @@ public class NetVisualController implements Initializable {
         toolbarContainer.getChildren().add(toolbar);
     }
 
-    private void handleSubscribe() throws InputTypeException {
+    private void handleSubscribe() {
         computation = new Computation(
                 netModel.getNetName(),
                 netModel.getCreatorId(),
@@ -255,15 +248,11 @@ public class NetVisualController implements Initializable {
         if(result.get().isCancel()) return;
 
         if (result.get().isOK()) {
-            try {
                 ComputationStepDAO.removeAllStepsByComputation(computation);
                 ComputationsDAO.setAsStarted(computation, System.currentTimeMillis());
                 //TODO: Update computation
                 board.setComputation(computation);
                 toolbar.startableButton();
-            } catch (InputTypeException e) {
-                EnhancedAlert.showError("Error restarting Petri Net", "An error occurred while restarting the Petri Net: " + e.getMessage());
-            }
         }
 
     }
@@ -277,19 +266,15 @@ public class NetVisualController implements Initializable {
         if(result.get().isCancel()) return;
 
         if( result.get().isOK()) {
-            try {
                 ComputationStepDAO.removeAllStepsByComputation(computation);
                 //ComputationsDAO.unsubscribeFromNet(computation, ViewNavigator.getAuthenticatedUser().getUsername());
                 board.setComputation(null);
                 toolbar.subButton();
-            } catch (InputTypeException e) {
-                EnhancedAlert.showError("Error unsubscribing from Petri Net", "An error occurred while unsubscribing: " + e.getMessage());
-            }
         }
 
     }
 
-    public void startAction() throws InputTypeException {
+    public void startAction() {
         ComputationsDAO.getIdByComputation(computation);
         System.out.println(computation);
         ComputationStep step = new ComputationStep(
