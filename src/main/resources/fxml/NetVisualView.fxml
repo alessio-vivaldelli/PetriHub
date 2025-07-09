@@ -2,18 +2,21 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="it.petrinet.controller.NetVisualController">
 
-    <top>
-        <HBox alignment="TOP_CENTER" spacing="10" style="-fx-padding: 10;">
-            <!-- Centered toolbar container -->
-            <HBox fx:id="toolbarContainer" alignment="TOP_CENTER"
-                  style="-fx-padding: 0;"/>
-        </HBox>
-    </top>
+    <!-- RIMUOVI completamente il <top>…</top> -->
 
     <center>
-        <VBox fx:id="boardContainer"/>
+        <StackPane fx:id="boardContainer">
+            <!-- sposti qui la toolbarContainer -->
+            <HBox fx:id="toolbarContainer"
+                  StackPane.alignment="TOP_CENTER"
+                  alignment="TOP_CENTER"
+                  pickOnBounds="false"
+                  style="-fx-padding: 10;" />
+        </StackPane>
     </center>
 </BorderPane>

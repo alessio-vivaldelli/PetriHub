@@ -41,7 +41,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   private final String petriNetPNML;
   private Computation computation;
   private PetriNetModel petriNetModel;
-  private boolean testMode = true; // Kept for authorization logic
+  private boolean testMode = false; // Kept for authorization logic
 
   // Callbacks
   private TriConsumer<String, Map<String, Integer>, List<Transition>> onTransitionFired;
@@ -69,13 +69,17 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   public void setComputation(Computation computation) {
     this.computation = computation;
     this.enableInteraction(computation != null);
-    try {
-      loadModelAndBuildGraph();
-      computeAndApplyFirableTransitions();
-    } catch (IOException e) {
-      this.enableInteraction(false);
-      throw new PetriNetViewException("Failed to initialize Petri Net view", e);
-    }
+
+    Map<String, Integer> initialMarking = (computation != null && !computation.getSteps().isEmpty())
+        ? computation.getSteps().getLast().getMarkingState()
+        : Map.of();
+
+    petriNetModel.getNodes().forEach(node -> {
+      if (node instanceof Place p) {
+        p.setPlaceTokens(initialMarking.getOrDefault(p.getName(), 0));
+      }
+    });
+    computeAndApplyFirableTransitions();
   }
 
   /**
@@ -264,14 +268,6 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
    */
   public void setOnPetriNetFinished(Runnable onPetriNetFinished) {
     this.onPetriNetFinished = onPetriNetFinished;
-  }
-
-  public void restartAction() {
-    System.out.println("Restarting Petri Net...");
-  }
-
-  public void unsubscribeAction() {
-    System.out.println("Unsubscribing from Petri Net...");
   }
 
 }
