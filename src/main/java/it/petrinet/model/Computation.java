@@ -385,7 +385,7 @@ public class Computation {
    * @see #isStarted()
    */
   public boolean isFinished() {
-    return !(endTimestamp <= 0);
+    return (endTimestamp > 0);
   }
 
   public long getEnd() {return endTimestamp;}

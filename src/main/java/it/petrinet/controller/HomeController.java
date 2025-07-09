@@ -4,10 +4,9 @@ import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
-import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.User;
+import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
-import it.petrinet.model.database.RecentNet;
 import it.petrinet.model.database.UserDAO;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
@@ -25,19 +24,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import jdk.jshell.spi.ExecutionControlProvider;
 
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static it.petrinet.utils.Safenavigate.safeNavigate;
+import static it.petrinet.utils.NetStatusGetter.*;
 
 public class HomeController implements Initializable {
 
@@ -50,7 +44,7 @@ public class HomeController implements Initializable {
     private static final String NEW_NET_BUTTON_TEXT = "New Net";
     private static final String ADD_ICON_PATH = "add.png";
     private static final int ICON_SIZE = 30;
-    private static final int RECENT_NETS_LIMIT = 2;
+    private static final int RECENT_NETS_LIMIT = 4;
 
     // FXML Components
     @FXML private Label ownedNetsLabel;
@@ -241,21 +235,17 @@ public class HomeController implements Initializable {
      */
     private List<PetriNetRow> buildRecentNetsList()  {
         List<PetriNetRow> recentNets = new ArrayList<>();
-        List<RecentNet> wantedNets = PetriNetsDAO.getMostRecentlyModifiedNets(
+        List<Computation> data = ComputationsDAO.getMostRecentlyModifiedNets(
                 ViewNavigator.getAuthenticatedUser(), RECENT_NETS_LIMIT);
 
-        for (RecentNet net : wantedNets) {
-            if (net != null) {
-                NetCategory category = determineNetCategory(net);
-                LocalDateTime date = determineNetDate(net);
-
+        for (Computation computation : data) {
+            if (computation != null) {
                 recentNets.add(new PetriNetRow(
-                        net.getNet().getNetName(),
-                        net.getNet().getCreatorId(),
-                        date,
-                        //TODO dovrebbe essere next step type
-                        Status.NOT_STARTED,
-                        category
+                        computation.getNetId(),
+                        computation.getCreatorId(),
+                        determineNetDate(computation, Objects.requireNonNull(PetriNetsDAO.getNetByName(computation.getNetId())).getCreationDate()),
+                        getStatusByComputation(computation),
+                        determineNetCategory(computation)
                 ));
             }
         }
@@ -265,21 +255,10 @@ public class HomeController implements Initializable {
     /**
      * Determines the category of a net for current user
      */
-    private NetCategory determineNetCategory(RecentNet net) {
+    private NetCategory determineNetCategory(Computation net) {
         String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
-        return net.getNet().getCreatorId().equals(currentUsername)
+        return net.getCreatorId().equals(currentUsername)
                 ? NetCategory.OWNED : NetCategory.SUBSCRIBED;
-    }
-
-    /**
-     * Determines the appropriate date for a net
-     */
-    private LocalDateTime determineNetDate(RecentNet net) {
-        if (net.getTimestamp() == null || net.getTimestamp() <= 0L) {
-            return LocalDateTime.ofEpochSecond(net.getNet().getCreationDate(), 0, ZoneOffset.UTC);
-        } else {
-            return LocalDateTime.ofEpochSecond(net.getTimestamp(), 0, ZoneOffset.UTC);
-        }
     }
 
     /**

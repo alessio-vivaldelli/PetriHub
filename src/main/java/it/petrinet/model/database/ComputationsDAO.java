@@ -480,51 +480,6 @@ public class ComputationsDAO implements DataAccessObject{
 
     }
 
-    public static List<RecentNet> getRecentNetsSubscribedByUser(User user) {
-        String command = "SELECT pn.*, MAX(cs.timestamp), c.* " +
-                "FROM petri_nets pn " +
-                "JOIN computations c ON pn.netName = c.netId " +
-                "LEFT JOIN computationSteps cs ON c.id = cs.computationId " +
-                "WHERE c.userId = ? " +
-                "ORDER BY pn.netName, cs.timestamp;";
-        List <RecentNet> wantedNets = new ArrayList<RecentNet>();
-        try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement p_statement = connection.prepareStatement(command);
-             Statement statement = connection.createStatement()){
-
-            DatabaseManager.enableForeignKeys(statement);
-
-            p_statement.setString(1, user.getUsername());
-            ResultSet result = p_statement.executeQuery();
-
-            while(result.next()) {
-                RecentNet rn = new RecentNet(
-                        new PetriNet( result.getString(1),
-                                result.getString(2),
-                                result.getLong(3),
-                                result.getString(4),
-                                result.getString(5),
-                                result.getBoolean(6))
-                        ,result.getLong(7)
-                );
-                int id = result.getInt(8);
-                if(!result.wasNull()){
-                    rn.setComputation(new Computation(result.getString(9),
-                            result.getString(10),
-                            result.getString(11),
-                            result.getLong(12),
-                            result.getLong(13),
-                            Computation.toNextStepType(result.getInt(14))));
-                }
-                wantedNets.add(rn);
-            }
-        } catch (SQLException e) {
-            DatabaseManager.handleSQLException("getRecentNetsSubscribedByUser", e);
-        }
-        return wantedNets;
-
-    }
-
     public static void setNextStepType(Computation computation, int type) {
         String command = "UPDATE computations SET nextStep = ? WHERE id = ?";
 
@@ -541,5 +496,45 @@ public class ComputationsDAO implements DataAccessObject{
         }
     }
 
+    public static List<Computation> getMostRecentlyModifiedNets(User user, int howMany) {
+        List<Computation> nets = new ArrayList<>();
+        String query = """
+        SELECT c.* 
+        FROM computations c 
+        LEFT JOIN computationSteps cs ON cs.computationId = c.id 
+        WHERE c.userId = ? OR c.creatorId = ?
+        GROUP BY c.id 
+        ORDER BY MAX(cs.timestamp) DESC 
+        LIMIT ?""";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement ps = connection.prepareStatement(query);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getUsername());
+            ps.setInt(3, howMany);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Computation computation = new Computation(
+                        rs.getString("netId"),         // or rs.getString(2)
+                        rs.getString("creatorId"),  // or rs.getString(3)
+                        rs.getString("userId"),       // or rs.getString(3)
+                        rs.getLong("startDate"),      // or rs.getLong(4)
+                        rs.getLong("endDate"),
+                        Computation.toNextStepType(rs.getInt("nextStep"))   // or rs.getLong(5)/ or rs.getInt(6))
+                );
+
+                nets.add(computation);
+            }
+        } catch (SQLException ex) {
+            DatabaseManager.handleSQLException("getMostRecentlyModifiedNets", ex);
+        }
+
+        return nets;
+    }
 
 }

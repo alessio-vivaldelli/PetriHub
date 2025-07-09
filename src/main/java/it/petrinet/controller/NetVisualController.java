@@ -252,6 +252,7 @@ public class NetVisualController implements Initializable {
                 ComputationsDAO.setAsStarted(computation, System.currentTimeMillis());
                 //TODO: Update computation
                 board.setComputation(computation);
+                board.updateComputation();
                 toolbar.startableButton();
         }
 
@@ -281,11 +282,10 @@ public class NetVisualController implements Initializable {
                 68,
                 ComputationsDAO.getIdByComputation(computation),
                 netModel.getNetName(),
-                board.getStartPlaceName(),
+                "",
                 board.getStartPlaceName() + ":1",
                 System.currentTimeMillis()/1000
         );
-
 
         computation.addStep(step);
         board.setComputation(computation);

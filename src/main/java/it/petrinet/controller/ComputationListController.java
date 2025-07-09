@@ -3,26 +3,23 @@ package it.petrinet.controller;
 import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.ComputationRow;
-import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
-import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.ComputationSelectComponent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static it.petrinet.utils.StatusByComputation.determineNetDate;
-import static it.petrinet.utils.StatusByComputation.getStatusByComputation;
+import static it.petrinet.utils.NetStatusGetter.determineNetDate;
+import static it.petrinet.utils.NetStatusGetter.getStatusByComputation;
 
 public class ComputationListController {
 

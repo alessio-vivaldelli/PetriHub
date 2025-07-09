@@ -7,9 +7,16 @@ import it.petrinet.model.database.ComputationStepDAO;
 import it.petrinet.view.ViewNavigator;
 
 import java.time.LocalDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneOffset;
 
-public class StatusByComputation {
+public class NetStatusGetter {
+
+    private final static long GTM = 2; // Offset for Europe/Rome timezone in hours
+    private final static long UTC = 2;
+
+    private static long offsetTime = GTM;
+
     /**
      * Determines the status of a net for current user
      */
@@ -36,8 +43,8 @@ public class StatusByComputation {
     /**
      * Determines the appropriate date for a net (timestamp or net date)
      */
-    public static LocalDateTime determineNetDate(Computation computation, long netDate)  {
-        LocalDateTime creationDate = LocalDateTime.ofEpochSecond(netDate, 0, ZoneOffset.UTC);
+    public static LocalDateTime determineNetDate(Computation computation, long netDate) {
+        LocalDateTime creationDate = LocalDateTime.ofEpochSecond(netDate, 0, ZoneOffset.UTC).plusHours(offsetTime);
         if(computation == null) return creationDate;
 
         ComputationStep step = ComputationStepDAO.getLastComputationStep(computation);
@@ -45,5 +52,18 @@ public class StatusByComputation {
 
         return step.getDateTime();
     }
+
+    /**
+     * Sets the offset time for date calculations.
+     * This is useful for testing purposes or when the timezone changes.
+     *
+     */
+    public void GTM() {
+        offsetTime = GTM;
+    }
+    public void UTC() {
+        offsetTime = UTC;
+    }
+
 
 }

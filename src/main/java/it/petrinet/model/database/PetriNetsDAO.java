@@ -231,62 +231,6 @@ public class PetriNetsDAO implements DataAccessObject {
     }
 
     /**
-     * Returns PetriNets created by a user, including timestamp and computation metadata.
-     *
-     * @param user the user
-     * @return list of RecentNet
-     */
-    public static List<RecentNet> getNetsWithTimestampByCreator(User user) {
-        List<RecentNet> nets = new ArrayList<>();
-        String query = """
-            SELECT pn.*, MAX(s.timestamp) AS lastTimestamp, c.* FROM petri_nets pn
-            LEFT JOIN computations c ON c.netId = pn.netName
-            LEFT JOIN computationSteps s ON s.computationId = c.id
-            WHERE pn.creatorId = ?
-            GROUP BY pn.netName
-            ORDER BY lastTimestamp DESC""";
-
-        try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement ps = connection.prepareStatement(query);
-             Statement statement = connection.createStatement()) {
-
-            DatabaseManager.enableForeignKeys(statement);
-
-            ps.setString(1, user.getUsername());
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                int type = rs.getInt(14);
-                if (rs.wasNull()) type = 3;
-
-                RecentNet rn = new RecentNet(new PetriNet(
-                        rs.getString(1),
-                        rs.getString(2),
-                        rs.getLong(3),
-                        rs.getString(4),
-                        rs.getString(5),
-                        rs.getBoolean(6)
-                ), rs.getLong(7));
-
-                if (!rs.wasNull() && rs.getInt(8) != 0) {
-                    rn.setComputation(new Computation(
-                            rs.getString(9),
-                            rs.getString(10),
-                            rs.getString(11),
-                            rs.getLong(12),
-                            rs.getLong(13),
-                            Computation.toNextStepType(type)
-                    ));
-                }
-
-                nets.add(rn);
-            }
-        } catch (SQLException ex) {
-            DatabaseManager.handleSQLException("getNetsWithTimestampByCreator", ex);
-        }
-        return nets;
-    }
-
-    /**
      * Fetches a PetriNet by its name.
      *
      * @param name the PetriNet name
@@ -317,65 +261,6 @@ public class PetriNetsDAO implements DataAccessObject {
             DatabaseManager.handleSQLException("getNetByName", ex);
         }
         return null;
-    }
-
-    /**
-     * Returns the most recently modified PetriNets for a user.
-     *
-     * @param user    the user
-     * @param howMany how many results to return
-     * @return list of RecentNet
-     */
-    public static List<RecentNet> getMostRecentlyModifiedNets(User user, int howMany) {
-        List<RecentNet> nets = new ArrayList<>();
-        String query = """
-            SELECT pn.*, cs.timestamp, c.* 
-            FROM petri_nets pn 
-            LEFT JOIN computations c ON c.netId = pn.netName 
-            LEFT JOIN computationSteps cs ON cs.computationId = c.id 
-            WHERE pn.creatorId = ? OR c.userId = ? 
-            GROUP BY pn.netName 
-            ORDER BY MAX(cs.timestamp) DESC""";
-
-        try (Connection connection = DatabaseManager.getDBConnection();
-             PreparedStatement ps = connection.prepareStatement(query);
-             Statement statement = connection.createStatement()) {
-
-            DatabaseManager.enableForeignKeys(statement);
-
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getUsername());
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next() && howMany-- > 0) {
-                RecentNet rn = new RecentNet(
-                        new PetriNet(
-                                rs.getString(1),
-                                rs.getString(2),
-                                rs.getLong(3),
-                                rs.getString(4),
-                                rs.getString(5),
-                                rs.getBoolean(6)),
-                        rs.getLong(7)
-                );
-
-                if (!rs.wasNull() && rs.getInt(8) != 0) {
-                    rn.setComputation(new Computation(
-                            rs.getString(9),
-                            rs.getString(10),
-                            rs.getString(11),
-                            rs.getLong(12),
-                            rs.getLong(13),
-                            Computation.toNextStepType(rs.getInt(14))
-                    ));
-                }
-
-                nets.add(rn);
-            }
-        } catch (SQLException ex) {
-            DatabaseManager.handleSQLException("getMostRecentlyModifiedNets", ex);
-        }
-        return nets;
     }
 
     /**

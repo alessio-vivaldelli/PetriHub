@@ -15,6 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.sql.Time;
 import java.util.ResourceBundle;
 
 /**
@@ -58,13 +59,12 @@ public class NetCreationController implements Initializable {
                         new PetriNet(
                                 netName,
                                 ViewNavigator.getAuthenticatedUser().getUsername(),
-                                System.currentTimeMillis()/1000,
-                                netName + ".pnml",
+                                java.time.ZonedDateTime.now(java.time.ZoneId.of("Europe/Rome")).toEpochSecond(),
+                                netName + ".pnml", // nome del file
                                 "image",
                                 true
                         )
                 );
-
 
             // Clean up any resources
             if (canvas != null) canvas = null;

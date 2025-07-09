@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/ptnet">
+    <net id="vai" type="http://www.pnml.org/version-2009/grammar/ptnet">
+        <name>
+            <text>vai</text>
+        </name>
+        <page id="page1">
+            <place id="b" type="start">
+                <name>b</name>
+                <graphics>
+                    <offset x="459.0" y="360.0"/>
+                </graphics>
+            </place>
+            <place id="a" type="end">
+                <name>a</name>
+                <graphics>
+                    <offset x="962.0" y="371.0"/>
+                </graphics>
+            </place>
+            <transition id="New Transition" type="user">
+                <name>New Transition</name>
+                <graphics>
+                    <offset x="715.0" y="358.0"/>
+                </graphics>
+            </transition>
+            <arc id="b_New Transition" source="b" target="New Transition"/>
+            <arc id="New Transition_a" source="New Transition" target="a"/>
+        </page>
+    </net>
+</pnml>

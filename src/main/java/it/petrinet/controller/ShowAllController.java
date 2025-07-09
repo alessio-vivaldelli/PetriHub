@@ -5,7 +5,6 @@ import it.petrinet.model.ComputationStep;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
-import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.database.ComputationStepDAO;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
@@ -13,7 +12,6 @@ import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.table.PetriNetTableComponent;
-import it.petrinet.model.Computation.NEXT_STEP_TYPE;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
@@ -21,16 +19,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static it.petrinet.utils.Safenavigate.safeNavigate;
-import static it.petrinet.utils.StatusByComputation.determineNetDate;
-import static it.petrinet.utils.StatusByComputation.getStatusByComputation;
+import static it.petrinet.utils.NetStatusGetter.determineNetDate;
+import static it.petrinet.utils.NetStatusGetter.getStatusByComputation;
 
 public class ShowAllController {
 
