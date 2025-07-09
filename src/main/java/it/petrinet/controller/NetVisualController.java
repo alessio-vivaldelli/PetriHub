@@ -106,6 +106,7 @@ public class NetVisualController implements Initializable {
     NotificationsDAO.insertNotification(tmp);
   }
 
+
   /**
    * This handler is called every time a Transition is fired
    *
@@ -126,48 +127,50 @@ public class NetVisualController implements Initializable {
         newMarkingState,
         System.currentTimeMillis() / 1000);
     ComputationStepDAO.insertStep(newComputationStep);
-    
 
-    // - Compute the new nextStep state based on "newTransition" types
-    // - Update this value for the current computation in the DB
-    int nextStep = 0;
-    boolean isNextUser = newTransition.stream().anyMatch(t -> t.getType().equals(TRANSITION_TYPE.USER));
-    boolean isNextAdmin = newTransition.stream().anyMatch(t -> t.getType().equals(TRANSITION_TYPE.ADMIN));
-    if (isNextUser && isNextAdmin) {
-      nextStep = 3;
-    } else if (isNextAdmin) {
-      nextStep = 2;
-    } else if (isNextUser) {
-      nextStep = 1;
-    }
-    ComputationsDAO.setNextStepType(computation, nextStep);
-
-    // Iterate over new firable transitions and notify the user which transitions
-    // can fire
-    newTransition.forEach(t -> {
-      String username = ViewNavigator.getAuthenticatedUser().getUsername();
-      String msgTitle = "Activity on %s net!".formatted(netModel.getNetName());
-      Notification tmp = null;
-
-      if (t.getType().equals(TRANSITION_TYPE.ADMIN)
-          && !username.equals(computation.getCreatorId())) {
-        tmp = new Notification(username,
-            computation.getCreatorId(), netModel.getNetName(), -1, msgTitle,
-            getNotificationText(isFinished, username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
-
-      } else if (t.getType().equals(TRANSITION_TYPE.USER)
-          && username.equals(computation.getCreatorId())) {
-        tmp = new Notification(
-            username, computation.getUserId(), netModel.getNetName(), -1, msgTitle,
-            getNotificationText(isFinished, username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
-      }
-      if (tmp != null) {
-        NotificationsDAO.insertNotification(tmp);
-      }
-    });
+    processNextStepAndNotifications(newTransition, transitionName, isFinished, false);
   }
 
-  private String getNotificationText(boolean isFinished, String sender, String firedTransition,
+    private void sendNotificationFirableTransitionOnNetInitialization(List<Transition> transitions) {
+        processNextStepAndNotifications(transitions, "", false, true);
+    }
+
+    private void processNextStepAndNotifications(List<Transition> transitions, String firedTransition, boolean isFinished, boolean isInitialization) {
+        int nextStep = computeNextStepType(transitions);
+        ComputationsDAO.setNextStepType(computation, nextStep);
+
+        String username = ViewNavigator.getAuthenticatedUser().getUsername();
+        String msgTitle = "Activity on %s net!".formatted(netModel.getNetName());
+
+        transitions.forEach(t -> {
+            String text = isInitialization
+                    ? "%s just started the net, now you can fire '%s'!".formatted(username, t.getName())
+                    : getNotificationText(isFinished, username, firedTransition, t.getName());
+
+            Notification tmp = null;
+            if (t.getType().equals(TRANSITION_TYPE.ADMIN) && !username.equals(computation.getCreatorId())) {
+                tmp = new Notification(username, computation.getCreatorId(), netModel.getNetName(), -1, msgTitle, text, System.currentTimeMillis() / 1000);
+            } else if (t.getType().equals(TRANSITION_TYPE.USER) && username.equals(computation.getCreatorId())) {
+                tmp = new Notification(username, computation.getUserId(), netModel.getNetName(), -1, msgTitle, text, System.currentTimeMillis() / 1000);
+            }
+
+            if (tmp != null) {
+                NotificationsDAO.insertNotification(tmp);
+            }
+        });
+    }
+
+    private int computeNextStepType(List<Transition> transitions) {
+        boolean isNextUser = transitions.stream().anyMatch(t -> t.getType().equals(TRANSITION_TYPE.USER));
+        boolean isNextAdmin = transitions.stream().anyMatch(t -> t.getType().equals(TRANSITION_TYPE.ADMIN));
+        if (isNextUser && isNextAdmin) return 3;
+        if (isNextAdmin) return 2;
+        if (isNextUser) return 1;
+        return 0;
+    }
+
+
+    private String getNotificationText(boolean isFinished, String sender, String firedTransition,
       String newPossibileTransition) {
     if (!isFinished) {
       if (firedTransition.isEmpty()) {
@@ -251,7 +254,7 @@ public class NetVisualController implements Initializable {
                 ComputationStepDAO.removeAllStepsByComputation(computation);
                 ComputationsDAO.setAsStarted(computation, System.currentTimeMillis());
                 //TODO: Update computation
-                board.setComputation(computation);
+                sendNotificationFirableTransitionOnNetInitialization(board.setComputation(computation));
                 board.updateComputation();
                 toolbar.startableButton();
         }
@@ -287,8 +290,9 @@ public class NetVisualController implements Initializable {
                 System.currentTimeMillis()/1000
         );
 
+        toolbar.startedButton();
         computation.addStep(step);
-        board.setComputation(computation);
+        sendNotificationFirableTransitionOnNetInitialization(board.setComputation(computation));
         ComputationStepDAO.insertStep(step);
         ComputationsDAO.setAsStarted(computation, System.currentTimeMillis()/1000);
     }

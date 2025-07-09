@@ -39,9 +39,9 @@ public class ComputationStep implements Comparable<ComputationStep> {
       long timestamp) {
 //    validatePositiveId(id, "id");
 //    validatePositiveId(computationId, "computationId");
-    validateRequiredString(netId, "netId");
+    // validateRequiredString(netId, "netId");
     // validateRequiredString(transitionName, "transitionName");
-    validateRequiredString(markingState, "markingState");
+    //validateRequiredString(markingState, "markingState");
 
     this.id = id;
     this.computationId = computationId;

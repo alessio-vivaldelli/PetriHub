@@ -66,7 +66,8 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
    *
    * @param computation
    */
-  public void setComputation(Computation computation) {
+  public List<Transition> setComputation(Computation computation) {
+
     this.computation = computation;
     this.enableInteraction(computation != null);
 
@@ -79,7 +80,9 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
         p.setPlaceTokens(initialMarking.getOrDefault(p.getName(), 0));
       }
     });
-    computeAndApplyFirableTransitions();
+    updateGraph();
+
+    return computeAndApplyFirableTransitions();
   }
 
   /**
@@ -126,7 +129,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   }
 
   public String getFinishPlaceName() {
-    return this.petriNetModel.getStartNode().getName();
+    return this.petriNetModel.getFinishNode().getName();
   }
 
   private void loadModelAndBuildGraph() throws IOException {
@@ -204,6 +207,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
             marking.put(p.getName(), p.getPlaceTokens());
             if (p.getType() == PLACE_TYPE.END && onPetriNetFinished != null) {
               onPetriNetFinished.run();
+              disableInteraction();
             }
           } else {
             throw new IllegalStateException("Transition output must be a Place.");
@@ -212,6 +216,10 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   }
 
   private List<Transition> computeAndApplyFirableTransitions() {
+    if(computation.isFinished()){
+      disableInteraction();
+      return new ArrayList<>();
+    }
     List<Transition> firableTransitions = new ArrayList<>();
     getGraphVertices().forEach(vertex -> {
       if (vertex.element() instanceof Transition t) {
@@ -219,14 +227,18 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
             .map(edge -> getOppositeVertex(edge, vertex))
             .allMatch(node -> ((Place) node.element()).getPlaceTokens() > 0);
 
+        if (isEnabled){
+          firableTransitions.add(t);
+        }
+
         if (isEnabled && isUserAllowedToFire(t)) {
           t.setIsFirable(true);
-          firableTransitions.add(t);
           removeNodeStyle(vertex, ADMIN_TRANSITION_STYLE);
           removeNodeStyle(vertex, USER_TRANSITION_STYLE);
 
           addNodeStyle(vertex, FIRABLE_TRANSITION_STYLE);
-        } else {
+        }
+        else {
           t.setIsFirable(false);
           removeNodeStyle(vertex, FIRABLE_TRANSITION_STYLE);
         }
