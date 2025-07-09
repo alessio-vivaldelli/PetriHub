@@ -78,6 +78,25 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
     }
   }
 
+  /**
+   * Call this method to update tokens status. For example it can ben called after
+   * first subscription to the net to refresh "last computation step" in the
+   * computation
+   * 
+   */
+  public void updateComputation() {
+    Map<String, Integer> initialMarking = (computation != null && !computation.getSteps().isEmpty())
+        ? computation.getSteps().getLast().getMarkingState()
+        : Map.of();
+
+    petriNetModel.getNodes().forEach(node -> {
+      if (node instanceof Place p) {
+        p.setPlaceTokens(initialMarking.getOrDefault(p.getName(), 0));
+      }
+    });
+
+  }
+
   @Override
   protected void onGraphInitialized() {
     super.onGraphInitialized();

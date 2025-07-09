@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import it.petrinet.model.Notification;
+import it.petrinet.model.database.ComputationStepDAO;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.NotificationsDAO;
 
@@ -61,8 +62,7 @@ public class NetVisualController implements Initializable {
     });
 
     board.setOnTransitionFired(this::onTransitionFiredHandler);
-
-    board.setOnPetriNetFinished(null); // TODO: set method for this hook
+    board.setOnPetriNetFinished(this::onPetriNetFinishedHandler);
 
     boardContainer.getChildren().add(board);
 
@@ -73,17 +73,43 @@ public class NetVisualController implements Initializable {
     delay.play();
   }
 
+  /**
+   * This handler is called when the petri net is finished
+   */
+  void onPetriNetFinishedHandler() {
+    ComputationsDAO.setAsCompleted(computation, System.currentTimeMillis() / 1000);
+    String reciver = (ViewNavigator.getAuthenticatedUser().getUsername().equals(computation.getCreatorId()))
+        ? computation.getUserId()
+        : computation.getCreatorId();
+    String text = "%s just reached finish place!".formatted(ViewNavigator.getAuthenticatedUser().getUsername());
+    Notification tmp = new Notification(ViewNavigator.getAuthenticatedUser().getUsername(), reciver, baseNet, -1,
+        "Net finished!", text, System.currentTimeMillis() / 1000);
+    NotificationsDAO.insertNotification(tmp);
+  }
+
+  /**
+   * This handler is called every time a Transition is fired
+   *
+   * @param transitionName  clicked transition name
+   * @param newMarkingState new token status, after transition is fired
+   * @param newTransition   new firable transition
+   */
   void onTransitionFiredHandler(String transitionName, Map<String, Integer> newMarkingState,
       List<Transition> newTransition) {
-    ComputationStep newComputationStep = null;
-    try {
-      newComputationStep = new ComputationStep(ComputationsDAO.getIdByComputation(computation), baseNet, transitionName,
-          newMarkingState,
-          System.currentTimeMillis() / 1000);
-    } catch (InputTypeException e) {
-      e.printStackTrace();
-    }
 
+    // check if, by firing transitionName, some token reached finish place
+    boolean isFinished = newMarkingState.keySet().stream().anyMatch(p -> p.equals(board.getFinishPlaceName()));
+
+    // - Create a new ComputationStep with: clicked transition, new marking state.
+    // - Add this step to the DB
+    ComputationStep newComputationStep = new ComputationStep(ComputationsDAO.getIdByComputation(computation), baseNet,
+        transitionName,
+        newMarkingState,
+        System.currentTimeMillis() / 1000);
+    ComputationStepDAO.insertStep(newComputationStep);
+
+    // - Compute the new nextStep state based on "newTransition" types
+    // - Update this value for the current computation in the DB
     int nextStep = 0;
     boolean isNextUser = newTransition.stream().anyMatch(t -> t.getType().equals(TRANSITION_TYPE.USER));
     boolean isNextAdmin = newTransition.stream().anyMatch(t -> t.getType().equals(TRANSITION_TYPE.ADMIN));
@@ -94,41 +120,44 @@ public class NetVisualController implements Initializable {
     } else if (isNextUser) {
       nextStep = 1;
     }
+    ComputationsDAO.setNextStepType(computation, nextStep);
 
+    // Iterate over new firable transitions and notify the user which transitions
+    // can fire
     newTransition.forEach(t -> {
       String username = ViewNavigator.getAuthenticatedUser().getUsername();
-      String msgTitle = "Waiting for action";
+      String msgTitle = "Activity on %s net!".formatted(baseNet);
       Notification tmp = null;
 
       if (t.getType().equals(TRANSITION_TYPE.ADMIN)
           && !username.equals(computation.getCreatorId())) {
         tmp = new Notification(username,
             computation.getCreatorId(), baseNet, -1, msgTitle,
-            getNotificationText(username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
+            getNotificationText(isFinished, username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
 
       } else if (t.getType().equals(TRANSITION_TYPE.USER)
           && username.equals(computation.getCreatorId())) {
         tmp = new Notification(
             computation.getCreatorId(), username, baseNet, -1, msgTitle,
-            getNotificationText(username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
+            getNotificationText(isFinished, username, transitionName, t.getName()), System.currentTimeMillis() / 1000);
       }
       if (tmp != null) {
-        try {
-          NotificationsDAO.insertNotification(tmp);
-        } catch (InputTypeException e) {
-          e.printStackTrace();
-        }
+        NotificationsDAO.insertNotification(tmp);
       }
-
     });
-
-    // TODO: use updateNextStep on computation to update nextStpe field on
-    // computation
-
   }
 
-  private String getNotificationText(String sender, String firedTransition, String newPossibileTransition) {
-    return "%s fired %s transition, now tou can  fire %s!".formatted(sender, firedTransition, newPossibileTransition);
+  private String getNotificationText(boolean isFinished, String sender, String firedTransition,
+      String newPossibileTransition) {
+    if (!isFinished) {
+      if (firedTransition.isEmpty()) {
+        return "Now tou can fire '%s'!".formatted(sender, firedTransition, newPossibileTransition);
+      }
+      return "%s fired %s transition, now you can  fire '%s'!".formatted(sender, firedTransition,
+          newPossibileTransition);
+    } else {
+      return "%s reach finish node by firing %s transition".formatted(sender, firedTransition);
+    }
   }
 
   // TODO: Implement the logic to retrieve the Computation object from the
