@@ -10,15 +10,6 @@ import java.util.List;
 
 public class ComputationStepDAO implements DataAccessObject{
 
-    private static final String typeErrorMessage = "Invalid input type provided."; // Definizione del messaggio di errore
-
-    public static void main(String[] args)  {
-        ComputationStepDAO dao = new ComputationStepDAO();
-        dao.createTable();
-//        insertStep(new ComputationStep(5, 2, "net3", "T4", "p2:1,p3:1", 1686302400L));
-//        insertStep(new ComputationStep(5, 3, "net10", "T4", "p2:1,p3:1", 1702504800L));
-    }
-
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS computationSteps (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +

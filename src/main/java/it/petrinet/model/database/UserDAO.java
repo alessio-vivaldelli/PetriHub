@@ -11,12 +11,6 @@ import java.util.List;
  */
 public class UserDAO implements DataAccessObject {
 
-    public static void main(String[] args) {
-        insertUser(new User("a", "a", true));
-        insertUser(new User("Davide", "sala", true));
-        insertUser(new User("ale", "ale", true));
-    }
-
     /**
      * Creates the 'users' table in the database if it does not exist.
      */

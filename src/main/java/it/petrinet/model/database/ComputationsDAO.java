@@ -12,14 +12,6 @@ import java.util.List;
  * Data Access Object for managing operations on Computations Table 
  */
 public class ComputationsDAO implements DataAccessObject{
-    public static void main(String[] args)  {
-//        ComputationsDAO d = new ComputationsDAO();
-//        d.createTable();
-//        insertComputation(new Computation("net1","a","Davide", 34,-1 ,Computation.NEXT_STEP_TYPE.ADMIN));
-        //insertComputation(new Computation("net14","ale","a", 34, Computation.NEXT_STEP_TYPE.BOTH));
-//        insertComputation(new Computation("net4","anto","Davide", 34, Computation.NEXT_STEP_TYPE.USER));
-        System.out.println(getRecentNetsSubscribedByUser(new User("a", "a", true)));
-    }
 
     public void createTable() {                          //metodo per creazione tabelle
         String table = "CREATE TABLE IF NOT EXISTS computations (" +
