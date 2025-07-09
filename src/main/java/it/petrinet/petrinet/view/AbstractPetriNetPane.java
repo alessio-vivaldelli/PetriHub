@@ -142,10 +142,10 @@ public abstract class AbstractPetriNetPane extends Pane {
   }
 
   private final void removeInteraction() {
-    graphView.setCanvasSingleClickAction(null);
-    graphView.setEdgeSingleClickAction(null);
-    graphView.setVertexSingleClickAction(null);
-    graphView.setVertexRightClickAction(null);
+    graphView.setCanvasSingleClickAction((_) -> {});
+    graphView.setEdgeSingleClickAction((_) -> {});
+    graphView.setVertexSingleClickAction((_) -> {});
+    graphView.setVertexRightClickAction((_) -> {});
   }
 
   /**
