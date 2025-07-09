@@ -262,14 +262,14 @@ public class ComputationsDAO implements DataAccessObject{
     public static void setAsStarted(Object computation, Object startDate) throws InputTypeException{
         try{
             if(computation instanceof Computation c){
-                if(startDate instanceof Integer date){
+                if(startDate instanceof Long date){
                     String command = "UPDATE computations SET startDate = ? WHERE netId = ? AND userId = ? AND creatorId = ?";
 
                     try (Connection connection = DatabaseManager.getDBConnection();
                          PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
-                         p_statement.setInt(1, date);
+                         p_statement.setLong(1, date);
                         p_statement.setString(2, c.getNetId());
                         p_statement.setString(3, c.getUserId());
                         p_statement.setString(4, c.getCreatorId());

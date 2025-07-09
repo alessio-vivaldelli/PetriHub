@@ -109,14 +109,13 @@ public class NetVisualController implements Initializable {
     }
 
     private void handleSubscribe() throws InputTypeException {
-        // Create fade-out transition
-        ComputationsDAO.insertComputation(
-                new Computation(
-                        netModel.getNetName(),
-                        netModel.getCreatorId(),
-                        ViewNavigator.getAuthenticatedUser().getUsername()
-                )
+        computation = new Computation(
+                netModel.getNetName(),
+                netModel.getCreatorId(),
+                ViewNavigator.getAuthenticatedUser().getUsername()
         );
+
+        ComputationsDAO.insertComputation(computation);
 
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), subscribeButton);
         fadeOut.setFromValue(1.0);
@@ -180,7 +179,10 @@ public class NetVisualController implements Initializable {
     }
 
     public void startAction() throws InputTypeException {
+        ComputationsDAO.getIdByComputation(computation);
+        System.out.println(computation);
         ComputationStep step = new ComputationStep(
+                68,
                 ComputationsDAO.getIdByComputation(computation),
                 netModel.getNetName(),
                 board.getStartPlaceName(),
@@ -188,11 +190,11 @@ public class NetVisualController implements Initializable {
                 System.currentTimeMillis()/1000
         );
 
+
         computation.addStep(step);
         board.setComputation(computation);
-        ComputationsDAO.insertComputation(step);
-
-
+        ComputationStepDAO.insertStep(step);
+        ComputationsDAO.setAsStarted(computation, System.currentTimeMillis()/1000);
     }
 
     private static String getNetPath(PetriNet netModel) {

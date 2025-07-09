@@ -37,8 +37,8 @@ public class ComputationStep implements Comparable<ComputationStep> {
    */
   public ComputationStep(long id, int computationId, String netId, String transitionName, String markingState,
       long timestamp) {
-    validatePositiveId(id, "id");
-    validatePositiveId(computationId, "computationId");
+//    validatePositiveId(id, "id");
+//    validatePositiveId(computationId, "computationId");
     validateRequiredString(netId, "netId");
     // validateRequiredString(transitionName, "transitionName");
     validateRequiredString(markingState, "markingState");
