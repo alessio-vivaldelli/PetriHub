@@ -52,7 +52,18 @@ public class DatabaseManager {
      * @param statement the statement on which to enable foreign keys
      * @throws SQLException if SQL execution fails
      */
-    protected static void enableForeignKeys(Statement statement) throws SQLException {
+    public static void enableForeignKeys(Statement statement) throws SQLException {
         statement.execute("PRAGMA foreign_keys = ON;");
+    }
+
+    /**
+     * Centralized SQLException handler.
+     *
+     * @param methodName the name of the method where the exception occurred
+     * @param ex the SQLException thrown
+     */
+    public static void handleSQLException(String methodName, SQLException ex) {
+        System.err.println("SQLException in " + methodName + ": " + ex.getMessage());
+        ex.printStackTrace();
     }
 }

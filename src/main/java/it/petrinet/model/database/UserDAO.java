@@ -2,6 +2,7 @@ package it.petrinet.model.database;
 
 import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.User;
+import javafx.scene.chart.PieChart;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class UserDAO implements DataAccessObject {
         DatabaseManager.enableForeignKeys(statement);
             statement.execute(createTableSQL);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("createUsersTable", ex);
         }
     }
 
@@ -46,7 +47,7 @@ public class UserDAO implements DataAccessObject {
              Statement statement = connection.createStatement()) {
             statement.execute(dropSQL);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("deleteTable", ex);
         }
     }
 
@@ -72,7 +73,7 @@ public class UserDAO implements DataAccessObject {
             pstmt.setBoolean(3, user.isAdmin());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("insertUser", e);
         }
     }
 
@@ -95,7 +96,7 @@ public class UserDAO implements DataAccessObject {
             pstmt.setString(3, user.getUsername());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("ModifyUserPassword", e);
         }
     }
 
@@ -115,7 +116,7 @@ public class UserDAO implements DataAccessObject {
             pstmt.setString(1, user.getUsername());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("removeUser", e);
         }
     }
 
@@ -144,7 +145,7 @@ public class UserDAO implements DataAccessObject {
                 );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("getUserByUsername", e);
         }
         return null;
     }
@@ -175,7 +176,7 @@ public class UserDAO implements DataAccessObject {
                 ));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("getUsersbyPassword", e);
         }
         return users;
     }

@@ -4,11 +4,14 @@ import it.petrinet.exceptions.InputTypeException;
 import it.petrinet.model.Computation;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
+import javafx.scene.chart.PieChart;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Data Access Object for managing operations on Computations Table 
+ */
 public class ComputationsDAO implements DataAccessObject{
     public static void main(String[] args)  {
 //        ComputationsDAO d = new ComputationsDAO();
@@ -29,16 +32,16 @@ public class ComputationsDAO implements DataAccessObject{
                 "endDate longINT, " +
                 "nextStep INTEGER NOT NULL, " +
                 "UNIQUE (netId, userId, creatorId), " +
-                "FOREIGN KEY (netId) REFERENCES petri_nets(netName), " +
-                "FOREIGN KEY (creatorId) REFERENCES users(username), " +
-                "FOREIGN KEY (userId) REFERENCES users(username))";
+                "FOREIGN KEY (netId) REFERENCES petri_nets(netName) ON DELETE CASCADE, " +
+                "FOREIGN KEY (creatorId) REFERENCES users(username) ON DELETE CASCADE, " +
+                "FOREIGN KEY (userId) REFERENCES users(username) ON DELETE CASCADE)";
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             statement.executeUpdate(table);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("createComputationsTable", ex);
         }
     }
 
@@ -47,10 +50,10 @@ public class ComputationsDAO implements DataAccessObject{
 
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             statement.execute(command);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("deleteComputationsTable", ex);
         }
     }
 
@@ -65,7 +68,7 @@ public class ComputationsDAO implements DataAccessObject{
                 ComputationsDAO dao = new ComputationsDAO();
                 dao.createTable();
             }
-             statement.execute("PRAGMA foreign_keys = ON;");
+             DatabaseManager.enableForeignKeys(statement);
              p_statement.setString(1, computation.getNetId());
             p_statement.setString(2, computation.getCreatorId());
             p_statement.setString(3, computation.getUserId());
@@ -79,7 +82,7 @@ public class ComputationsDAO implements DataAccessObject{
             p_statement.executeUpdate();
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("insertComputation", ex);
         }
     }
 
@@ -89,7 +92,7 @@ public class ComputationsDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
+             DatabaseManager.enableForeignKeys(statement);
              p_statement.setInt(1, id);
             ResultSet result = p_statement.executeQuery();
 
@@ -101,12 +104,11 @@ public class ComputationsDAO implements DataAccessObject{
                         result.getLong(5),
                         result.getLong(6),
                         Computation.toNextStepType(result.getInt(7))
-
                 );
             }
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("getComputationsById", ex);
         }
         return null;
     }
@@ -117,14 +119,16 @@ public class ComputationsDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setInt(1, id);
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setInt(1, id);
             p_statement.executeUpdate();
 
             ComputationStepDAO.removeAllStepsByComputation(ComputationsDAO.getComputationById(id));
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("removeComputation", ex);
         }
     }
 
@@ -138,7 +142,9 @@ public class ComputationsDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-            statement.execute("PRAGMA foreign_keys = ON;");
+
+            DatabaseManager.enableForeignKeys(statement);
+
             p_statement.setNull(1, Types.BIGINT);
             p_statement.setInt(2, getIdByComputation(computation));
             p_statement.executeUpdate();
@@ -146,7 +152,7 @@ public class ComputationsDAO implements DataAccessObject{
             ComputationStepDAO.resetComputationSteps(computation);
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("resetComputation", ex);
         }
     }
 
@@ -156,7 +162,7 @@ public class ComputationsDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             p_statement.setNull(1, Types.BIGINT);
             p_statement.setNull(2, Types.BIGINT);
             p_statement.setInt(3, getIdByComputation(computation));
@@ -165,7 +171,7 @@ public class ComputationsDAO implements DataAccessObject{
             ComputationStepDAO.removeAllStepsByComputation(computation);
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("deleteComputation", ex);
         }
     }
 
@@ -175,8 +181,10 @@ public class ComputationsDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setString(1, computation.getNetId());
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, computation.getNetId());
             p_statement.setString(2, computation.getCreatorId());
             p_statement.setString(3, computation.getUserId());
             ResultSet result = p_statement.executeQuery();
@@ -188,7 +196,7 @@ public class ComputationsDAO implements DataAccessObject{
 
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("isComplete", ex);
         }
         return false;
     }
@@ -198,16 +206,17 @@ public class ComputationsDAO implements DataAccessObject{
 
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
-         Statement statement = connection.createStatement()){
-         statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setLong(1, startDate);
+            Statement statement = connection.createStatement()){
+
+            DatabaseManager.enableForeignKeys(statement);
+            p_statement.setLong(1, startDate);
             p_statement.setString(2, computation.getNetId());
             p_statement.setString(3, computation.getUserId());
             p_statement.setString(4, computation.getCreatorId());
             p_statement.executeUpdate();
         }
         catch(SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("setAsStarted", ex);
         }
     }
 
@@ -217,7 +226,7 @@ public class ComputationsDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
          Statement statement = connection.createStatement()){
-         statement.execute("PRAGMA foreign_keys = ON;");
+         DatabaseManager.enableForeignKeys(statement);
              p_statement.setLong(1, endDate);
             p_statement.setString(2, computation.getNetId());
             p_statement.setString(3, computation.getUserId());
@@ -225,7 +234,7 @@ public class ComputationsDAO implements DataAccessObject{
             p_statement.executeUpdate();
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("setAsCompleted", ex);
         }
     }
 
@@ -237,7 +246,7 @@ public class ComputationsDAO implements DataAccessObject{
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
 
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             p_statement.setString(1, net.getNetName());
 
             ResultSet result = p_statement.executeQuery();
@@ -262,38 +271,31 @@ public class ComputationsDAO implements DataAccessObject{
             }
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("getComputationsByNet", ex);
         }
-return wantedComputations;
+        return wantedComputations;
     }
 
     public static int getIdByComputation(Computation computation) {
-        try {
-            if (computation instanceof Computation c) {
                 String command = "SELECT id FROM computations WHERE netId = ? AND creatorId = ? AND userId = ?";
 
                 try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(command);
                      Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, c.getNetId());
-                    p_statement.setString(2, c.getCreatorId());
-                    p_statement.setString(3,c.getUserId());
+
+                    DatabaseManager.enableForeignKeys(statement);
+
+                    p_statement.setString(1, computation.getNetId());
+                    p_statement.setString(2, computation.getCreatorId());
+                    p_statement.setString(3, computation.getUserId());
                     ResultSet result = p_statement.executeQuery();
 
                     if(result.next()){
                         return result.getInt(1);
                     }
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
+                    DatabaseManager.handleSQLException("getIdByComputation", ex);
                 }
-            } else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
-        }
-        catch(InputTypeException e){
-                e.ErrorPrinter();
-        }
         return -1;
     }
 
@@ -304,8 +306,10 @@ return wantedComputations;
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setString(1, user.getUsername());
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, user.getUsername());
             ResultSet result = p_statement.executeQuery();
             while(result.next()){
                 long sDate = result.getLong(5);
@@ -327,7 +331,7 @@ return wantedComputations;
             }
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("getComputationsByUser", ex);
         }
         return wantedComputations;
     }
@@ -339,8 +343,10 @@ return wantedComputations;
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setString(1, user.getUsername());
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, user.getUsername());
             ResultSet result = p_statement.executeQuery();
             while(result.next()){
                 long sDate = result.getLong(5);
@@ -362,7 +368,7 @@ return wantedComputations;
             }
         }
         catch(SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("getComputationsByAdmin", ex);
         }
         return wantedComputations;
     }
@@ -373,9 +379,11 @@ return wantedComputations;
 
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
-         Statement statement = connection.createStatement()){
-         statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setString(1, user.getUsername());
+             Statement statement = connection.createStatement()){
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, user.getUsername());
             p_statement.setString(1, admin.getUsername());
             ResultSet result = p_statement.executeQuery();
 
@@ -398,7 +406,7 @@ return wantedComputations;
                 ));
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("getComputationsByAdminAndUser", ex);
         }
         return wantedComputations;
     }
@@ -409,7 +417,7 @@ return wantedComputations;
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             p_statement.setString(1, user.getUsername());
             p_statement.setString(2, net.getNetName());
             ResultSet result = p_statement.executeQuery();
@@ -434,7 +442,7 @@ return wantedComputations;
                 );
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("getComputationByUserAndNet", ex);
         }
         return null;
     }
@@ -446,7 +454,7 @@ return wantedComputations;
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
+             DatabaseManager.enableForeignKeys(statement);
              p_statement.setString(1, net.getNetName());
             ResultSet result = p_statement.executeQuery();
             while(result.next()){
@@ -455,7 +463,7 @@ return wantedComputations;
             }
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("getSubscribedUsersByNet", ex);
         }
         return subscribedUsers;
     }
@@ -466,7 +474,7 @@ return wantedComputations;
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
+             DatabaseManager.enableForeignKeys(statement);
              p_statement.setString(1, user.getUsername());
             ResultSet result = p_statement.executeQuery();
 
@@ -475,7 +483,7 @@ return wantedComputations;
                 );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("getNetsSubscribedByUser", e);
         }
         return wantedNets;
 
@@ -492,8 +500,10 @@ return wantedComputations;
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-             statement.execute("PRAGMA foreign_keys = ON;");
-             p_statement.setString(1, user.getUsername());
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, user.getUsername());
             ResultSet result = p_statement.executeQuery();
 
             while(result.next()) {
@@ -518,7 +528,7 @@ return wantedComputations;
                 wantedNets.add(rn);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            DatabaseManager.handleSQLException("getRecentNetsSubscribedByUser", e);
         }
         return wantedNets;
 
@@ -530,13 +540,13 @@ return wantedComputations;
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
-            statement.execute("PRAGMA foreign_keys = ON;");
+            DatabaseManager.enableForeignKeys(statement);
             p_statement.setInt(1, type);
             p_statement.setInt(2, getIdByComputation(computation));
             p_statement.executeUpdate();
         }
         catch(SQLException ex){
-            ex.printStackTrace();
+            DatabaseManager.handleSQLException("setNextStepType", ex);
         }
     }
 
