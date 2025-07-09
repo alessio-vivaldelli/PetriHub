@@ -22,12 +22,14 @@ public class NavigationHelper {
 
     private static final Logger LOGGER = Logger.getLogger(NavigationHelper.class.getName());
 
+
+
     /**
-     * Sets up navigation to net visual view for current user
+     * Sets up navigation to net visual view for specific user
      */
-    public static void setupNavigationToNetVisualForCurrentUser(PetriNet net)  {
+    public static void setupNavigationToNetVisualForUser(PetriNet net, String userId)  {
         String path = netDirectory + net.getXML_PATH();
-        Computation data = findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
+        Computation data = makeComputation(net, userId);
         safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, data, getVisualState(data)));
     }
 
@@ -37,15 +39,6 @@ public class NavigationHelper {
             case null -> VisualState.SUBSCRIBABLE;
             default -> VisualState.STARTED;
         };
-    }
-
-    /**
-     * Sets up navigation to net visual view for specific user
-     */
-    public static void setupNavigationToNetVisualForUser(PetriNet net, String userId)  {
-        String path = netDirectory + net.getXML_PATH();
-        Computation data = makeComputation(net, userId);
-        safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, data, getVisualState(data)));
     }
 
     /**

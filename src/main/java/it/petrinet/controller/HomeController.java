@@ -298,7 +298,7 @@ public class HomeController implements Initializable {
      * Sets up navigation to net visual view
      */
     private void setupNavigationToNetVisual(PetriNet net)  {
-        NavigationHelper.setupNavigationToNetVisualForCurrentUser(net);
+        NavigationHelper.setupNavigationToNetVisualForUser(net, ViewNavigator.getAuthenticatedUser().getUsername());
     }
 
     /**
