@@ -60,7 +60,7 @@ public class NetCreationController implements Initializable {
                         new PetriNet(
                                 netName,
                                 ViewNavigator.getAuthenticatedUser().getUsername(),
-                                System.currentTimeMillis(),
+                                System.currentTimeMillis()/1000,
                                 netName + ".pnml",
                                 "image",
                                 true

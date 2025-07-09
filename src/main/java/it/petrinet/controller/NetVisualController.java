@@ -184,8 +184,8 @@ public class NetVisualController implements Initializable {
                 ComputationsDAO.getIdByComputation(computation),
                 netModel.getNetName(),
                 board.getStartPlaceName(),
-                board.getStartPlaceName() + "1",
-                System.currentTimeMillis()
+                board.getStartPlaceName() + ":1",
+                System.currentTimeMillis()/1000
         );
 
         computation.addStep(step);

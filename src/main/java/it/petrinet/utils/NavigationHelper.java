@@ -47,6 +47,13 @@ public class NavigationHelper {
         safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, data, getVisualState(data)));
     }
 
+    /**
+     * Sets up navigation to table discover view for current user
+     */
+    public static void setupNavigationToTableDiscoverForUser(PetriNet net, String username) {
+        safeNavigate(() -> ViewNavigator.navigateToNetVisual(net, null, VisualState.SUBSCRIBABLE));
+    }
+
     private static Computation makeComputation(PetriNet net, String userId) throws InputTypeException {
         Computation data = findUserComputation(net, userId);
         List<ComputationStep> steps = ComputationStepDAO.getStepsByComputation(data);
