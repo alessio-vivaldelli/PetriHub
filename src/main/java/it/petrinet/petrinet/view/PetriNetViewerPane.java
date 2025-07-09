@@ -69,13 +69,18 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   public void setComputation(Computation computation) {
     this.computation = computation;
     this.enableInteraction(computation != null);
-    try {
-      loadModelAndBuildGraph();
-      computeAndApplyFirableTransitions();
-    } catch (IOException e) {
-      this.enableInteraction(false);
-      throw new PetriNetViewException("Failed to initialize Petri Net view", e);
-    }
+
+    Map<String, Integer> initialMarking = (computation != null && !computation.getSteps().isEmpty())
+        ? computation.getSteps().getLast().getMarkingState()
+        : Map.of();
+
+    petriNetModel.getNodes().forEach(node -> {
+      if (node instanceof Place p) {
+        p.setPlaceTokens(initialMarking.getOrDefault(p.getName(), 0));
+      }
+      addNodeToGraph(node);
+    });
+    computeAndApplyFirableTransitions();
   }
 
   /**
