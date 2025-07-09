@@ -216,6 +216,10 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   }
 
   private List<Transition> computeAndApplyFirableTransitions() {
+    if (computation == null) {
+      disableInteraction();
+      return new ArrayList<>();
+    }
     if(computation.isFinished()){
       disableInteraction();
       return new ArrayList<>();

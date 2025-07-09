@@ -110,13 +110,13 @@ public class ComputationsDAO implements DataAccessObject{
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()){
+            ComputationStepDAO.removeAllStepsByComputation(ComputationsDAO.getComputationById(id));
 
             DatabaseManager.enableForeignKeys(statement);
 
             p_statement.setInt(1, id);
             p_statement.executeUpdate();
 
-            ComputationStepDAO.removeAllStepsByComputation(ComputationsDAO.getComputationById(id));
         }
         catch(SQLException ex){
             DatabaseManager.handleSQLException("removeComputation", ex);

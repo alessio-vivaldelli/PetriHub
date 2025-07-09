@@ -250,15 +250,17 @@ public class NetVisualController implements Initializable {
 
         if(result.get().isCancel()) return;
 
-        if (result.get().isOK()) {
+        if (result.get().isYes()) {
                 ComputationStepDAO.removeAllStepsByComputation(computation);
-                ComputationsDAO.setAsStarted(computation, System.currentTimeMillis());
+                ComputationsDAO.setAsStarted(computation, 0);
+                ComputationsDAO.setAsCompleted(computation, 0);
+
+                computation.clearSteps();
                 //TODO: Update computation
                 sendNotificationFirableTransitionOnNetInitialization(board.setComputation(computation));
                 board.updateComputation();
                 toolbar.startableButton();
         }
-
     }
 
     public void unsubscribeAction() {
@@ -269,11 +271,15 @@ public class NetVisualController implements Initializable {
 
         if(result.get().isCancel()) return;
 
-        if( result.get().isOK()) {
+        if( result.get().isYes()) {
                 ComputationStepDAO.removeAllStepsByComputation(computation);
+                ComputationsDAO.removeComputation(computation);
                 //ComputationsDAO.unsubscribeFromNet(computation, ViewNavigator.getAuthenticatedUser().getUsername());
                 board.setComputation(null);
+                board.updateComputation();
                 toolbar.subButton();
+            subscribeButton = overlaySubscribeButton();
+            boardContainer.getChildren().add(subscribeButton);
         }
 
     }
