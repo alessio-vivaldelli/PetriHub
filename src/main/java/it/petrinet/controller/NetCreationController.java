@@ -55,7 +55,6 @@ public class NetCreationController implements Initializable {
 
         canvas.setOnPetriNetSaved(e -> {
 
-            try {
                 PetriNetsDAO.insertNet(
                         new PetriNet(
                                 netName,
@@ -66,9 +65,7 @@ public class NetCreationController implements Initializable {
                                 true
                         )
                 );
-            } catch (InputTypeException ex) {
-                throw new RuntimeException(ex);
-            }
+
 
             // Clean up any resources
             if (canvas != null) canvas = null;

@@ -75,13 +75,8 @@ public class ViewToolBar extends ToolBar{
 
     private Button createPlayButton() {
         Button playButton = new Button();
-        playButton.setOnAction(e -> {
-            try {
-                controller.startAction();
-            } catch (InputTypeException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        playButton.setOnAction(e -> controller.startAction());
+
         configureButton(playButton, "play.png", "Start Petri Net");
         return playButton;
     }
