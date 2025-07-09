@@ -34,8 +34,8 @@ public class NetStatusGetter {
 
         return switch (nextStepType) {
             case Computation.NEXT_STEP_TYPE.NONE -> Status.IN_PROGRESS;
-            case Computation.NEXT_STEP_TYPE.USER -> isOwner ? Status.WAITING : Status.IN_PROGRESS;
-            case Computation.NEXT_STEP_TYPE.ADMIN -> isOwner ? Status.IN_PROGRESS : Status.WAITING;
+            case Computation.NEXT_STEP_TYPE.USER -> !isOwner ? Status.WAITING : Status.IN_PROGRESS;
+            case Computation.NEXT_STEP_TYPE.ADMIN -> isOwner ? Status.WAITING : Status.IN_PROGRESS;
             case Computation.NEXT_STEP_TYPE.BOTH -> Status.WAITING;
         };
     }

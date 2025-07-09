@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/ptnet">
+    <net id="both_waiting" type="http://www.pnml.org/version-2009/grammar/ptnet">
+        <name>
+            <text>both_waiting</text>
+        </name>
+        <page id="page1">
+            <transition id="t_admin" type="admin">
+                <name>t_admin</name>
+                <graphics>
+                    <offset x="222.0" y="416.0"/>
+                </graphics>
+            </transition>
+            <transition id="t_user" type="user">
+                <name>t_user</name>
+                <graphics>
+                    <offset x="220.0" y="302.0"/>
+                </graphics>
+            </transition>
+            <place id="finish" type="end">
+                <name>finish</name>
+                <graphics>
+                    <offset x="333.0" y="364.0"/>
+                </graphics>
+            </place>
+            <place id="start" type="start">
+                <name>start</name>
+                <graphics>
+                    <offset x="135.0" y="354.0"/>
+                </graphics>
+            </place>
+            <arc id="t_admin_finish" source="t_admin" target="finish"/>
+            <arc id="t_user_finish" source="t_user" target="finish"/>
+            <arc id="start_t_user" source="start" target="t_user"/>
+            <arc id="start_t_admin" source="start" target="t_admin"/>
+        </page>
+    </net>
+</pnml>

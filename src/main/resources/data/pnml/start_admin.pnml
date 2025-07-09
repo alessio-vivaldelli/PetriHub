@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/ptnet">
+    <net id="start_admin" type="http://www.pnml.org/version-2009/grammar/ptnet">
+        <name>
+            <text>start_admin</text>
+        </name>
+        <page id="page1">
+            <transition id="ADMIN" type="admin">
+                <name>ADMIN</name>
+                <graphics>
+                    <offset x="533.0" y="365.0"/>
+                </graphics>
+            </transition>
+            <place id="finish" type="end">
+                <name>finish</name>
+                <graphics>
+                    <offset x="711.0" y="317.0"/>
+                </graphics>
+            </place>
+            <place id="New Place" type="start">
+                <name>New Place</name>
+                <graphics>
+                    <offset x="349.0" y="359.0"/>
+                </graphics>
+            </place>
+            <arc id="ADMIN_finish" source="ADMIN" target="finish"/>
+            <arc id="New Place_ADMIN" source="New Place" target="ADMIN"/>
+        </page>
+    </net>
+</pnml>
