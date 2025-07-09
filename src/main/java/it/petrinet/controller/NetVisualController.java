@@ -256,6 +256,9 @@ public class NetVisualController implements Initializable {
                 ComputationsDAO.setAsCompleted(computation, 0);
 
                 computation.clearSteps();
+                computation.setEndDate(0);
+                computation.setStartDate(0);
+
                 //TODO: Update computation
                 sendNotificationFirableTransitionOnNetInitialization(board.setComputation(computation));
                 board.updateComputation();
