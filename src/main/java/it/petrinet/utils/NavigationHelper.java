@@ -25,7 +25,7 @@ public class NavigationHelper {
     /**
      * Sets up navigation to net visual view for current user
      */
-    public static void setupNavigationToNetVisualForCurrentUser(PetriNet net) throws InputTypeException {
+    public static void setupNavigationToNetVisualForCurrentUser(PetriNet net)  {
         String path = netDirectory + net.getXML_PATH();
         Computation data = findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
         safeNavigate(() -> ViewNavigator.navigateToNetVisual(path, data));
@@ -34,13 +34,13 @@ public class NavigationHelper {
     /**
      * Sets up navigation to net visual view for specific user
      */
-    public static void setupNavigationToNetVisualForUser(PetriNet net, String userId) throws InputTypeException {
+    public static void setupNavigationToNetVisualForUser(PetriNet net, String userId)  {
         String path = netDirectory + net.getXML_PATH();
         Computation data = makeComputation(net, userId);
         safeNavigate(() -> ViewNavigator.navigateToNetVisual(path, data));
     }
 
-    private static Computation makeComputation(PetriNet net, String userId) throws InputTypeException {
+    private static Computation makeComputation(PetriNet net, String userId)  {
         Computation data = findUserComputation(net, userId);
         List<ComputationStep> steps = ComputationStepDAO.getStepsByComputation(data);
         data.addSteps(steps);
@@ -50,7 +50,7 @@ public class NavigationHelper {
     /**
      * Finds computation data for specific user and net
      */
-    public static Computation findUserComputation(PetriNet net, String userId) throws InputTypeException {
+    public static Computation findUserComputation(PetriNet net, String userId)  {
         return ComputationsDAO.getComputationsByNet(net)
                 .stream()
                 .filter(computation -> computation.getUserId().equals(userId))

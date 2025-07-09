@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PetriNetsDAO implements DataAccessObject{
-    public static void main(String[] args) throws InputTypeException{
+    public static void main(String[] args) {
         //insertNet(new PetriNet("net10", "Davide", 1672435200L,"XML", "image", true));
         //insertNet(new PetriNet("net16", "a", 0L,"XML", "image", true));
 //        insertNet(new PetriNet("net2", "ale", 456787654L,"XML", "image", true));
@@ -49,187 +49,140 @@ public class PetriNetsDAO implements DataAccessObject{
         }
     }
 
-    public static void insertNet(Object p_net) throws InputTypeException{                //c'è da rimpiazzare i placeholder coi get della classe delle reti
+    public static void insertNet(PetriNet net) {                //c'è da rimpiazzare i placeholder coi get della classe delle reti
         String command = "INSERT INTO petri_nets(netName, creatorId, creationDate, XML_PATH, image_PATH, isReady ) VALUES (?, ?, ?, ?, ?, ?)";
-        try{
-            try{
-                if(!DatabaseManager.tableExists("petri_nets")){
-                    PetriNetsDAO dao = new PetriNetsDAO();
-                    dao.createTable();
-                }
-            }
-            catch(SQLException e){
-                e.printStackTrace();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+
+            if(!DatabaseManager.tableExists("petri_nets")){
+                PetriNetsDAO dao = new PetriNetsDAO();
+                dao.createTable();
             }
 
-            if(p_net instanceof PetriNet net){
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, net.getNetName());
-                    p_statement.setString(2, net.getCreatorId());
-                    p_statement.setLong(3,net.getCreationDate());
-                    p_statement.setString(4, net.getXML_PATH());
-                    p_statement.setString(5, net.getImage_PATH());
-                    p_statement.setBoolean(6, net.isReady());
-                    p_statement.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
-            }
-        }
-        catch(InputTypeException e) {
-            e.ErrorPrinter();
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, net.getNetName());
+            p_statement.setString(2, net.getCreatorId());
+            p_statement.setLong(3,net.getCreationDate());
+            p_statement.setString(4, net.getXML_PATH());
+            p_statement.setString(5, net.getImage_PATH());
+            p_statement.setBoolean(6, net.isReady());
+            p_statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public static void removeNet(Object p_net) throws InputTypeException{
+    public static void removeNet(PetriNet net) {
         String command = "DELETE FROM petri_nets WHERE netName = ?";
-        try{
-            if(p_net instanceof PetriNet net){
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, net.getNetName());
-                    p_statement.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, net.getNetName());
+            p_statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public static String getAdminNameByNetName(Object netName) throws InputTypeException{
-        String name = null;
-        try{
-            if(netName instanceof String n){
-                String command = "SELECT p.creatorId FROM petri_nets p WHERE netName = ?";
+    public static String getAdminNameByNetName(String netName) {
+        String adminName = null;
+        String command = "SELECT p.creatorId FROM petri_nets p WHERE netName = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command);
-                     Statement statement = connection.createStatement()){
-                    statement.execute("PRAGMA foreign_keys = ON;");
-                    p_statement.setString(1, n);
-                    ResultSet result = p_statement.executeQuery();
-                    if(result.next()){
-                       name = result.getString(1);
-                    }
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setString(1, netName);
+            ResultSet result = p_statement.executeQuery();
+            if(result.next()){
+               adminName = result.getString(1);
             }
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
-        return name;
+        return adminName;
     }
 
-    public static void setReady(Object p_net) throws InputTypeException{
+    public static void setReady(PetriNet net) {
         String command = "UPDATE petri_nets SET isReady = ? WHERE netName = ?";
-
-        try{
-            if(p_net instanceof PetriNet net){
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setBoolean(1, true);
-                    p_statement.setString(2, net.getNetName());
-                    p_statement.executeUpdate();
-                }
-                catch (SQLException e){
-                    e.printStackTrace();
-                }
-            }
-            else{
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
-            }
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setBoolean(1, true);
+            p_statement.setString(2, net.getNetName());
+            p_statement.executeUpdate();
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch (SQLException e) {
+            e.printStackTrace();
         }
-
     }
 
-    public static void changeImage(Object p_net, String newDir) throws InputTypeException{
+    public static String getXMLPATHbyNetName(String netName) {
+        String path = null;
+        String command = "SELECT p.XML_PATH FROM petri_nets p WHERE netName = ?";
+
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+            statement.execute("PRAGMA foreign_keys = ON;");
+            p_statement.setString(1, netName);
+            ResultSet result = p_statement.executeQuery();
+            if(result.next()){
+                path = result.getString(1);
+            }
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return path;
+    }
+
+    public static void changeImage(PetriNet net, String newDir) {
         String command = "UPDATE petri_nets SET image_PATH = ? WHERE netName = ?";
-        try {
-            if (p_net instanceof PetriNet net) {
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, newDir);
-                    p_statement.setString(2, net.getNetName());
-                    p_statement.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.PETRI_NET);
-            }
-        }
-        catch(InputTypeException e){
-                e.ErrorPrinter();
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, newDir);
+            p_statement.setString(2, net.getNetName());
+            p_statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public static List<PetriNet> getNetsByCreator(Object admin) throws InputTypeException{
+    public static List<PetriNet> getNetsByCreator(User user) {
         List<PetriNet> wantedNets = new ArrayList<PetriNet>();
-        try{
-            if(admin instanceof User u){
-                String command = "SELECT * FROM petri_nets WHERE creatorId = ?";
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, u.getUsername());
-                    ResultSet result = p_statement.executeQuery();
-                    while(result.next()){
-                        wantedNets.add( new PetriNet(
-                                result.getString(1),
-                                result.getString(2),
-                                result.getLong(3),
-                                result.getString(4),
-                                result.getString(5),
-                                result.getBoolean(6)
-                        ));
-                    }
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+        String command = "SELECT * FROM petri_nets WHERE creatorId = ?";
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, user.getUsername());
+            ResultSet result = p_statement.executeQuery();
+            while(result.next()){
+                wantedNets.add( new PetriNet(
+                        result.getString(1),
+                        result.getString(2),
+                        result.getLong(3),
+                        result.getString(4),
+                        result.getString(5),
+                        result.getBoolean(6)
+                ));
             }
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
         return wantedNets;
     }
 
-    public static List<RecentNet> getNetsWithTimestampByCreator(Object admin) throws InputTypeException{
+    public static List<RecentNet> getNetsWithTimestampByCreator(User user) {
         List<RecentNet> wantedNets = new ArrayList<RecentNet>();
-        try{
-            if(admin instanceof User u){
                 String command = "SELECT pn.*, MAX(s.timestamp) AS lastTimestamp, c.* FROM petri_nets pn " +
                         "LEFT JOIN computations c ON c.netId = pn.netName " +
                         "LEFT JOIN computationSteps s ON s.computationId = c.id " +
@@ -240,7 +193,7 @@ public class PetriNetsDAO implements DataAccessObject{
                      PreparedStatement p_statement = connection.prepareStatement(command); 
                      Statement statement = connection.createStatement()){
                      statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, u.getUsername());
+                     p_statement.setString(1, user.getUsername());
                     ResultSet result = p_statement.executeQuery();
                     while(result.next()){
                         int type = result.getInt(14);
@@ -274,54 +227,36 @@ public class PetriNetsDAO implements DataAccessObject{
                 catch(SQLException ex){
                     ex.printStackTrace();
                 }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
         return wantedNets;
     }
 
-    public static PetriNet getNetByName(Object name) throws InputTypeException{
-        try{
-            if(name instanceof String n){
-                String command = "SELECT * FROM petri_nets WHERE netName = ?";
+    public static PetriNet getNetByName(String name) {
+        String command = "SELECT * FROM petri_nets WHERE netName = ?";
 
-                try (Connection connection = DatabaseManager.getDBConnection();
-                     PreparedStatement p_statement = connection.prepareStatement(command); 
-                     Statement statement = connection.createStatement()){
-                     statement.execute("PRAGMA foreign_keys = ON;");
-                     p_statement.setString(1, n);
-                    ResultSet result = p_statement.executeQuery();
-                    if(result.next()){
-                        return new PetriNet(
-                                result.getString(1),
-                                result.getString(2),
-                                result.getLong(3),
-                                result.getString(4),
-                                result.getString(5),
-                                result.getBoolean(6)
-                        );
-                    }
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()){
+             statement.execute("PRAGMA foreign_keys = ON;");
+             p_statement.setString(1, name);
+            ResultSet result = p_statement.executeQuery();
+            if(result.next()){
+                return new PetriNet(
+                        result.getString(1),
+                        result.getString(2),
+                        result.getLong(3),
+                        result.getString(4),
+                        result.getString(5),
+                        result.getBoolean(6)
+                );
             }
         }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
+        catch(SQLException ex){
+            ex.printStackTrace();
         }
         return null;
     }
 
-    public static List<RecentNet> getMostRecentlyModifiedNets(Object user, int howMany) throws InputTypeException{
+    public static List<RecentNet> getMostRecentlyModifiedNets(User user, int howMany) {
         List<RecentNet> wantedNets = new ArrayList<RecentNet>();
 
         String searchCommand = "SELECT pn.*, cs.timestamp, c.* " +
@@ -331,18 +266,13 @@ public class PetriNetsDAO implements DataAccessObject{
                 "WHERE pn.creatorId = ? OR c.userId = ? " +
                 "GROUP BY pn.netName " +
                 "ORDER BY MAX(cs.timestamp) DESC;";
-
-       try{
-            if(user instanceof User u){
                 try (Connection connection = DatabaseManager.getDBConnection();
                      PreparedStatement p_statement = connection.prepareStatement(searchCommand);
                     Statement statement = connection.createStatement()){
                     statement.execute("PRAGMA foreign_keys = ON;");
-                    p_statement.setString(1, u.getUsername());
-                    p_statement.setString(2, u.getUsername());
+                    p_statement.setString(1, user.getUsername());
+                    p_statement.setString(2, user.getUsername());
                     ResultSet result = p_statement.executeQuery();
-
-                    System.out.println();
 
                     while(result.next() & howMany>0){
                         RecentNet rn = new RecentNet(
@@ -372,14 +302,6 @@ public class PetriNetsDAO implements DataAccessObject{
                 catch(SQLException ex){
                     ex.printStackTrace();
                 }
-            }
-            else {
-                throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.COMPUTATION);
-            }
-        }
-        catch(InputTypeException e){
-            e.ErrorPrinter();
-        }
         return wantedNets;
     }
 
@@ -392,12 +314,9 @@ public class PetriNetsDAO implements DataAccessObject{
      *
      * @param user The user for whom to discover Petri nets.
      * @return A list of discoverable PetriNet objects.
-     * @throws InputTypeException If the provided user object is null.
+     * @ If the provided user object is null.
      */
-    public static List<PetriNet> getDiscoverableNetsByUser(User user) throws InputTypeException {
-        if (user == null) throw new InputTypeException(typeErrorMessage, InputTypeException.ExceptionType.USER);
-
-
+    public static List<PetriNet> getDiscoverableNetsByUser(User user)  {
         List<PetriNet> discoverableNets = new ArrayList<>();
 
         String userId = user.getUsername(); // Or user.getUsername() if that's the ID
