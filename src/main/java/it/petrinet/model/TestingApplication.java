@@ -21,8 +21,8 @@ public class TestingApplication extends Application {
   @Override
   public void start(Stage stage) throws IOException {
 
-    // VBox vBox = createNet();
-    VBox vBox = visualizeNet();
+     VBox vBox = createNet();
+//    VBox vBox = visualizeNet();
 
     URL cssUrl = getClass().getResource("/styles/style.css");
     if (cssUrl != null) {
@@ -38,8 +38,8 @@ public class TestingApplication extends Application {
     stage.setScene(scene);
     stage.show();
 
-    // petriNetCreationPane.init();
-    petriNetViewerPane.init();
+     petriNetCreationPane.init();
+//    petriNetViewerPane.init();
   }
 
   public VBox visualizeNet() {

@@ -29,6 +29,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -382,6 +383,16 @@ public class NetVisualController {
                         container.getStyleClass().removeAll("history-start-step", "history-latest-transition");
                     }
 
+                computation.clearSteps();
+                computation.setEndDate(0);
+                computation.setStartDate(0);
+
+                //TODO: Update computation
+                sendNotificationFirableTransitionOnNetInitialization(board.setComputation(computation));
+                board.updateComputation();
+                toolbar.startableButton();
+        }
+    }
                     // Update labels
                     transitionLabel.setText(isStartStep ? "Initial State" : step.getTransitionName());
                     timestampLabel.setText(dateTime.format(HISTORY_DATE_FORMATTER));

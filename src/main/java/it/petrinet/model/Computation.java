@@ -51,6 +51,13 @@ public class Computation {
   private final TreeSet<ComputationStep> steps;
   private NEXT_STEP_TYPE nextStepType = NEXT_STEP_TYPE.NONE;
 
+  public void setStartDate(long timestamp){
+    this.startTimestamp = timestamp;
+  }
+  public void setEndDate(long timestamp) {
+    this.endTimestamp = timestamp;
+  }
+
   /**
    * Creates a new computation in the Created state.
    *

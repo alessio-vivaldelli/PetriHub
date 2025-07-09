@@ -273,7 +273,8 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       // Handle Enter key and focus lost to apply changes
       Runnable applyLabelChange = () -> {
         String newLabel = labelField.getText().trim();
-        if (!setNodeLabel(element, newLabel)) {
+        Node n = petriNetBuilder.getNodeByName(element.element().getName());
+        if (!setNodeLabel(n, element, newLabel)) {
           // If the label is not unique or empty, show an error message
           EnhancedAlert.showError("Invalid Label", "The label must be unique and cannot be empty."); // Changed
         }

@@ -235,7 +235,7 @@ public class PetriNetBuilder {
     }
   }
 
-  private Node getNodeByName(String name) {
+  public Node getNodeByName(String name) {
     for (Place place : places) {
       System.out.println("Checking place: " + place.getName());
       if (place.getName().equals(name)) {
