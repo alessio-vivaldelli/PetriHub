@@ -6,8 +6,6 @@ public class Notification {
     private String receiver;
     private String netId;
     private int type;
-    private String title;
-    private String text;
     private long timestamp;
 
     public Notification() {
@@ -15,18 +13,14 @@ public class Notification {
         this.receiver = "unknown receiver";
         this.netId = "id";
         this.type = 0;
-        this.title = "title";
-        this.text = "-";
         this.timestamp = 0;
     }
 
-    public Notification(String sender, String receiver, String netId, int type, String title, String text, long timestamp) {
+    public Notification(String sender, String receiver, String netId, int type, long timestamp) {
         this.sender= sender;
         this.receiver = receiver;
         this.netId = netId;
         this.type = type;
-        this.title = title;
-        this.text = text;
         this.timestamp = timestamp;
     }
 
@@ -34,7 +28,7 @@ public class Notification {
     return sender;
   }
 
-    public String getReceiver(){
+  public String getReceiver(){
         return receiver;
     }
 
@@ -46,15 +40,7 @@ public class Notification {
     return type;
   }
 
-  public String getTitle() {
-    return title;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-    public long getTimestamp(){
+  public long getTimestamp(){
         return timestamp;
     }
 }
