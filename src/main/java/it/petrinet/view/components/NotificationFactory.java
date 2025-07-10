@@ -5,14 +5,15 @@ import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import java.util.function.Consumer;
 
 /**
  * Factory class for creating notification UI components in a JavaFX application.
@@ -119,21 +120,31 @@ public class NotificationFactory {
         return item;
     }
 
+    /**
+     * Creates a placeholder to show when no notifications are available.
+     * This method creates a consistent styled placeholder that matches your theme.
+     *
+     * @return a styled HBox containing the "No notifications available" message
+     */
     public static HBox noNotificationsPlaceholder() {
         Label emptyLabel = new Label("No notifications available");
         emptyLabel.setStyle(
-                "-fx-text-fill: #bac2de; " +
+                "-fx-text-fill: #6c7086; " +
                         "-fx-font-size: 14; " +
                         "-fx-font-style: italic;"
         );
         HBox placeholderBox = new HBox(emptyLabel);
         placeholderBox.setAlignment(Pos.CENTER);
         placeholderBox.setPadding(new Insets(24));
+
+        // Make it take full width and height to center properly
+        placeholderBox.setMaxWidth(Double.MAX_VALUE);
+        placeholderBox.setPrefHeight(200); // Match your ScrollPane height
+
+        // Add an ID to identify this as a placeholder
+        placeholderBox.setId("no-notifications-placeholder");
+
         return placeholderBox;
-    }
-
-    public static void setOnMouseClicker(Consumer<Node> onMouseClicked) {
-
     }
 
     /**
@@ -152,25 +163,56 @@ public class NotificationFactory {
             if (parent != null) {
                 parent.getChildren().remove(item);
 
-                // Add placeholder if container is empty
-                if (parent.getChildren().isEmpty()) {
-                    Label emptyLabel = new Label("No notifications");
-                    emptyLabel.setStyle(
-                            "-fx-text-fill: #bac2de; " +
-                                    "-fx-font-size: 14; " +
-                                    "-fx-font-style: italic;"
-                    );
-                    HBox placeholderBox = new HBox(emptyLabel);
-                    placeholderBox.setAlignment(Pos.CENTER);
-                    placeholderBox.setPadding(new Insets(24));
+                // Check if there are any actual notifications left (not placeholders)
+                boolean hasNotifications = parent.getChildren().stream()
+                        .anyMatch(child -> child.getId() == null || !child.getId().equals("no-notifications-placeholder"));
+
+                // Find the ScrollPane in the hierarchy
+                ScrollPane scrollPane = findScrollPane(parent);
+
+                // Add placeholder if container has no notifications
+                if (!hasNotifications) {
+                    // Remove any existing placeholders first
+                    parent.getChildren().removeIf(child ->
+                            child.getId() != null && child.getId().equals("no-notifications-placeholder"));
+
+                    // Hide scrollbar when showing placeholder
+                    if (scrollPane != null) {
+                        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                    }
+
+                    // Add the new placeholder
+                    HBox placeholderBox = noNotificationsPlaceholder();
+
+                    // Center the placeholder in VBox containers
                     if (parent instanceof VBox) {
                         ((VBox) parent).setAlignment(Pos.CENTER);
                     }
+
                     parent.getChildren().add(placeholderBox);
+                } else {
+                    // Show scrollbar when there are notifications
+                    if (scrollPane != null) {
+                        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                    }
                 }
             }
         });
         ft.play();
+    }
+
+    /**
+     * Helper method to find the ScrollPane in the parent hierarchy
+     */
+    private static ScrollPane findScrollPane(Node node) {
+        Parent parent = node.getParent();
+        while (parent != null) {
+            if (parent instanceof ScrollPane) {
+                return (ScrollPane) parent;
+            }
+            parent = parent.getParent();
+        }
+        return null;
     }
 
     /**

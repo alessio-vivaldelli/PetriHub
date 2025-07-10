@@ -22,9 +22,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -444,29 +447,71 @@ public class HomeController implements Initializable {
     }
 
 
+
     public void showNotifications() {
+        // Clear the container
         activityFeedContainer.getChildren().clear();
 
-        List<Notification> notifications = NotificationsDAO.getNotificationsByReceiver(currentUser);
+        // Find the ScrollPane in the parent hierarchy
+        ScrollPane scrollPane = findScrollPane(activityFeedContainer);
 
-        for (Notification notification : notifications) {
-            activityFeedContainer.getChildren().add(
-                    NotificationFactory.createNotificationItem(
+        try {
+            List<Notification> notifications = NotificationsDAO.getNotificationsByReceiver(currentUser);
+
+            if (!notifications.isEmpty()) {
+                // Reset alignment for when we have notifications
+                activityFeedContainer.setAlignment(Pos.TOP_LEFT);
+
+                // Enable scrollbar when there are notifications
+                if (scrollPane != null) {
+                    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                }
+
+                // Add each notification
+                for (Notification notification : notifications) {
+                    Node notificationItem = NotificationFactory.createNotificationItem(
                             notification.getType(),
                             notification.getSender(),
                             notification.getNetId(),
                             notification.getTimestamp()
-                    )
-            );
-        }
+                    );
 
-        //TODO
-        if(activityFeedContainer.getChildren().size() == 0) {
-            activityFeedContainer.getChildren().add(new Label("Nothing to show"));
-        }
+                    if (notificationItem != null) {
+                        activityFeedContainer.getChildren().add(notificationItem);
+                    }
+                }
+            } else {
+                // No notifications - show placeholder and hide scrollbar
+                activityFeedContainer.setAlignment(Pos.CENTER);
+                if (scrollPane != null) {
+                    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                }
+                activityFeedContainer.getChildren().add(NotificationFactory.noNotificationsPlaceholder());
+            }
 
+        } catch (Exception e) {
+            // Handle database errors
+            activityFeedContainer.setAlignment(Pos.CENTER);
+            if (scrollPane != null) {
+                scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            }
+            activityFeedContainer.getChildren().add(NotificationFactory.noNotificationsPlaceholder());
+            // Log the error if you have logging
+            System.err.println("Error loading notifications: " + e.getMessage());
+        }
     }
 
-
-
+    /**
+     * Helper method to find the ScrollPane in the parent hierarchy
+     */
+    private ScrollPane findScrollPane(Node node) {
+        Parent parent = node.getParent();
+        while (parent != null) {
+            if (parent instanceof ScrollPane) {
+                return (ScrollPane) parent;
+            }
+            parent = parent.getParent();
+        }
+        return null;
+    }
 }

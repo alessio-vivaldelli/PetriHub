@@ -100,7 +100,7 @@ public class ViewToolBar extends ToolBar {
 
     private Button createInfoButton() {
         // REFACTOR: Aggiornata la chiamata al metodo corretto del controller refattorizzato.
-        return createToolbarButton("info.png", "Show/Hide History", e -> controller.toggleHistory());
+        return createToolbarButton("history.png", "Show/Hide History", e -> controller.toggleHistory());
     }
 
     /**

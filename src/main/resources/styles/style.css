@@ -906,3 +906,26 @@
 .list-view:focused {
     -fx-background-insets: 0;
 }
+
+.edge-to-edge {
+    -fx-fit-to-width: true;
+}
+
+.edge-to-edge .scroll-bar:vertical {
+    -fx-opacity: 0;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+.edge-to-edge .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.edge-to-edge .scroll-bar:vertical .thumb {
+    -fx-background-color: #6c7086;
+    -fx-background-radius: 4;
+}
+
+.edge-to-edge:hover .scroll-bar:vertical {
+    -fx-opacity: 1;
+}

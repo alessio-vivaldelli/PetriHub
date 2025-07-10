@@ -86,7 +86,7 @@
 
 
 
-                <ScrollPane fitToWidth="true"
+                <ScrollPane fx:id="activityScrollPane" fitToWidth="true"
                             prefHeight="200"
                             style="-fx-background-color: transparent; -fx-background: transparent;">
                     <VBox fx:id="activityFeedContainer" spacing="12"/>
