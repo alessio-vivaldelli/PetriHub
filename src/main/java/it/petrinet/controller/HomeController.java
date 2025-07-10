@@ -61,12 +61,11 @@ public class HomeController implements Initializable {
     @FXML private Label discoverableNetsLabel;
     @FXML private Label subscribedNetsLabel;
     @FXML private Button newNetButton;
-    @FXML private VBox activityFeedContainer; //TODO: Implement activity feed
+    @FXML private VBox activityFeedContainer;
     @FXML private Label userNameLabel;
     @FXML private VBox tableContainer;
     @FXML private VBox ownedStats;
 
-    // State - CRITICAL: Make these static to persist across scene transitions
     private static DynamicPetriNetTableComponent petriNetTable;
     private static boolean isGloballyInitialized = false;
     private boolean isThisInstanceInitialized = false;

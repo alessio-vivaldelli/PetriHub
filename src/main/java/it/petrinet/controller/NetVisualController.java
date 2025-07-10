@@ -469,9 +469,6 @@ public class NetVisualController {
     String msgTitle = "Activity on %s net!".formatted(netModel.getNetName());
 
     transitions.forEach(t -> {
-      String text = isInitialization
-          ? "%s just started the net, now you can fire '%s'!".formatted(username, t.getName())
-          : getNotificationText(isFinished, username, firedTransition, t.getName());
 
       Notification tmp = null;
 
@@ -499,19 +496,6 @@ public class NetVisualController {
     if (isNextUser)
       return 1;
     return 0;
-  }
-
-  private String getNotificationText(boolean isFinished, String sender, String firedTransition,
-      String newPossibileTransition) {
-    if (!isFinished) {
-      if (firedTransition.isEmpty()) {
-        return "Now tou can fire '%s'!".formatted(sender, firedTransition, newPossibileTransition);
-      }
-      return "%s fired %s transition, now you can  fire '%s'!".formatted(sender, firedTransition,
-          newPossibileTransition);
-    } else {
-      return "%s reach finish node by firing %s transition".formatted(sender, firedTransition);
-    }
   }
 
   // =================================================================================
