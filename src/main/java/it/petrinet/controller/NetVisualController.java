@@ -228,6 +228,8 @@ public class NetVisualController {
             }
             subscribeButton.setManaged(true);
             subscribeButton.setVisible(true);
+            subscribeButton.setOpacity(1);
+            subscribeButton.setDisable(false);
         } else if (subscribeButton != null) {
             subscribeButton.setManaged(false);
             subscribeButton.setVisible(false);
