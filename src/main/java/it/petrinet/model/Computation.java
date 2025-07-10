@@ -381,7 +381,7 @@ public class Computation {
    * @see #isFinished()
    */
   public boolean isStarted() {
-    return startTimestamp != -1L;
+    return startTimestamp > 0;
   }
 
   /**

@@ -241,6 +241,7 @@ public class NetVisualController {
             case SUBSCRIBABLE -> toolbar.configureForSubscribable();
         }
         toolbarContainer.toFront();
+
     }
 
     private Button createSubscribeButton() {
@@ -368,23 +369,22 @@ public class NetVisualController {
 
                     boolean isStartStep = step.getTransitionName() == null ||
                             step.getTransitionName().isEmpty();
-                    boolean isLatest = getIndex() == 0;
 
-                    String colorByTransitionType = (board.getTypeByTransitionName(step.getTransitionName()).equals(TRANSITION_TYPE.ADMIN)) ? "#f38ba8" : "#89b4fa";
+                    boolean isTransitionAdmin = board.getTypeByTransitionName(step.getTransitionName()).equals(TRANSITION_TYPE.ADMIN);
 
                     // Update indicator color
                     // se il nome della transizione è vuota
                     if (isStartStep) {
-                        indicator.setFill(Color.web("#a6e3a1"));
-                        container.getStyleClass().add("history-start-step");
-                        container.getStyleClass().remove("history-latest-transition");
-                    } else if (isLatest) { // se è l'ultima nella tabella (dal basso verso l'alto)
-                        indicator.setFill(Color.web("#f38ba8"));
-                        container.getStyleClass().add("history-latest-transition");
-                        container.getStyleClass().remove("history-start-step");
-                    } else { // se non è l'ulima e non è la prima
                         indicator.setFill(Color.web("#89b4fa"));
-                        container.getStyleClass().removeAll("history-start-step", "history-latest-transition");
+                        container.getStyleClass().removeAll("history-user-transition", "history-admin-transition");
+                    } else if (isTransitionAdmin) { // se è l'ultima nella tabella (dal basso verso l'alto)
+                        indicator.setFill(Color.web("#f38ba8"));
+                        container.getStyleClass().add("history-admin-transition");
+                        container.getStyleClass().remove("history-user-transition");
+                    } else{
+                        indicator.setFill(Color.web("#a6e3a1"));
+                        container.getStyleClass().add("history-user-transition");
+                        container.getStyleClass().remove("history-admin-transition");
                     }
 
                     // Update labels
@@ -531,4 +531,10 @@ public class NetVisualController {
                 .filter(EnhancedAlert.AlertResult::isYes)
                 .ifPresent(result -> onConfirm.run());
     }
+
+    /*Utils*/
+    public boolean isCreator() {
+        return netModel.getCreatorId().equals(ViewNavigator.getAuthenticatedUser().getUsername());
+    }
+
 }

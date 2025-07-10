@@ -815,19 +815,19 @@
     -fx-stroke: transparent;
 }
 
-.history-start-step {
+.history-user-transition {
     -fx-background-color: rgba(166, 227, 161, 0.1);
 }
 
-.history-start-step .history-indicator {
+.history-start-transition .history-indicator {
     -fx-fill: #a6e3a1;
 }
 
-.history-latest-transition {
+.history-admin-transition {
     -fx-background-color: rgba(243, 139, 168, 0.1);
 }
 
-.history-latest-transition .history-indicator {
+.history-admin-transition .history-indicator {
     -fx-fill: #f38ba8;
 }
 

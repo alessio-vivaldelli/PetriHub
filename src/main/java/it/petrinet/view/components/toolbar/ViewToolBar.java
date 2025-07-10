@@ -45,9 +45,11 @@ public class ViewToolBar extends ToolBar {
      * Configura la toolbar per lo stato NOT_STARTED (l'utente è iscritto ma non ha avviato la rete).
      */
     public void configureForStartable() {
+        Button play = createPlayButton();
+        play.setDisable(controller.isCreator());
         updateToolbar(
                 createGap(),
-                createPlayButton(),
+                play,
                 createGap(3),
                 createInfoButton()
         );
@@ -57,8 +59,10 @@ public class ViewToolBar extends ToolBar {
      * Configura la toolbar per lo stato STARTED (la rete è in esecuzione).
      */
     public void configureForStarted() {
+        Button subscribe = createUnsubscribeButton();
+        subscribe.setDisable(controller.isCreator());
         updateToolbar(
-                createUnsubscribeButton(),
+                subscribe,
                 createRestartButton(),
                 createGap(3),
                 createInfoButton()
@@ -108,4 +112,7 @@ public class ViewToolBar extends ToolBar {
         this.getChildren().addAll(nodes);
         addStaticButtons(board); // Aggiunge pulsanti statici definiti nella classe padre ToolBar
     }
+
+
+
 }
