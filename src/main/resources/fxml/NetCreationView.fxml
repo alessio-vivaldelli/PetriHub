@@ -22,7 +22,7 @@
             <!-- finish button -->
             <Button fx:id="finishButton"
                     text="Finish"
-                    onAction="#onFinishAction"
+                    onAction="#handleFinishAction"
                     pickOnBounds="false"
                     prefWidth="100" maxWidth="100"
                     StackPane.alignment="TOP_RIGHT"
