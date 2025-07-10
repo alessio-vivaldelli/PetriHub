@@ -216,6 +216,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   }
 
   public TRANSITION_TYPE getTypeByTransitionName(String transition) {
+    if(transition.isEmpty() || transition.isBlank()){return TRANSITION_TYPE.USER;}
     if(petriNetModel.getNodeByName(transition) instanceof Transition t ){
       return t.getType();
     }
