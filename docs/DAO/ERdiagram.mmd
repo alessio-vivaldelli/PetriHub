@@ -1,0 +1,69 @@
+erDiagram
+
+    admin ||--o{ petri_nets : creates
+    user }o--o{ petri_nets : subscribes
+    user |o--o{ computations : initiates
+    user ||--o{ computations : manages
+    admin ||--o{ computations : manages
+    user ||--o{ notifications : sends
+    admin ||--o{ notifications : sends
+    user ||--o{ notifications : receives
+    admin ||--o{ notifications : receives
+    petri_nets ||--o{ computations : contains
+    petri_nets ||--o{ computationSteps : tracedBy
+    petri_nets ||--o{ notifications : refers
+    computations ||--o{ computationSteps : isComposedOf
+    ego ||--|| user : is
+    ego ||--|| admin : is
+
+    ego{
+        string username PK
+        string password
+        boolean isAdmin
+    }
+
+    user {
+    }
+
+    admin{
+    }
+
+    petri_nets {
+        string netName PK
+        string creatorId FK
+        long creationDate
+        string XML_PATH
+        string image_PATH
+        boolean isReady
+    }
+
+    computations {
+        int id PK
+        string netId FK
+        string creatorId FK
+        string userId FK
+        long startDate
+        long endDate
+        int nextStep
+    }
+
+    computationSteps {
+        int id PK
+        int computationId FK
+        string netId FK
+        string transitionName
+        string markingState
+        long timestamp
+    }
+
+    notifications {
+        int id PK
+        string sender FK
+        string receiver FK
+        string netId FK
+        int type
+        string title
+        string text
+        long timestamp
+    }
+

@@ -14,7 +14,6 @@ import java.util.List;
 public class NotificationsDAO implements DataAccessObject {
 
     public static void main(String args[]) {
-        deleteTable();
         NotificationsDAO not = new NotificationsDAO();
         not.createTable();
     }
@@ -49,7 +48,7 @@ public class NotificationsDAO implements DataAccessObject {
     /**
      * Drops the notifications table from the database.
      */
-    public static void deleteTable() {
+    public void deleteTable() {
         String command = "DROP TABLE notifications;";
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {

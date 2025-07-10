@@ -1,0 +1,124 @@
+classDiagram
+direction LR
+
+%% === DAO Classes ===
+
+    class DataAccessObject{
+        createTable();
+        deleteTable();
+    }
+
+    class UserDAO {
+        +insertUser(User)
+        +removeUser(User)
+        +getUserByName(String) User
+        +getUserByPassword(String) User
+        +findSameUser(String, List~User~) User
+        +getNumberOfOwnedNetsByUser(User) int
+        +getNumberOfSubscribedNetsByUser(User) int
+    }
+
+    class PetriNetsDAO {
+        +insertNet(PetriNet)
+        +removeNet(PetriNet)
+        +getNetsByCreator(User) List~PetriNet~
+        +getNetByName(String) PetriNet
+        +getDiscoverableNetsByUser(User) List~PetriNet~
+    }
+
+    class ComputationsDAO {
+        +insertComputation(Computation)
+        +removeComputation(Computation)
+        +getComputationById(String) Computation
+        +setAsStarted(Computation)
+        +getComputationsByNet(PetriNet) List~Computation~
+        +getidByComputation(Computation) int
+        +getNetsSubscribedByUser(User) List~PetriNet~
+        +setNextstepType(Computation, int)
+        +getMostRecentlyModifiedNets(User, int) List~PetriNet~
+
+    }
+
+    class ComputationStepsDAO {
+        +insertComputationStep(ComputationStep)
+        +removeComputationStep(ComputationStep)
+        +removeAllStepsByComputation(Computation)
+        +resetComputationSteps(Computation)
+        +getLastComputationStep(Computation) ComputationStep
+        +getStepsByComputation(Computation) List~ComputationStep~
+        +getComputationByStep(ComputationStep) Computation
+        +getLastComputationStepForPetriNet(String) ComputationStep
+    }
+
+    class NotificationsDAO {
+        +insertNotification(Notification)
+        +removeNotificationsFromNet(PetriNet)
+        +getNotificationsByReceiver(String) List~Notification~
+
+    }
+
+%% === Model Classes ===
+
+    class User {
+        -String name
+        -String password
+        -boolean isAdmin
+    }
+
+    class PetriNet {
+        -String netName
+        -String creatorId
+        -long creationDate
+        -String XML_PATH
+        -String image_PATH
+        -boolean isReady
+    }
+
+    class Computation {
+        -String netId
+        -String creatorId
+        -String userId
+        -long startTimestamp
+        -long endTimestamp
+        -TreeSet~ComputationStep~ steps
+        -NEXT_STEP_TYPE nextStepType
+    }
+
+    class ComputationStep {
+        -String id
+        -String computationId
+        -String netId
+        -String transitionName
+        -Map~String, Integer~ markingState
+        -long timestamp
+    }
+
+    class Notification {
+        -String sender
+        -String receiver
+        -String netId
+        -int type
+        -String title
+        -String text
+        -long timestamp
+    }
+
+%% === Relations ===
+
+    DataAccessObject <|-- UserDAO : implements
+    DataAccessObject <|-- PetriNetsDAO : implements
+    DataAccessObject <|-- ComputationsDAO : implements
+    DataAccessObject <|-- ComputationStepsDAO : implements
+    DataAccessObject <|-- NotificationsDAO : implements
+    UserDAO --> User : uses
+    PetriNetsDAO --> PetriNet : uses
+    PetriNetsDAO --> User : uses
+    ComputationsDAO --> Computation : uses
+    ComputationsDAO --> User : uses
+    ComputationsDAO --> PetriNet : uses
+    ComputationStepsDAO --> ComputationStep : uses
+    ComputationStepsDAO --> Computation : uses
+    NotificationsDAO --> Notification : uses
+    NotificationsDAO --> PetriNet : uses
+    NotificationsDAO --> User : uses
+

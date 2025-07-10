@@ -42,7 +42,7 @@ public class PetriNetsDAO implements DataAccessObject {
     /**
      * Deletes the petri_nets table.
      */
-    public static void deleteTable() {
+    public void deleteTable() {
         String command = "DROP TABLE petri_nets;";
         try (Connection connection = DatabaseManager.getDBConnection();
              Statement statement = connection.createStatement()) {

@@ -36,7 +36,7 @@ public class ComputationsDAO implements DataAccessObject{
         }
     }
 
-    public static void deleteTable(){
+    public void deleteTable(){
         String command = "DROP TABLE computations;";
 
         try (Connection connection = DatabaseManager.getDBConnection();

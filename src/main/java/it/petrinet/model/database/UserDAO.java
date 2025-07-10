@@ -32,7 +32,7 @@ public class UserDAO implements DataAccessObject {
     /**
      * Deletes the 'users' table from the database.
      */
-    public static void deleteTable() {
+    public void deleteTable() {
         String dropSQL = "DROP TABLE users;";
 
         try (Connection connection = DatabaseManager.getDBConnection();

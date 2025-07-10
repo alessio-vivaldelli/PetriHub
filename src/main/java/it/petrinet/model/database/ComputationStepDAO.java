@@ -31,7 +31,7 @@ public class ComputationStepDAO implements DataAccessObject{
         }
     }
 
-    public static void deleteTable(){
+    public void deleteTable(){
         String command = "DROP TABLE IF EXISTS computationSteps;"; // Aggiunto IF EXISTS
 
         try (Connection connection = DatabaseManager.getDBConnection();
