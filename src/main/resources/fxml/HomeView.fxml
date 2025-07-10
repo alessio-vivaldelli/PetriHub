@@ -48,7 +48,7 @@
 
             <HBox spacing="20">
                 <VBox fx:id="ownedStats" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleOwnedNetsClick"
-                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
+                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
                     <Label text="Owned Nets"
                            style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
                     <Label fx:id="ownedNetsLabel"
@@ -56,7 +56,7 @@
                 </VBox>
 
                 <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleSubscribedNetsClick"
-                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
+                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
                     <Label text="Subscribed Nets"
                            style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
                     <Label fx:id="subscribedNetsLabel"
@@ -64,11 +64,11 @@
                 </VBox>
 
                 <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" onMouseClicked="#handleDiscoverableNetsClick"
-                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
+                      style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
                     <Label text="Discoverable Nets"
-                           style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
+                            style="-fx-text-fill: #bac2de; -fx-font-size: 14; -fx-font-weight: 500;"/>
                     <Label fx:id="discoverableNetsLabel"
-                           style="-fx-text-fill: #cdd6f4; -fx-font-size: 32; -fx-font-weight: bold;"/>
+                            style="-fx-text-fill: #cdd6f4; -fx-font-size: 32; -fx-font-weight: bold;"/>
                 </VBox>
             </HBox>
 
