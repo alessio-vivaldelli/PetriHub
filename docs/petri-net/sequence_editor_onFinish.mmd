@@ -1,0 +1,42 @@
+sequenceDiagram
+    actor Admin as :Admin
+    participant Controller as NetVisualController
+
+    participant EditorPane as PetriNetEditorPane
+    participant Builder as PetriNetBuilder
+    participant GraphView as SmartGraphPanel
+    participant EditorPane as PetriNetEditorPane
+    participant Builder as PetriNetBuilder
+
+    Admin->>EditorPane: Salva rete
+    activate EditorPane
+
+    EditorPane->>Builder: build()
+    activate Builder
+
+
+    alt La rete è valida
+        create participant Model as PetriNetModel
+
+        Builder->>+Model: new(name, nodes, arcs, ...)
+        Model-->>-Builder: PetriNetModel
+        Builder-->>EditorPane: petriNetModel
+
+        create participant Serializer as PNMLSerializer
+        EditorPane->>Serializer: serialize(petriNetModel)
+        activate Serializer
+        Note right of Serializer: Scrive il modello su un file PNML.
+        Serializer-->>EditorPane: <br>
+        deactivate Serializer
+        EditorPane->>+Controller: onPetriNetSaved()
+        Controller->>-Admin: torna alla home
+
+    else La rete non è valida (es. nodi disconnessi)
+        Builder-->>-EditorPane: throws IllegalConnectionException
+        EditorPane->>Admin: showMessage(AlertType.ERROR, ...)
+        destroy Model
+        destroy Serializer
+
+    end
+
+    deactivate EditorPane

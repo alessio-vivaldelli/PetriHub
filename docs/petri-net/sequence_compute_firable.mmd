@@ -1,0 +1,15 @@
+sequenceDiagram
+    box computeAndApplyFirableTransitions
+    participant Pane as PetriNetEditorPane
+    participant Model as PetriNetModel
+    end
+
+    opt Computation non NULL e Computation non finita
+        loop Transition in PetriNetModel
+        Pane->>+Model: getIncidentEdge()
+        Model->>-Pane: indigentEdge
+        opt TUTTI Place incidenti hanno token > 0
+        Pane->>+Model: setIsFirable(transition, true)
+        end
+    end
+end

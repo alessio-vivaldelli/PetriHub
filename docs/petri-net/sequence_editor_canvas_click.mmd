@@ -1,0 +1,37 @@
+sequenceDiagram
+    actor Admin as :Admin
+    participant EditorPane as PetriNetEditorPane
+    participant Popup as PopupMenu
+    participant Builder as PetriNetBuilder
+    participant GraphView as SmartGraphPanel
+    participant EditorPane as PetriNetEditorPane
+    participant Builder as PetriNetBuilder
+
+    participant GraphView as SmartGraphPanel
+
+    Admin->>EditorPane: onCanvasSingleClickAction(point)
+    activate EditorPane
+    loop nome non valido
+        EditorPane->>+Popup: newPopupMenu()
+        Popup-->>-EditorPane: nodeLabel
+        break nome valido
+            EditorPane->>EditorPane: nodeLabel
+        end
+        break cancel
+            EditorPane-->>Admin: return
+        end
+    end
+
+        alt Tipologia = Place
+            EditorPane->>Builder: newPlace(nodeLabel)
+            Builder-->>EditorPane: PetriNetBuilder
+
+        else Tipologia = Transition
+        EditorPane->>Builder: newTransition(nodeLabel)
+        Builder-->>EditorPane: PetriNetBuilder
+        end
+
+        EditorPane->>+GraphView: insertVertex(newNode, position)
+        GraphView-->>-EditorPane: newVertex
+
+    deactivate EditorPane

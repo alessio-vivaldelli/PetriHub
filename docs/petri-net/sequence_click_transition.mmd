@@ -1,0 +1,37 @@
+sequenceDiagram
+    actor Persona as :Perona
+    participant Controller as NetVisualController
+
+     participant Pane as PetriNetViewerPane
+     participant Model as PetriNetModel
+
+
+    Persona ->>+ Pane: click Transition
+    Pane ->>+ Transition: isFirable()
+    Transition -->>- Pane: isFirable
+    opt è una transizione cliccabile per l'utente
+        Pane ->> Transition: setIsFirable(false)
+        loop Place incidenti
+            Pane ->> Place: setToken(0)
+        end
+        loop Place uscenti
+            Pane ->> Place: incrementToken()
+
+        end
+    end
+    opt Il place finale ha almeno un token
+        Note right of Controller: Callback
+        Pane ->> Controller: onPetriNetFinished
+        Pane ->> Pane: disableInteraction
+    end
+    Pane ->> Pane: computeAndApplyFirableTransitions
+    Note over Controller,Pane: Callback<br>Vengono forniti le nuove transizioni che sono cliccabili<br> e le nuove posizioni dei marker
+    Pane ->>+ Controller: onTransitionFired<br>(transitionName, new Firaable Transitions,<br> markingsState)
+    deactivate Pane
+    Controller ->> Controller: newComputationStep()
+    alt ci sono Transizioni cliccabili per la Persona opposta
+        Controller ->> Controller: aggiungi notificaa sul Databse
+    end
+
+    deactivate Controller
+    participant Transition as Transition

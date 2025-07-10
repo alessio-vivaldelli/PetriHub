@@ -1,0 +1,20 @@
+sequenceDiagram
+    actor Persona as :Perona
+    participant Controller as NetVisualController
+
+
+    Persona->>Controller:viewPetriNet
+    create participant Pane as PetriNetViewerPane
+    Controller->>Pane: new(netName, computation)
+    Pane->>+Pane: onGraphInitialized
+    create participant Parser as PNMLParser
+    Pane->>+Parser: parse(netName)
+    create participant Model as PetriNetModel
+    Parser->>Model: create
+
+    Parser-->>-Pane: PetriNetModel
+    Pane->>Pane: addNodes()
+    Pane->>Pane: addConnections()
+
+    Pane->>Pane: computeAndApplyFirableTransitions
+    deactivate Pane
