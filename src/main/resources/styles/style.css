@@ -783,6 +783,7 @@
     -fx-padding: 0 0 15px 0;
 }
 
+.notification-close-btn,
 .history-close-button {
     -fx-background-color: transparent;
     -fx-text-fill: -fx-catppuccin-mocha-subtext0;
@@ -798,12 +799,14 @@
     -fx-transition: all 0.2s ease;
 }
 
+.notification-close-btn:hover,
 .history-close-button:hover {
     -fx-background-color: rgba(30, 30, 46, 0.2); /* Subtle red tint */
     -fx-text-fill: -fx-catppuccin-mocha-red; /* Red color on hover */
     -fx-effect: dropshadow(gaussian, rgba(30, 30, 46, 0.3), 8, 0.2, 0, 0);
 }
 
+.notification-close-btn:pressed,
 .history-close-button:pressed {
     -fx-background-color: rgba(30, 30, 46, 0.3);
     -fx-scale-x: 0.95;

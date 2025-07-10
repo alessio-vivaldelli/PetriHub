@@ -1,26 +1,32 @@
 package it.petrinet.controller;
 
 import it.petrinet.model.Computation;
+import it.petrinet.model.Notification;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.User;
 import it.petrinet.model.database.ComputationsDAO;
+import it.petrinet.model.database.NotificationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.model.database.UserDAO;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.EnhancedAlert;
+import it.petrinet.view.components.NotificationFactory;
 import it.petrinet.view.components.table.DynamicPetriNetTableComponent;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -71,6 +77,7 @@ public class HomeController implements Initializable {
             LOGGER.log(Level.SEVERE, "Failed to initialize HomeController", e);
             showErrorState();
         }
+        showNotifications();
     }
 
     /**
@@ -434,6 +441,30 @@ public class HomeController implements Initializable {
                 return null;
             }
         }
+    }
+
+
+    public void showNotifications() {
+        activityFeedContainer.getChildren().clear();
+
+        List<Notification> notifications = NotificationsDAO.getNotificationsByReceiver(currentUser);
+
+        for (Notification notification : notifications) {
+            activityFeedContainer.getChildren().add(
+                    NotificationFactory.createNotificationItem(
+                            notification.getType(),
+                            notification.getSender(),
+                            notification.getNetId(),
+                            notification.getTimestamp()
+                    )
+            );
+        }
+
+        //TODO
+        if(activityFeedContainer.getChildren().size() == 0) {
+            activityFeedContainer.getChildren().add(new Label("Nothing to show"));
+        }
+
     }
 
 

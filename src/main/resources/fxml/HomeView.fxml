@@ -76,16 +76,6 @@
 
 
 
-
-
-
-
-
-
-
-
-            <!-- TODO: lista notifiche-->
-
             <!-- Activity Feed Section -->
             <Label text="Activity Feed"
                    style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold;"/>
@@ -94,47 +84,17 @@
                     <Insets bottom="16"/>
                 </VBox.margin>
 
+
+
                 <ScrollPane fitToWidth="true"
                             prefHeight="200"
                             style="-fx-background-color: transparent; -fx-background: transparent;">
-                    <VBox fx:id="activityFeedContainer" spacing="12">
-
-                        <!-- Sample Activity Items -->
-                        <HBox spacing="12" style="-fx-padding: 12; -fx-background-color: #45475a; -fx-background-radius: 8;">
-                            <Region style="-fx-background-color: #89b4fa; -fx-background-radius: 8; -fx-pref-width: 32; -fx-pref-height: 32;"/>
-                            <VBox spacing="2">
-                                <Label text="Net Manufacturing Process Flow modified"
-                                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 14; -fx-font-weight: 500;"/>
-                                <Label text="2024-03-10, 10:32 AM"
-                                       style="-fx-text-fill: #bac2de; -fx-font-size: 12;"/>
-                            </VBox>
-                        </HBox>
-
-                        <HBox spacing="12" style="-fx-padding: 12; -fx-background-color: #45475a; -fx-background-radius: 8;">
-                            <Region style="-fx-background-color: #a6e3a1; -fx-background-radius: 8; -fx-pref-width: 32; -fx-pref-height: 32;"/>
-                            <VBox spacing="2">
-                                <Label text="Simulation run on Net Supply Chain Logistics"
-                                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 14; -fx-font-weight: 500;"/>
-                                <Label text="2024-03-09, 03:15 PM"
-                                       style="-fx-text-fill: #bac2de; -fx-font-size: 12;"/>
-                            </VBox>
-                        </HBox>
-
-                        <HBox spacing="12" style="-fx-padding: 12; -fx-background-color: #45475a; -fx-background-radius: 8;">
-                            <Region style="-fx-background-color: #f9e2af; -fx-background-radius: 8; -fx-pref-width: 32; -fx-pref-height: 32;"/>
-                            <VBox spacing="2">
-                                <Label text="Analysis performed on Net Server Request Model"
-                                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 14; -fx-font-weight: 500;"/>
-                                <Label text="2024-03-07, 09:00 AM"
-                                       style="-fx-text-fill: #bac2de; -fx-font-size: 12;"/>
-                            </VBox>
-                        </HBox>
-
-                    </VBox>
+                    <VBox fx:id="activityFeedContainer" spacing="12"/>
                 </ScrollPane>
+
             </VBox>
 
         </VBox>
     </center>
-
 </BorderPane>
+
