@@ -1,0 +1,66 @@
+sequenceDiagram
+    actor Admin
+    participant EditorPane as PetriNetEditorPane
+    participant Popup as PopupMenu
+    participant Builder as PetriNetBuilder
+    participant GraphView as SmartGraphPanel
+    participant EditorPane as PetriNetEditorPane
+    participant Builder as PetriNetBuilder
+
+    participant GraphView as SmartGraphPanel
+
+    Admin->>EditorPane: onCanvasSingleClickAction(point)
+    activate EditorPane
+
+    EditorPane->>+Popup: newPopupMenu()
+    Popup-->>-EditorPane: nodeLabel
+
+    alt Il nome è valido e unico
+        EditorPane->>Builder: newPlace(nodeLabel)
+        Builder-->>EditorPane: PlaceBuilder
+        EditorPane->>EditorPane: createNode(nodeLabel, type, point)
+        Note right of EditorPane: Aggiunge il nodo al builder e crea l'oggetto Node.
+
+        EditorPane->>+GraphView: insertVertex(newNode, position)
+        GraphView-->>-EditorPane: newVertex
+
+    else Il nome non è valido o non unico
+        EditorPane->>Admin: showMessage(AlertType.ERROR, ...)
+    end
+    deactivate EditorPane
+
+
+    Admin->>EditorPane: onFinishAction()
+    activate EditorPane
+
+    EditorPane->>EditorPane: prepareNodes()
+
+    EditorPane->>Builder: build()
+    activate Builder
+
+
+alt La rete è valida
+create participant Model as PetriNetModel
+
+Builder->>+Model: new(name, nodes, arcs, ...)
+Model-->>-Builder: PetriNetModel
+Builder-->>EditorPane: petriNetModel
+
+create participant Serializer as PNMLSerializer
+EditorPane->>Serializer: serialize(petriNetModel)
+activate Serializer
+Note right of Serializer: Scrive il modello su un file PNML.
+Serializer-->>EditorPane:
+        deactivate Serializer
+
+Note right of EditorPane: Naviga alla schermata Home.
+
+else La rete non è valida (es. nodi disconnessi)
+Builder-->>-EditorPane: throws IllegalConnectionException
+EditorPane->>Admin: showMessage(AlertType.ERROR, ...)
+destroy Model
+destroy Serializer
+
+end
+
+deactivate EditorPane
