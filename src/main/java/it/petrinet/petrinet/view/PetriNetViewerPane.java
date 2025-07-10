@@ -215,6 +215,13 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
         });
   }
 
+  public TRANSITION_TYPE getTypeByTransitionName(String transition) {
+    if(petriNetModel.getNodeByName(transition) instanceof Transition t ){
+      return t.getType();
+    }
+    return null;
+  }
+
   private List<Transition> computeAndApplyFirableTransitions() {
     if (computation != null) {
       if(computation.isFinished()){
