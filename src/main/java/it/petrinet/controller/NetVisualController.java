@@ -166,8 +166,6 @@ public class NetVisualController {
         receiver,
         netModel.getNetName(),
         -1,
-        "Net finished!",
-        sender + " just reached the finish place!",
         timestamp);
     NotificationsDAO.insertNotification(notification);
   }
@@ -478,10 +476,10 @@ public class NetVisualController {
       Notification tmp = null;
 
       if (t.getType().equals(TRANSITION_TYPE.ADMIN) && !username.equals(computation.getCreatorId())) {
-        tmp = new Notification(username, computation.getCreatorId(), netModel.getNetName(), -1, msgTitle, text,
+        tmp = new Notification(username, computation.getCreatorId(), netModel.getNetName(), -1,
             System.currentTimeMillis() / 1000);
       } else if (t.getType().equals(TRANSITION_TYPE.USER) && username.equals(computation.getCreatorId())) {
-        tmp = new Notification(username, computation.getUserId(), netModel.getNetName(), -1, msgTitle, text,
+        tmp = new Notification(username, computation.getUserId(), netModel.getNetName(), -1,
             System.currentTimeMillis() / 1000);
       }
       if (tmp != null) {

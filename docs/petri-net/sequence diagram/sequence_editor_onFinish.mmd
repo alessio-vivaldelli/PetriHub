@@ -1,6 +1,6 @@
 sequenceDiagram
     actor Admin as :Admin
-    participant Controller as NetVisualController
+    participant Controller as NetCreationController
 
     participant EditorPane as PetriNetEditorPane
     participant Builder as PetriNetBuilder
@@ -29,6 +29,7 @@ sequenceDiagram
         Serializer-->>EditorPane: <br>
         deactivate Serializer
         EditorPane->>+Controller: onPetriNetSaved()
+        Controller->>Controller: salva la rete nel database
         Controller->>-Admin: torna alla home
 
     else La rete non è valida (es. nodi disconnessi)

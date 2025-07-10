@@ -12,6 +12,7 @@ import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.model.database.UserDAO;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
+import it.petrinet.utils.Validation;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.EnhancedAlert;
 import it.petrinet.view.components.NotificationFactory;
@@ -420,9 +421,7 @@ public class HomeController implements Initializable {
                     continue;
                 }
                 // Caratteri non ammessi nei nomi di file
-                String invalidCharsRegex = ".*[\\\\/:*?\"<>|.,;!@#\\[\\]()=].*";
-
-                if (newName.matches(invalidCharsRegex)) {
+                if (Validation.isValidFileName(newName)) {
                     EnhancedAlert.showError(
                             "Invalid Name",
                             "The name contains invalid characters. Please avoid using: \\ / : * ? \" < > | , ; ! @ # = ( ) [ ]"

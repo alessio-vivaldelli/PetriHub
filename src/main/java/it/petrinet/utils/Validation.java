@@ -8,4 +8,9 @@ public class Validation {
                 username.matches(safePattern) && password.matches(safePattern);
     }
 
+    public static boolean isValidFileName(String name){
+        String invalidCharsRegex = ".*[\\\\/:*?\"<>|.,;!@#\\[\\]()=].*";
+        return (name.matches(invalidCharsRegex));
+    }
+
 }

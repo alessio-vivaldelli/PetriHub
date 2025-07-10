@@ -29,8 +29,6 @@ public class NotificationsDAO implements DataAccessObject {
                 "receiver TEXT NOT NULL, " +
                 "netId TEXT NOT NULL, " +
                 "type INTEGER NOT NULL, " +
-                "title TEXT NOT NULL, " +
-                "text TEXT NOT NULL, " +
                 "timestamp LONG NOT NULL, " +
                 "FOREIGN KEY(sender) REFERENCES users(username), " +
                 "FOREIGN KEY(receiver) REFERENCES users(username), " +
@@ -67,7 +65,7 @@ public class NotificationsDAO implements DataAccessObject {
      * @param notification the notification to insert
      */
     public static void insertNotification(Notification notification) {
-        String command = "INSERT INTO notifications(sender, receiver, netId, type, title, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String command = "INSERT INTO notifications(sender, receiver, netId, type, timestamp) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()) {
@@ -82,9 +80,7 @@ public class NotificationsDAO implements DataAccessObject {
             p_statement.setString(2, notification.getReceiver());
             p_statement.setString(3, notification.getNetId());
             p_statement.setInt(4, notification.getType());
-            p_statement.setString(5, notification.getTitle());
-            p_statement.setString(6, notification.getText());
-            p_statement.setLong(7, notification.getTimestamp());
+            p_statement.setLong(5, notification.getTimestamp());
             p_statement.executeUpdate();
         } catch (SQLException e) {
             DatabaseManager.handleSQLException("insertNotification", e);
@@ -154,8 +150,6 @@ public class NotificationsDAO implements DataAccessObject {
                         result.getString("receiver"),
                         result.getString("netId"),
                         result.getInt("type"),
-                        result.getString("title"),
-                        result.getString("text"),
                         result.getLong("timestamp")));
             }
         } catch (SQLException e) {
@@ -187,8 +181,6 @@ public class NotificationsDAO implements DataAccessObject {
                         result.getString("receiver"),
                         result.getString("netId"),
                         result.getInt("type"),
-                        result.getString("title"),
-                        result.getString("text"),
                         result.getLong("timestamp")));
             }
         } catch (SQLException e) {
@@ -220,8 +212,6 @@ public class NotificationsDAO implements DataAccessObject {
                         result.getString("receiver"),
                         result.getString("netId"),
                         result.getInt("type"),
-                        result.getString("title"),
-                        result.getString("text"),
                         result.getLong("timestamp")));
             }
         } catch (SQLException e) {
@@ -254,8 +244,6 @@ public class NotificationsDAO implements DataAccessObject {
                         result.getString("receiver"),
                         result.getString("netId"),
                         result.getInt("type"),
-                        result.getString("title"),
-                        result.getString("text"),
                         result.getLong("timestamp")));
             }
 
