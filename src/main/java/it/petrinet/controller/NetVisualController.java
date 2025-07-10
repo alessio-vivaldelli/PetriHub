@@ -109,6 +109,8 @@ public class NetVisualController {
                     ComputationsDAO.setAsStarted(computation, 0);
                     ComputationsDAO.setAsCompleted(computation, 0);
                     computation.clearSteps();
+                    computation.setEndDate(0);
+                    computation.setStartDate(0);
 
                     List<Transition> firableTransitions = board.setComputation(computation);
                     sendNotificationFirableTransitions(firableTransitions, true);

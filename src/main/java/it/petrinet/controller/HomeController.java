@@ -409,6 +409,17 @@ public class HomeController implements Initializable {
                     );
                     continue;
                 }
+                // Caratteri non ammessi nei nomi di file
+                String invalidCharsRegex = ".*[\\\\/:*?\"<>|.,;!@#\\[\\]()=].*";
+
+                if (newName.matches(invalidCharsRegex)) {
+                    EnhancedAlert.showError(
+                            "Invalid Name",
+                            "The name contains invalid characters. Please avoid using: \\ / : * ? \" < > | , ; ! @ # = ( ) [ ]"
+                    );
+                    continue;
+                }
+
                 if (PetriNetsDAO.getNetByName(newName) != null) {
                     EnhancedAlert.showError(
                             "This net Already exist",
