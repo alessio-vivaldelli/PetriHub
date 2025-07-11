@@ -168,6 +168,11 @@ public class NetVisualController {
         -1,
         timestamp);
     NotificationsDAO.insertNotification(notification);
+
+    EnhancedAlert.showInformation(
+            "Petri Net Finished",
+            "The Petri Net computation has been completed successfully."
+    );
   }
 
   // =================================================================================

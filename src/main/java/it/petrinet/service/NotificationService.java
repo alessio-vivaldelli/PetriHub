@@ -8,6 +8,7 @@ import java.util.List;
 public class NotificationService {
     private static NotificationService instance;
     private List<Notification> notifications = Collections.emptyList();
+    private final static boolean bugfixMode = false; // Todo: Delete bugfix mode
 
     private NotificationService() { }
     public static synchronized NotificationService getInstance() {
@@ -18,7 +19,13 @@ public class NotificationService {
     public void loadForCurrentUser() {
         var user = SessionContext.getInstance().getUser();
         if (user != null) {
-            notifications = NotificationsDAO.getNotificationsByReceiver(user);
+
+            //Todo: Delete bugfix mode
+            notifications = (bugfixMode) ?
+                    NotificationsDAO.getNotificationsByReceiver(user):
+                    NotificationsDAO.extractNotificationsByReceiver(user);
+            //Todo: Delete bugfix mode
+
         } else {
             notifications = Collections.emptyList();
         }

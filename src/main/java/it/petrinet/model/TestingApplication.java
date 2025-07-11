@@ -59,7 +59,6 @@ public class TestingApplication extends Application {
 
     // Called when user/admin finish petri net
     petriNetViewerPane.setOnPetriNetFinished(() -> {
-      System.out.println("Petri net finished");
     });
 
     // Called after a transition is fired
