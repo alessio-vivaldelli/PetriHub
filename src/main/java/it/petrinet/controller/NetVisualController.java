@@ -10,8 +10,8 @@ import it.petrinet.model.database.NotificationsDAO;
 import it.petrinet.petrinet.model.TRANSITION_TYPE;
 import it.petrinet.petrinet.model.Transition;
 import it.petrinet.petrinet.view.PetriNetViewerPane;
+import it.petrinet.service.SessionContext;
 import it.petrinet.utils.IconUtils;
-import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.EnhancedAlert;
 import it.petrinet.view.components.toolbar.ViewToolBar;
 import javafx.animation.FadeTransition;
@@ -158,7 +158,7 @@ public class NetVisualController {
     long timestamp = System.currentTimeMillis() / 1000;
     ComputationsDAO.setAsCompleted(computation, timestamp);
 
-    String sender = ViewNavigator.getAuthenticatedUser().getUsername();
+    String sender = SessionContext.getInstance().getUser().getUsername();
     String receiver = computation.getCreatorId().equals(sender) ? computation.getUserId() : computation.getCreatorId();
 
     Notification notification = new Notification(
@@ -236,9 +236,9 @@ public class NetVisualController {
     computation = new Computation(
         netModel.getNetName(),
         netModel.getCreatorId(),
-        ViewNavigator.getAuthenticatedUser().getUsername());
+        SessionContext.getInstance().getUser().getUsername()
+        );
     ComputationsDAO.insertComputation(computation);
-
     FadeTransition fadeOut = new FadeTransition(Duration.millis(200), subscribeButton);
     fadeOut.setFromValue(1.0);
     fadeOut.setToValue(0.0);
@@ -465,7 +465,7 @@ public class NetVisualController {
     int nextStep = computeNextStepType(transitions);
     ComputationsDAO.setNextStepType(computation, nextStep);
 
-    String username = ViewNavigator.getAuthenticatedUser().getUsername();
+    String username = SessionContext.getInstance().getUser().getUsername();
     String msgTitle = "Activity on %s net!".formatted(netModel.getNetName());
 
     transitions.forEach(t -> {
@@ -510,7 +510,7 @@ public class NetVisualController {
 
   /* Utils */
   public boolean isCreator() {
-    return netModel.getCreatorId().equals(ViewNavigator.getAuthenticatedUser().getUsername());
+    return netModel.getCreatorId().equals(SessionContext.getInstance().getUser().getUsername());
   }
 
 }

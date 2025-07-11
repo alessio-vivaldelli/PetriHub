@@ -4,6 +4,7 @@ import it.petrinet.utils.IconUtils;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -14,16 +15,24 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
- * Factory class for creating notification UI components in a JavaFX application.
+ * Factory class for creating notification UI components in a JavaFX application
+ * using a fluent Builder pattern.
  * <p>
- * Provides methods to generate styled notification items with message text,
- * colored icon, timestamp, and a hoverable close button that removes the
- * notification with a fade-out animation.
+ * Provides methods to generate styled notification items with a message, icon,
+ * timestamp, and optional actions for clicking and closing.
  * </p>
  */
-public class NotificationFactory {
+public final class NotificationFactory {
+
+    private NotificationFactory() {
+        // Private constructor to prevent instantiation
+    }
 
     /**
      * Types of notifications supported by the factory.
@@ -35,228 +44,193 @@ public class NotificationFactory {
         STARTED_COMPUTATION,
         /** A transition fired event. */
         FIRED_TRANSITION,
+        /** A computation restart event. */
+        RESTART,
         /** A computation end event. */
         END_COMPUTATION,
     }
 
     /**
-     * Creates a notification item given a numeric type index.
-     * <p>
-     * Delegates to {@link #createNotificationItem(MessageType, String, String, long)}
-     * after validating the type index.
-     * </p>
+     * Creates a new instance of the NotificationBuilder.
      *
-     * @param type      the numeric index of the message type (0-based)
-     * @param sender    the name of the entity triggering the notification
-     * @param netName   the name of the Petri net associated with the event
-     * @param timestamp the event timestamp in epoch milliseconds
-     * @return a JavaFX Node representing the styled notification, or null if the type is invalid
+     * @return A new {@link NotificationBuilder} instance.
      */
-    public static Node createNotificationItem(int type, String sender, String netName, long timestamp) {
-        if (type < 0 || type >= MessageType.values().length) {
-            return null;
-        }
-        return createNotificationItem(MessageType.values()[type], sender, netName, timestamp);
+    public static NotificationBuilder builder() {
+        return new NotificationBuilder();
     }
 
     /**
-     * Creates a styled notification item for a specific {@link MessageType}.
-     * <p>
-     * Each notification consists of:
-     * <ul>
-     *   <li>A colored square icon indicating the type</li>
-     *   <li>A message label</li>
-     *   <li>A timestamp label</li>
-     *   <li>A close button displayed on hover to remove the item</li>
-     * </ul>
-     * </p>
-     *
-     * @param type      the message type enum
-     * @param sender    the name of the entity triggering the notification
-     * @param netName   the name of the Petri net associated with the event
-     * @param timestamp the event timestamp in epoch milliseconds
-     * @return a JavaFX Node ready to be added to a container
+     * The builder class for constructing a notification Node.
      */
-    public static Node createNotificationItem(MessageType type, String sender, String netName, long timestamp) {
-        String message = getMessageText(type, sender, netName);
-        String colorHex = getColorByType(type);
+    public static class NotificationBuilder {
+        private MessageType type;
+        private String sender;
+        private String netName;
+        private long timestamp;
+        private Runnable onCancelItem;
+        private Runnable onItemClick;
 
-        HBox item = new HBox(12);
-        item.setPadding(new Insets(12));
-        item.setStyle("-fx-background-color: #45475a; -fx-background-radius: 8;");
+        private NotificationBuilder() {
+            this.timestamp = System.currentTimeMillis()/1000;
+        }
 
-        // Colored icon region
-        Region colorRegion = new Region();
-        colorRegion.setPrefSize(32, 32);
-        colorRegion.setBackground(new Background(
-                new BackgroundFill(Color.web(colorHex), new CornerRadii(8), Insets.EMPTY)
-        ));
+        public NotificationBuilder withType(MessageType type) {
+            this.type = type;
+            return this;
+        }
 
-        // Message label
-        Label messageLabel = new Label(message);
-        messageLabel.setStyle("-fx-text-fill: #cdd6f4; -fx-font-size: 14; -fx-font-weight: 500;");
+        public NotificationBuilder withSender(String sender) {
+            this.sender = sender;
+            return this;
+        }
 
-        // Timestamp label
-        Label timestampLabel = new Label(formatTimestamp(timestamp));
-        timestampLabel.setStyle("-fx-text-fill: #bac2de; -fx-font-size: 12;");
+        public NotificationBuilder withNetName(String netName) {
+            this.netName = netName;
+            return this;
+        }
 
-        VBox textBox = new VBox(2, messageLabel, timestampLabel);
-        HBox.setHgrow(textBox, Priority.ALWAYS);
+        public NotificationBuilder withTimestamp(long timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
 
-        // Close button (hidden by default)
-        Button closeBtn = new Button();
-        IconUtils.setIcon(closeBtn,"close", 20);
-        closeBtn.setVisible(false);
-        closeBtn.getStyleClass().add("notification-close-btn");
+        public NotificationBuilder onCancelItem(Runnable onCancelItem) {
+            this.onCancelItem = onCancelItem;
+            return this;
+        }
 
-        // Show/hide close button on hover
-        item.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> closeBtn.setVisible(true));
-        item.addEventHandler(MouseEvent.MOUSE_EXITED, e -> closeBtn.setVisible(false));
+        public NotificationBuilder onItemClick(Runnable onItemClick) {
+            this.onItemClick = onItemClick;
+            return this;
+        }
 
-        // Remove item with fade-out animation when close button is clicked
-        closeBtn.setOnMouseClicked(e -> animateRemoval(item));
+        /**
+         * Constructs the notification Node with the specified properties.
+         *
+         * @return A JavaFX Node representing the styled notification.
+         * @throws IllegalStateException if required fields (type, sender, netName) are not set.
+         */
+        public Node build() {
+            Objects.requireNonNull(type, "MessageType cannot be null.");
+            Objects.requireNonNull(sender, "Sender cannot be null.");
+            Objects.requireNonNull(netName, "Net name cannot be null.");
 
-        item.getChildren().addAll(colorRegion, textBox, closeBtn);
-        return item;
+            String message = getMessageText(type, sender, netName);
+            String colorHex = getColorByType(type);
+
+            HBox item = new HBox(12);
+            item.setPadding(new Insets(12));
+            Background baseBackground = new Background(new BackgroundFill(Color.web("#45475a"), new CornerRadii(8), Insets.EMPTY));
+            item.setBackground(baseBackground);
+
+            Region colorRegion = new Region();
+            colorRegion.setPrefSize(32, 32);
+            colorRegion.setBackground(new Background(new BackgroundFill(Color.web(colorHex), new CornerRadii(8), Insets.EMPTY)));
+
+            Label messageLabel = new Label(message);
+            messageLabel.setStyle("-fx-text-fill: #cdd6f4; -fx-font-size: 14; -fx-font-weight: 500;");
+
+            Label timestampLabel = new Label(formatTimestamp(timestamp));
+            timestampLabel.setStyle("-fx-text-fill: #bac2de; -fx-font-size: 12;");
+
+            VBox textBox = new VBox(2, messageLabel, timestampLabel);
+            HBox.setHgrow(textBox, Priority.ALWAYS);
+
+            Button closeBtn = new Button();
+            IconUtils.setIcon(closeBtn, "close", 20);
+            closeBtn.setVisible(false);
+            closeBtn.getStyleClass().add("notification-close-btn");
+
+            closeBtn.setOnMouseClicked(e -> {
+                animateRemoval(item, onCancelItem);
+                e.consume();
+            });
+
+            if (onItemClick != null) {
+                item.setCursor(Cursor.HAND);
+                Background hoverBackground = new Background(new BackgroundFill(Color.web("#585b70"), new CornerRadii(8), Insets.EMPTY));
+                item.setOnMouseClicked(e -> onItemClick.run());
+
+                item.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
+                    item.setBackground(hoverBackground);
+                    closeBtn.setVisible(true);
+                });
+                item.addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
+                    item.setBackground(baseBackground);
+                    closeBtn.setVisible(false);
+                });
+            } else {
+                item.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> closeBtn.setVisible(true));
+                item.addEventHandler(MouseEvent.MOUSE_EXITED, e -> closeBtn.setVisible(false));
+            }
+
+            item.getChildren().addAll(colorRegion, textBox, closeBtn);
+            return item;
+        }
     }
 
     /**
      * Creates a placeholder to show when no notifications are available.
-     * This method creates a consistent styled placeholder that matches your theme.
      *
-     * @return a styled HBox containing the "No notifications available" message
+     * @return A styled HBox containing the "No notifications available" message.
      */
     public static HBox noNotificationsPlaceholder() {
         Label emptyLabel = new Label("No notifications available");
-        emptyLabel.setStyle(
-                "-fx-text-fill: #6c7086; " +
-                        "-fx-font-size: 14; " +
-                        "-fx-font-style: italic;"
-        );
+        emptyLabel.setStyle("-fx-text-fill: #6c7086; -fx-font-size: 14; -fx-font-style: italic;");
         HBox placeholderBox = new HBox(emptyLabel);
         placeholderBox.setAlignment(Pos.CENTER);
         placeholderBox.setPadding(new Insets(24));
-
-        // Make it take full width and height to center properly
         placeholderBox.setMaxWidth(Double.MAX_VALUE);
-        placeholderBox.setPrefHeight(200); // Match your ScrollPane height
-
-        // Add an ID to identify this as a placeholder
+        placeholderBox.setPrefHeight(200);
         placeholderBox.setId("no-notifications-placeholder");
-
         return placeholderBox;
     }
 
     /**
-     * Animates the removal of the notification HBox with a fade-out effect,
-     * then adds a centered "No notifications" placeholder if the container
-     * becomes empty.
+     * Animates the removal of the notification, then updates the container.
      *
-     * @param item the HBox to remove from its parent
+     * @param item         The HBox to remove.
+     * @param onCancelItem The callback to run after removal.
      */
-    private static void animateRemoval(HBox item) {
+    private static void animateRemoval(HBox item, Runnable onCancelItem) {
+        if (item.getParent() == null) return;
         Pane parent = (Pane) item.getParent();
         FadeTransition ft = new FadeTransition(Duration.millis(200), item);
         ft.setFromValue(1.0);
         ft.setToValue(0.0);
         ft.setOnFinished(evt -> {
-            if (parent != null) {
-                parent.getChildren().remove(item);
-
-                // Check if there are any actual notifications left (not placeholders)
-                boolean hasNotifications = parent.getChildren().stream()
-                        .anyMatch(child -> child.getId() == null || !child.getId().equals("no-notifications-placeholder"));
-
-                // Find the ScrollPane in the hierarchy
-                ScrollPane scrollPane = findScrollPane(parent);
-
-                // Add placeholder if container has no notifications
-                if (!hasNotifications) {
-                    // Remove any existing placeholders first
-                    parent.getChildren().removeIf(child ->
-                            child.getId() != null && child.getId().equals("no-notifications-placeholder"));
-
-                    // Hide scrollbar when showing placeholder
-                    if (scrollPane != null) {
-                        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                    }
-
-                    // Add the new placeholder
-                    HBox placeholderBox = noNotificationsPlaceholder();
-
-                    // Center the placeholder in VBox containers
-                    if (parent instanceof VBox) {
-                        ((VBox) parent).setAlignment(Pos.CENTER);
-                    }
-
-                    parent.getChildren().add(placeholderBox);
-                } else {
-                    // Show scrollbar when there are notifications
-                    if (scrollPane != null) {
-                        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                    }
-                }
+            parent.getChildren().remove(item);
+            if (onCancelItem != null) {
+                onCancelItem.run();
             }
         });
         ft.play();
     }
 
-    /**
-     * Helper method to find the ScrollPane in the parent hierarchy
-     */
-    private static ScrollPane findScrollPane(Node node) {
-        Parent parent = node.getParent();
-        while (parent != null) {
-            if (parent instanceof ScrollPane) {
-                return (ScrollPane) parent;
-            }
-            parent = parent.getParent();
-        }
-        return null;
-    }
-
-    /**
-     * Returns the display text for a given notification type.
-     *
-     * @param type    the message type
-     * @param sender  the name of the sender
-     * @param netName the name of the net involved
-     * @return a formatted message string
-     */
     private static String getMessageText(MessageType type, String sender, String netName) {
         return switch (type) {
-            case SUBSCRIPTION       -> sender + " subscribed to " + netName;
-            case STARTED_COMPUTATION-> sender + " has started the computation on " + netName;
-            case FIRED_TRANSITION   -> sender + " has fired a transition on " + netName;
-            case END_COMPUTATION    -> sender + "'s computation on " + netName + " has ended";
+            case SUBSCRIPTION -> String.format("%s subscribed to %s", sender, netName);
+            case STARTED_COMPUTATION -> String.format("%s has started the computation on %s", sender, netName);
+            case FIRED_TRANSITION -> String.format("%s has fired a transition on %s", sender, netName);
+            case RESTART -> String.format("%s has restarted the computation on %s", sender, netName);
+            case END_COMPUTATION -> String.format("%s's computation on %s has ended", sender, netName);
         };
     }
 
-    /**
-     * Returns the hex color code for a given message type.
-     *
-     * @param type the message type
-     * @return a hex color string
-     */
     private static String getColorByType(MessageType type) {
         return switch (type) {
-            case SUBSCRIPTION       -> "#89b4fa";
-            case STARTED_COMPUTATION-> "#a6e3a1";
-            case FIRED_TRANSITION   -> "#f9e2af";
-            case END_COMPUTATION    -> "#f38ba8";
+            case SUBSCRIPTION -> "#89b4fa";
+            case STARTED_COMPUTATION -> "#a6e3a1";
+            case FIRED_TRANSITION -> "#f9e2af";
+            case RESTART -> "#fab387";
+            case END_COMPUTATION -> "#f38ba8";
         };
     }
 
-    /**
-     * Formats a timestamp (epoch millis) into a human-readable string.
-     *
-     * @param timestamp epoch milliseconds
-     * @return formatted date/time string in pattern "dd/MM/yy HH:mm"
-     */
     private static String formatTimestamp(long timestamp) {
-        var formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
-        return java.time.Instant.ofEpochMilli(timestamp)
-                .atZone(java.time.ZoneId.systemDefault())
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
+        return Instant.ofEpochMilli(timestamp)
+                .atZone(ZoneId.systemDefault())
                 .format(formatter);
     }
 }

@@ -7,9 +7,10 @@ import it.petrinet.model.TableRow.NetCategory;
 import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.User;
 import it.petrinet.model.database.ComputationsDAO;
-import it.petrinet.model.database.NotificationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.model.database.UserDAO;
+import it.petrinet.service.NotificationService;
+import it.petrinet.service.SessionContext;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
 import it.petrinet.utils.Validation;
@@ -61,15 +62,21 @@ public class HomeController implements Initializable {
     @FXML private Label discoverableNetsLabel;
     @FXML private Label subscribedNetsLabel;
     @FXML private Button newNetButton;
-    @FXML private VBox activityFeedContainer;
     @FXML private Label userNameLabel;
     @FXML private VBox tableContainer;
     @FXML private VBox ownedStats;
+    @FXML private Label activityCounter;
 
     private static DynamicPetriNetTableComponent petriNetTable;
     private static boolean isGloballyInitialized = false;
     private boolean isThisInstanceInitialized = false;
     private User currentUser;
+
+    private final List<Notification> notifications = NotificationService.getInstance().getNotifications();
+
+    @FXML private VBox activityFeedContainer;
+    @FXML private ScrollPane activityScrollPane;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -92,7 +99,7 @@ public class HomeController implements Initializable {
             return;
         }
 
-        currentUser = ViewNavigator.getAuthenticatedUser();
+        currentUser = SessionContext.getInstance().getUser();
         initializeUserInterface();
         initializeTableComponent();
         loadInitialData();
@@ -246,7 +253,7 @@ public class HomeController implements Initializable {
     private List<PetriNetRow> buildRecentNetsList()  {
         List<PetriNetRow> recentNets = new ArrayList<>();
         List<Computation> data = ComputationsDAO.getMostRecentlyModifiedNets(
-                ViewNavigator.getAuthenticatedUser(), RECENT_NETS_LIMIT);
+                SessionContext.getInstance().getUser(), RECENT_NETS_LIMIT);
 
         for (Computation computation : data) {
             if (computation != null) {
@@ -266,7 +273,7 @@ public class HomeController implements Initializable {
      * Determines the category of a net for current user
      */
     private NetCategory determineNetCategory(Computation net) {
-        String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
+        String currentUsername = SessionContext.getInstance().getUser().getUsername();
         return net.getCreatorId().equals(currentUsername)
                 ? NetCategory.OWNED : NetCategory.SUBSCRIBED;
     }
@@ -282,7 +289,7 @@ public class HomeController implements Initializable {
 
         try {
             switch (category) {
-                case OWNED -> safeNavigate(() -> ViewNavigator.toUserList(netName));
+                case OWNED -> safeNavigate(() -> ViewNavigator.toComputationsList(netName));
                 case SUBSCRIBED -> handleSubscribedNetClick(netName);
                 case DISCOVER -> safeNavigate(ViewNavigator::toDiscoverNets);
                 default -> LOGGER.info("Clicked on net: " + netName);
@@ -308,14 +315,21 @@ public class HomeController implements Initializable {
      * Sets up navigation to net visual view
      */
     private void setupNavigationToNetVisual(PetriNet net)  {
-        NavigationHelper.setupNavigationToNetVisualForUser(net, ViewNavigator.getAuthenticatedUser().getUsername());
+        NavigationHelper.setupNavigationToNetVisualForUser(net, SessionContext.getInstance().getUser().getUsername());
     }
 
     /**
      * Finds computation data for current user and net
      */
     private Computation findUserComputation(PetriNet net)  {
-        return NavigationHelper.findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
+        return findUserComputation(net, SessionContext.getInstance().getUser().getUsername());
+    }
+
+    /**
+     * Finds computation data for current user and net
+     */
+    private Computation findUserComputation(PetriNet net, String username)  {
+        return NavigationHelper.findUserComputation(net, username);
     }
 
     /**
@@ -324,7 +338,7 @@ public class HomeController implements Initializable {
     public void refreshDashboard() {
         LOGGER.info("Refreshing dashboard...");
         Platform.runLater(() -> {
-            currentUser = ViewNavigator.getAuthenticatedUser();
+            currentUser = SessionContext.getInstance().getUser();
             updateWelcomeMessage();
             configureView();
             loadInitialData();
@@ -396,10 +410,6 @@ public class HomeController implements Initializable {
         return currentUser;
     }
 
-    public static DynamicPetriNetTableComponent getPetriNetTable() {
-        return petriNetTable;
-    }
-
     private String getValidNetName()  {
         String newName = "New Petri net";
         while (true) {
@@ -445,71 +455,81 @@ public class HomeController implements Initializable {
     }
 
 
+    /* Notification */
 
-    public void showNotifications() {
-        // Clear the container
+    public void showNotifications(){
         activityFeedContainer.getChildren().clear();
-
-        // Find the ScrollPane in the parent hierarchy
-        ScrollPane scrollPane = findScrollPane(activityFeedContainer);
-
-        try {
-            List<Notification> notifications = NotificationsDAO.getNotificationsByReceiver(currentUser);
-
-            if (!notifications.isEmpty()) {
-                // Reset alignment for when we have notifications
-                activityFeedContainer.setAlignment(Pos.TOP_LEFT);
-
-                // Enable scrollbar when there are notifications
-                if (scrollPane != null) {
-                    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                }
-
-                // Add each notification
-                for (Notification notification : notifications) {
-                    Node notificationItem = NotificationFactory.createNotificationItem(
-                            notification.getType(),
-                            notification.getSender(),
-                            notification.getNetId(),
-                            notification.getTimestamp()
-                    );
-
-                    if (notificationItem != null) {
-                        activityFeedContainer.getChildren().add(notificationItem);
-                    }
-                }
-            } else {
-                // No notifications - show placeholder and hide scrollbar
-                activityFeedContainer.setAlignment(Pos.CENTER);
-                if (scrollPane != null) {
-                    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                }
-                activityFeedContainer.getChildren().add(NotificationFactory.noNotificationsPlaceholder());
+        if (notifications != null && !notifications.isEmpty()) {
+            for (Notification notification : notifications) {
+                Node notificationItem = createNotificationNode(notification);
+                activityFeedContainer.getChildren().add(notificationItem);
             }
+        }
+        updateNotificationContainerState();
+    }
 
-        } catch (Exception e) {
-            // Handle database errors
+    private void updateNotificationContainerState() {
+        boolean hasNotifications = activityFeedContainer.getChildren().stream()
+                .anyMatch(node -> node.getId() == null || !node.getId().equals("no-notifications-placeholder"));
+
+        activityCounter.setText(String.valueOf(notifications.size()));
+
+        if (hasNotifications) {
+            activityFeedContainer.setAlignment(Pos.TOP_LEFT);
+            if (activityScrollPane != null) {
+                activityScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            }
+        } else {
+            activityFeedContainer.getChildren().clear(); // Clear before adding placeholder
             activityFeedContainer.setAlignment(Pos.CENTER);
-            if (scrollPane != null) {
-                scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            if (activityScrollPane != null) {
+                activityScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                activityScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             }
             activityFeedContainer.getChildren().add(NotificationFactory.noNotificationsPlaceholder());
-            // Log the error if you have logging
-            System.err.println("Error loading notifications: " + e.getMessage());
         }
     }
 
     /**
-     * Helper method to find the ScrollPane in the parent hierarchy
+     * Creates a single notification node using the NotificationFactory builder.
      */
-    private ScrollPane findScrollPane(Node node) {
-        Parent parent = node.getParent();
-        while (parent != null) {
-            if (parent instanceof ScrollPane) {
-                return (ScrollPane) parent;
-            }
-            parent = parent.getParent();
-        }
-        return null;
+    private Node createNotificationNode(Notification notification) {
+        return NotificationFactory.builder()
+                .withType(getNotificationType(notification.getType()))
+                .withSender(notification.getSender())
+                .withNetName(notification.getNetId()) // Assuming getNetId() returns the name for display
+                .withTimestamp(notification.getTimestamp())
+//                .onItemClick(() -> {
+//                    try {
+//                        PetriNet net = PetriNetsDAO.getNetByName(notification.getNetId());
+//                        if (net != null) {
+//                            Computation computation = findUserComputation(net, notification.getSender());
+//                            if (computation != null) {
+//                                NavigationHelper.setupNavigationToNetVisualForUser(net, currentUser.getUsername());
+//                            } else {
+//                                EnhancedAlert.showError("Computation not found", "No computation data available for this net.");
+//                            }
+//                        } else {
+//                            EnhancedAlert.showError("Net not found", "The specified net does not exist.");
+//                        }
+//                    } catch (Exception e) {
+//                        LOGGER.log(Level.WARNING, "Failed to navigate to net visual", e);
+//                        EnhancedAlert.showError("Navigation Error", "An error occurred while navigating to the net visual.");
+//                    }
+//                })
+                .onCancelItem(() -> {
+                    notifications.remove(notification);
+                    NotificationService.getInstance().removeNotification(notification);
+                    activityCounter.setText(String.valueOf(notifications.size()));
+                    if(notifications.isEmpty()) updateNotificationContainerState();
+                })
+                .build();
     }
+
+    private NotificationFactory.MessageType getNotificationType(int type) {
+        if(type < 0 || type >= NotificationFactory.MessageType.values().length) return null;
+        return NotificationFactory.MessageType.values()[type];
+    }
+
+
 }

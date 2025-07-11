@@ -1,5 +1,7 @@
 package it.petrinet.view.components;
 
+import it.petrinet.service.NotificationService;
+import it.petrinet.service.SessionContext;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.ViewNavigator;
 import javafx.geometry.Insets;
@@ -71,7 +73,7 @@ public class NavBar extends VBox {
         // Add buttons based on user role
         getChildren().addAll(homeBtn, subNetsBtn, discoverBtn);
 
-        if (ViewNavigator.userIsAdmin()) {
+        if (SessionContext.getInstance().getUser().isAdmin()) {
             Button myNetsBtn = createButton("My Nets", "Creations.png", "myNets", ViewNavigator::toMyNets);
             getChildren().add(2, myNetsBtn); // Insert after homeBtn
         }
@@ -91,7 +93,8 @@ public class NavBar extends VBox {
 
 
     private void handleLogout() {
-        ViewNavigator.setAuthenticatedUser(null);
-        ViewNavigator.loginScene();
+        SessionContext.getInstance().setUser(null);
+        NotificationService.getInstance().clear();
+        ViewNavigator.loginScene(true);
     }
 }

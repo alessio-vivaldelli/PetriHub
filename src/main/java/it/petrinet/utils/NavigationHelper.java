@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static it.petrinet.utils.ConstantPath.netDirectory;
 import static it.petrinet.utils.Safenavigate.safeNavigate;
 
 /**
@@ -21,7 +20,7 @@ import static it.petrinet.utils.Safenavigate.safeNavigate;
 public class NavigationHelper {
 
     private static final Logger LOGGER = Logger.getLogger(NavigationHelper.class.getName());
-
+    public static final String netDirectory = System.getProperty("user.dir") + "/src/main/resources/data/pnml/";
 
 
     /**
@@ -59,6 +58,7 @@ public class NavigationHelper {
      * Finds computation data for specific user and net
      */
     public static Computation findUserComputation(PetriNet net, String userId)  {
+        System.out.println(net.getNetName() + " " +  userId);
         return ComputationsDAO.getComputationsByNet(net)
                 .stream()
                 .filter(computation -> computation.getUserId().equals(userId))

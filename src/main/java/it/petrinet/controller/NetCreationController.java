@@ -3,6 +3,7 @@ package it.petrinet.controller;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.database.PetriNetsDAO;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
+import it.petrinet.service.SessionContext;
 import it.petrinet.view.ViewNavigator;
 import it.petrinet.view.components.toolbar.EditorToolBar;
 import javafx.application.Platform;
@@ -237,7 +238,7 @@ public class NetCreationController {
      * Creates a PetriNet record for database insertion.
      */
     private PetriNet createPetriNetRecord() {
-        String username = ViewNavigator.getAuthenticatedUser().getUsername();
+        String username = SessionContext.getInstance().getUser().getUsername();
         long timestamp = ZonedDateTime.now(ZoneId.of(TIMEZONE_ID)).toEpochSecond();
         String filename = netName + FILE_EXTENSION;
 
@@ -275,7 +276,7 @@ public class NetCreationController {
     private void navigateToHome() {
         Platform.runLater(() -> {
             try {
-                ViewNavigator.exitPetriNetScene();
+                ViewNavigator.homeScene(false);
                 LOGGER.info("Navigation to home completed");
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Failed to navigate to home", e);

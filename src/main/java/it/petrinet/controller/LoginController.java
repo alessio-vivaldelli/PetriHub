@@ -1,7 +1,10 @@
 package it.petrinet.controller;
 
 import it.petrinet.model.User;
+import it.petrinet.model.database.NotificationsDAO;
 import it.petrinet.model.database.UserDAO;
+import it.petrinet.service.NotificationService;
+import it.petrinet.service.SessionContext;
 import it.petrinet.view.ViewNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,7 +42,7 @@ public class LoginController {
         loginButton.setDefaultButton(true);
 
         // Check if there's a pending success message from registration
-        String pendingMessage = ViewNavigator.consumePendingMessage();
+        String pendingMessage = SessionContext.getInstance().consumePendingMessage();
         if (pendingMessage != null) showSuccess(pendingMessage);
 
     }
@@ -60,7 +63,7 @@ public class LoginController {
 
             //Login successful
             User user = UserDAO.findSameUser(UserDAO.getUserByUsername(username), UserDAO.getUsersByPassword(password));
-            ViewNavigator.setAuthenticatedUser(user);
+            SessionContext.getInstance().setUser(user);
             System.out.println("login successful for user: "+ user.getUsername());
             proceedToMainView(event, user);
         }
@@ -84,8 +87,11 @@ public class LoginController {
     }
 
     private void proceedToMainView(ActionEvent event, User user) {
-        ViewNavigator.setAuthenticatedUser(user);
-        ViewNavigator.homeScene();
+        SessionContext.getInstance().setUser(user);
+        NotificationService.getInstance().loadForCurrentUser();
+//        System.out.println("Proceeding to main view for user: " + user.getUsername() + "Notifications loaded: " + NotificationService.getInstance().getNotifications().size());
+//        System.out.println("in db there are: " + NotificationsDAO.getNotificationsByReceiver(user).size());
+        ViewNavigator.homeScene(true);
     }
 
     private void showError(String message) {

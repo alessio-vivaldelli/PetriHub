@@ -93,7 +93,7 @@ public abstract class ToolBar extends HBox {
      */
     private Button createHomeButton() {
         Button home = new Button();
-        home.setOnAction(e -> ViewNavigator.toHome());
+        home.setOnAction(e -> ViewNavigator.homeScene(false));
         configureButton(home, "home.png", "Return to Home");
         return home;
     }
@@ -121,7 +121,7 @@ public abstract class ToolBar extends HBox {
     /**
      * Configura un Button statico con icona, tooltip e stili
      */
-    protected void configureButton(Button button, String iconName, String tooltip) {
+    protected static void configureButton(Button button, String iconName, String tooltip) {
         // Imposta l'icona
         IconUtils.setIcon(button, iconName);
 

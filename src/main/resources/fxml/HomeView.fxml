@@ -77,8 +77,10 @@
 
 
             <!-- Activity Feed Section -->
-            <Label text="Activity Feed"
-                   style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold;"/>
+            <HBox>
+                <Label text="Activity Feed" style="-fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-font-weight: bold; -fx-padding: 5 15 0 0"/>
+                <Label fx:id="activityCounter" text="Error" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4; -fx-font-size: 18; -fx-background-radius: 5; -fx-padding: 5 5 5 5;"/>
+            </HBox>
             <VBox style="-fx-background-color: #313244; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #45475a; -fx-border-width: 1; -fx-border-radius: 12;">
                 <VBox.margin>
                     <Insets bottom="16"/>

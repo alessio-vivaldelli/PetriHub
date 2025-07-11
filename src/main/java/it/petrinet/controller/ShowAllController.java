@@ -8,6 +8,7 @@ import it.petrinet.model.TableRow.PetriNetRow;
 import it.petrinet.model.database.ComputationStepDAO;
 import it.petrinet.model.database.ComputationsDAO;
 import it.petrinet.model.database.PetriNetsDAO;
+import it.petrinet.service.SessionContext;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.utils.NavigationHelper;
 import it.petrinet.view.ViewNavigator;
@@ -103,7 +104,7 @@ public class ShowAllController {
      */
     private Void handleOwnedNetClick(PetriNetRow row) {
         String netName = row.nameProperty().get();
-        safeNavigate(() -> ViewNavigator.toUserList(netName));
+        safeNavigate(() -> ViewNavigator.toComputationsList(netName));
         return null;
     }
 
@@ -121,7 +122,7 @@ public class ShowAllController {
             }
 
             PetriNet net = netOpt.get();
-            String username = ViewNavigator.getAuthenticatedUser().getUsername();
+            String username = SessionContext.getInstance().getUser().getUsername();
 
             switch (category) {
                 case SUBSCRIBED -> NavigationHelper.setupNavigationToNetVisualForUser(net, username);
@@ -153,15 +154,15 @@ public class ShowAllController {
     private List<PetriNetRow> loadDataForCategory() {
         return switch (category) {
             case OWNED -> createRowsFromNets(
-                    PetriNetsDAO.getNetsByCreator(ViewNavigator.getAuthenticatedUser()),
+                    PetriNetsDAO.getNetsByCreator(SessionContext.getInstance().getUser()),
                     this::getFirstSubscribedComputation
             );
             case SUBSCRIBED -> createRowsFromNets(
-                    ComputationsDAO.getNetsSubscribedByUser(ViewNavigator.getAuthenticatedUser()),
+                    ComputationsDAO.getNetsSubscribedByUser(SessionContext.getInstance().getUser()),
                     this::findUserComputation
             );
             case DISCOVER -> createRowsFromNets(
-                    PetriNetsDAO.getDiscoverableNetsByUser(ViewNavigator.getAuthenticatedUser()),
+                    PetriNetsDAO.getDiscoverableNetsByUser(SessionContext.getInstance().getUser()),
                     this::findUserComputation
             );
         };
@@ -203,7 +204,7 @@ public class ShowAllController {
      */
     private Computation findUserComputation(PetriNet net) {
         try {
-            return NavigationHelper.findUserComputation(net, ViewNavigator.getAuthenticatedUser().getUsername());
+            return NavigationHelper.findUserComputation(net, SessionContext.getInstance().getUser().getUsername());
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Failed to find user computation for net: " + net.getNetName(), e);
             return null;

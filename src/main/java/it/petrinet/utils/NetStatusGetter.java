@@ -4,6 +4,7 @@ import it.petrinet.model.Computation;
 import it.petrinet.model.ComputationStep;
 import it.petrinet.model.TableRow.Status;
 import it.petrinet.model.database.ComputationStepDAO;
+import it.petrinet.service.SessionContext;
 import it.petrinet.view.ViewNavigator;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class NetStatusGetter {
      * Determines the status of a net for current user
      */
     public static Status getStatusByComputation(Computation computation) {
-        String currentUsername = ViewNavigator.getAuthenticatedUser().getUsername();
+        String currentUsername = SessionContext.getInstance().getUser().getUsername();
 
 
         if (computation == null) return Status.NOT_STARTED;

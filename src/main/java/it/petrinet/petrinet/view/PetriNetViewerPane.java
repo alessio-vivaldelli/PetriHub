@@ -5,6 +5,7 @@ import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import it.petrinet.model.Computation;
 import it.petrinet.petrinet.model.*;
 import it.petrinet.petrinet.persistance.pnml.PNMLParser;
+import it.petrinet.service.SessionContext;
 import it.petrinet.view.ViewNavigator;
 
 import java.io.File;
@@ -262,7 +263,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
     if (testMode)
       return true;
 
-    String username = ViewNavigator.getAuthenticatedUser().getUsername();
+    String username = SessionContext.getInstance().getUser().getUsername();
     if (t.getType() == TRANSITION_TYPE.ADMIN) {
       return username.equals(computation.getCreatorId());
     }

@@ -2,6 +2,7 @@ package it.petrinet.controller;
 
 import it.petrinet.model.User;
 import it.petrinet.model.database.UserDAO;
+import it.petrinet.service.SessionContext;
 import it.petrinet.view.ViewNavigator;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -59,7 +60,10 @@ public class RegisterController {
         UserDAO.insertUser(newUser);
 
         // Navigate to login with success message
-        safeNavigate(() -> ViewNavigator.toLoginWithMessage("Registration successful!"));
+        safeNavigate(() -> {
+            ViewNavigator.toLogin();
+            SessionContext.getInstance().setPendingMessage("Registration successful! Please log in.");
+        });
     }
 
     @FXML
