@@ -1,0 +1,202 @@
+---
+config:
+  layout: elk
+---
+classDiagram
+
+    class BaseTableComponent {
+        <<abstract>>
+        #DateTimeFormatter DATE_FORMAT
+        +BaseTableComponent()
+        -loadFXML()
+        +initialize()*
+        +getFXMLPath()* String
+    }
+
+    class GenericTableComponent~T~ {
+        <<abstract>>
+        #TableView~T~ tableView
+        #Consumer~T~ onRowClickHandler
+        #ObservableList~T~ tableData
+        +initialize()
+        #setupTableColumns()*
+        #setupTableBehavior()
+        #initializeData()
+        #handleTableRowClick(MouseEvent)
+        +setData(List~T~)
+        +addItem(T)
+        +addItems(List~T~)
+        +removeItem(T)
+        +clearData()
+        +getSelectedItem() T
+        +setOnRowClickHandler(Consumer~T~)
+        +getData() ObservableList~T~
+        +refresh()
+        +getTableView() TableView~T~
+    }
+
+    class PetriNetTableComponent {
+        -TableColumn~PetriNetRow,String~ nameCol
+        -TableColumn~PetriNetRow,String~ authorCol
+        -TableColumn~PetriNetRow,LocalDateTime~ dateCol
+        -TableColumn~PetriNetRow,Status~ statusCol
+        -TableColumn~PetriNetRow,NetCategory~ typeCol
+        +getFXMLPath() String
+        #setupTableColumns()
+        +dataColSubName()
+    }
+
+    class DynamicPetriNetTableComponent {
+        -int MAX_ROWS = 4
+        -double ROW_HEIGHT = 60
+        -double HEADER_HEIGHT = 30
+        -double MAX_HEIGHT
+        -double MIN_TABLE_HEIGHT_NO_ROWS = 272.0
+        +DynamicPetriNetTableComponent()
+        +setData(List~PetriNetRow~)
+    }
+
+    class ComputationSelectComponent {
+        -TableColumn~ComputationRow,String~ IDCol
+        -TableColumn~ComputationRow,String~ usernameCol
+        -TableColumn~ComputationRow,LocalDateTime~ initTimeCol
+        -TableColumn~ComputationRow,LocalDateTime~ endTimeCol
+        -TableColumn~ComputationRow,Status~ statusCol
+        +getFXMLPath() String
+        #setupTableColumns()
+    }
+
+    class PetriNetRow {
+        -StringProperty name
+        -StringProperty author
+        -ObjectProperty~LocalDateTime~ lastModified
+        -ObjectProperty~Status~ status
+        -ObjectProperty~NetCategory~ type
+        +PetriNetRow(String, String, LocalDateTime, Status, NetCategory)
+        +of(String, String, LocalDateTime, Status, NetCategory)$ PetriNetRow
+        +nameProperty() StringProperty
+        +authorProperty() StringProperty
+        +lastModifiedProperty() ObjectProperty~LocalDateTime~
+        +statusProperty() ObjectProperty~Status~
+        +typeProperty() ObjectProperty~NetCategory~
+    }
+
+    class ComputationRow {
+        -StringProperty ID
+        -StringProperty username
+        -ObjectProperty~LocalDateTime~ initTime
+        -ObjectProperty~LocalDateTime~ endTime
+        -ObjectProperty~Status~ status
+        +ComputationRow(String, String, LocalDateTime, LocalDateTime, Status)
+        +of(String, String, LocalDateTime, LocalDateTime, Status)$ ComputationRow
+        +IDProperty() StringProperty
+        +usernameProperty() StringProperty
+        +initTimeProperty() ObjectProperty~LocalDateTime~
+        +endTimeProperty() ObjectProperty~LocalDateTime~
+        +statusProperty() ObjectProperty~Status~
+    }
+
+    class Status {
+        <<enumeration>>
+        IN_ATTESA
+        IN_CORSO
+        NON_INIZIATO
+        COMPLETATO
+        -String etichetta
+        +toString() String
+    }
+
+    class NetCategory {
+        <<enumeration>>
+        POSSEDUTE("Creazioni")
+        SOTTOSCRITTE("Sottoscrizioni")
+        SCOPRI("Scopri")
+        -String nomeVisualizzato
+        +getDisplayName() String
+        +fromString(String)$ NetCategory
+    }
+
+    class ShowAllController {
+        -Logger LOGGER
+        -int ICON_SIZE = 30
+        -Label titoloFrame
+        -VBox contenitoreTabella
+        -PetriNetTableComponent tabellaPetriNet
+        -NetCategory categoria
+        +initData(NetCategory)
+        -inizializzaComponenti()
+        -impostaInterfacciaUtente()
+        -impostaGestoriEventiTabella()
+        -gestisciClickNetPosseduta(PetriNetRow) Void
+        -gestisciClickAltraNet(PetriNetRow) Void
+        -caricaEVisualizzaDati()
+        -caricaDatiPerCategoria() List~PetriNetRow~
+        -creaRigheDaReti(List~PetriNet~, Function) List~PetriNetRow~
+        -creaRigaDaRete(PetriNet, Computation) PetriNetRow
+        -trovaComputazioneUtente(PetriNet) Computation
+        -getPrimaComputazioneSottoscritta(PetriNet) Computation
+    }
+
+    class HomeController {
+        -Logger LOGGER
+        -Label etichettaNomeUtente
+        -VBox contenitoreTabella
+        -DynamicPetriNetTableComponent tabellaPetriNet
+        -boolean èGlobalmenteInizializzato
+        -boolean èQuestaIstanzaInizializzata
+        -User utenteCorrente
+        +initialize(URL, ResourceBundle)
+        -inizializzaController()
+        -inizializzaInterfacciaUtente()
+        -inizializzaComponenteTabella()
+        -caricaDatiIniziali()
+        -aggiornaDatiTabella()
+        -costruisciListaRetiRecenti() List~PetriNetRow~
+        -gestisciClickRigaTabella(PetriNetRow)
+        +aggiornaDashboard()
+        +resetStatoGlobale()$
+    }
+
+    class ComputationListController {
+        -Logger LOGGER
+        -Label titoloFrame
+        -VBox contenitoreTabella
+        -ComputationSelectComponent tabellaUtente
+        -String netID
+        +initData(String)
+        -inizializzaInterfacciaUtente()
+        -inizializzaComponenteTabella()
+        -caricaDatiSottoUtenti()
+        -gestisciClickRigaTabella(ComputationRow)
+        -recuperaSottoUtenti() List~ComputationRow~
+    }
+
+%% Relazioni di Ereditarietà
+    BaseTableComponent <|-- GenericTableComponent : estende
+    GenericTableComponent <|-- PetriNetTableComponent : estende
+    GenericTableComponent <|-- ComputationSelectComponent : estende
+    PetriNetTableComponent <|-- DynamicPetriNetTableComponent : estende
+
+%% Relazioni di Utilizzo
+    GenericTableComponent ..> PetriNetRow : utilizza
+    GenericTableComponent ..> ComputationRow : utilizza
+
+%% Relazioni di Composizione
+    PetriNetRow --> Status : contiene
+    PetriNetRow --> NetCategory : contiene
+    ComputationRow --> Status : contiene
+
+%% Relazioni Controller-Componente
+    ShowAllController --> PetriNetTableComponent : crea/utilizza
+    HomeController --> DynamicPetriNetTableComponent : crea/utilizza
+    ComputationListController --> ComputationSelectComponent : crea/utilizza
+
+%% Relazioni Controller-Dati
+    ShowAllController ..> PetriNetRow : crea
+    HomeController ..> PetriNetRow : crea
+    ComputationListController ..> ComputationRow : crea
+
+%% Note Esplicative
+    note "Classe base astratta che gestisce\nil caricamento FXML e l'inizializzazione"
+    note for GenericTableComponent "Componente tabella generico con\noperazioni type-safe"
+    note for DynamicPetriNetTableComponent "Tabella a dimensione dinamica con\nlimitazione massima di righe"

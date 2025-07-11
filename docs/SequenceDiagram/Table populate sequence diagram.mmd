@@ -1,0 +1,102 @@
+sequenceDiagram
+    actor Utente
+    participant ControllerMostraTutti as ShowAllController
+    participant ComponenteTabellaReti as PetriNetTableComponent
+    participant ComponenteTabellaGenerica as GenericTableComponent
+    participant ComponenteTabellaBase as BaseTableComponent
+    participant CaricatoreFXML as FXMLLoader
+    participant VistaTabella as TableView
+    participant DAO as PetriNetsDAO/ComputationsDAO
+    participant ContestoSessione as SessionContext
+    participant HelperNavigazione as NavigationHelper
+
+    Utente->>ControllerMostraTutti: initData(CategoriaRete)
+    Note over ControllerMostraTutti: categoria = CategoriaRete<br/>(POSSEDUTE/SOTTOSCRITTE/SCOPRI)
+
+    ControllerMostraTutti->>ControllerMostraTutti: inizializzaComponenti()
+    ControllerMostraTutti->>ComponenteTabellaReti: new PetriNetTableComponent()
+
+    ComponenteTabellaReti->>ComponenteTabellaGenerica: super()
+    ComponenteTabellaGenerica->>ComponenteTabellaBase: super()
+
+    ComponenteTabellaBase->>ComponenteTabellaBase: caricaFXML()
+    ComponenteTabellaBase->>ComponenteTabellaReti: ottieniPercorsoFXML()
+    ComponenteTabellaReti-->>ComponenteTabellaBase: "/fxml/components/PetriNetSelectionList.fxml"
+
+    ComponenteTabellaBase->>CaricatoreFXML: new FXMLLoader(risorsa)
+    ComponenteTabellaBase->>CaricatoreFXML: setRoot(this)
+    ComponenteTabellaBase->>CaricatoreFXML: setController(this)
+    ComponenteTabellaBase->>CaricatoreFXML: load()
+    CaricatoreFXML-->>ComponenteTabellaBase: FXML caricato
+
+    ComponenteTabellaBase->>ComponenteTabellaGenerica: initialize()
+    ComponenteTabellaGenerica->>ComponenteTabellaReti: impostaColonneTabella()
+
+    Note over ComponenteTabellaReti: Configura colonne tabella:<br/>colNome, colAutore, colData,<br/>colStato, colTipo
+
+    ComponenteTabellaReti->>ComponenteTabellaGenerica: impostaComportamentoTabella()
+    ComponenteTabellaGenerica->>VistaTabella: setRowFactory()
+
+    ComponenteTabellaGenerica->>ComponenteTabellaGenerica: inizializzaDati()
+    ComponenteTabellaGenerica->>VistaTabella: setItems(listaOsservabile)
+
+    ControllerMostraTutti->>ControllerMostraTutti: impostaGestoriEventiTabella()
+    ControllerMostraTutti->>ComponenteTabellaReti: setOnRowClickHandler(gestore)
+
+    ControllerMostraTutti->>ControllerMostraTutti: impostaInterfacciaUtente()
+    Note over ControllerMostraTutti: Configura titoloCornice e icone<br/>basandosi sulla categoria
+
+    ControllerMostraTutti->>ControllerMostraTutti: caricaEMostraDati()
+    ControllerMostraTutti->>ControllerMostraTutti: caricaDatiPerCategoria()
+
+    alt categoria == POSSEDUTE
+        ControllerMostraTutti->>ContestoSessione: getInstance().getUser()
+        ContestoSessione-->>ControllerMostraTutti: utenteCorrente
+        ControllerMostraTutti->>DAO: getNetsByCreator(utente)
+        DAO-->>ControllerMostraTutti: List<ReteDoiPetri>
+        ControllerMostraTutti->>ControllerMostraTutti: creaRigheDalleReti(reti, ottieniPrimoCalcoloSottoscritto)
+
+    else categoria == SOTTOSCRITTE
+        ControllerMostraTutti->>ContestoSessione: getInstance().getUser()
+        ContestoSessione-->>ControllerMostraTutti: utenteCorrente
+        ControllerMostraTutti->>DAO: getNetsSubscribedByUser(utente)
+        DAO-->>ControllerMostraTutti: List<ReteDoiPetri>
+        ControllerMostraTutti->>ControllerMostraTutti: creaRigheDalleReti(reti, trovaCalcoloUtente)
+
+    else categoria == SCOPRI
+        ControllerMostraTutti->>ContestoSessione: getInstance().getUser()
+        ContestoSessione-->>ControllerMostraTutti: utenteCorrente
+        ControllerMostraTutti->>DAO: getDiscoverableNetsByUser(utente)
+        DAO-->>ControllerMostraTutti: List<ReteDoiPetri>
+        ControllerMostraTutti->>ControllerMostraTutti: creaRigheDalleReti(reti, trovaCalcoloUtente)
+    end
+
+    loop per ogni ReteDoiPetri
+        ControllerMostraTutti->>ControllerMostraTutti: creaRigaDallaRete(rete, calcolo)
+        ControllerMostraTutti->>ControllerMostraTutti: new PetriNetRow(...)
+        Note over ControllerMostraTutti: Crea PetriNetRow con:<br/>nome, autore, data, stato, categoria
+    end
+
+    ControllerMostraTutti->>ComponenteTabellaReti: setData(righeReteDoiPetri)
+    ComponenteTabellaReti->>ComponenteTabellaGenerica: setData(dati)
+    ComponenteTabellaGenerica->>ComponenteTabellaGenerica: datiTabella.clear()
+    ComponenteTabellaGenerica->>ComponenteTabellaGenerica: datiTabella.addAll(dati)
+
+    Note over Utente,HelperNavigazione: La tabella è ora pronta per l'interazione utente
+
+    Utente->>VistaTabella: click su riga
+    VistaTabella->>ComponenteTabellaGenerica: gestisciClickRigaTabella(evento)
+    ComponenteTabellaGenerica->>ControllerMostraTutti: onRowClickHandler.accept(elementoSelezionato)
+
+    alt categoria == POSSEDUTE
+        ControllerMostraTutti->>ControllerMostraTutti: gestisciClickRetePoaseduta(riga)
+        ControllerMostraTutti->>Utente: naviga verso ListaCalcoli
+
+    else categoria == SOTTOSCRITTE or SCOPRI
+        ControllerMostraTutti->>ControllerMostraTutti: gestisciClickAltraRete(riga)
+        ControllerMostraTutti->>DAO: getNetByName(nomeRete)
+        DAO-->>ControllerMostraTutti: ReteDoiPetri
+        ControllerMostraTutti->>HelperNavigazione: impostaNavigazioneVersoVisualeRetePerUtente(rete, nomeUtente)
+        HelperNavigazione-->>ControllerMostraTutti: configurazione navigazione completata
+        ControllerMostraTutti->>Utente: naviga verso VisualeRete
+    end

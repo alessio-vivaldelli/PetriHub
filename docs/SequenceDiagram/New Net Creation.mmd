@@ -1,0 +1,118 @@
+sequenceDiagram
+    actor User
+    participant HC as HomeController
+    participant EA as EnhancedAlert
+    participant V as Validation
+    participant PDAO as PetriNetsDAO
+    participant VN as ViewNavigator
+    participant MC as MainController
+    participant NCC as NetCreationController
+    participant Canvas as PetriNetEditorPane
+    participant TB as EditorToolBar
+    
+    User->>HC: Click "New Net" (handleNewNetClick)
+    activate HC
+    
+    HC->>HC: getValidNetName()
+    
+    loop Name Validation
+        HC->>EA: showTextInput("Petri net creation", "Insert a name...", "New Petri net")
+        activate EA
+        EA-->>User: Show input dialog
+        User->>EA: Enter name and press OK/Cancel
+        EA-->>HC: Optional<AlertResult>
+        deactivate EA
+        
+        alt User presses Cancel
+            Note over HC: Operation cancelled
+        else
+            HC->>HC: newName = result.get().getTextInput()
+            
+            alt Empty or null name
+                HC->>EA: showError("Invalid Input", "You must provide a valid name...")
+                activate EA
+                EA-->>User: Show error
+                deactivate EA
+            else
+                HC->>V: isValidFileName(newName)
+                activate V
+                V-->>HC: true if INVALID
+                deactivate V
+                
+                alt Name contains invalid characters
+                    HC->>EA: showError("Invalid Name", "The name contains invalid characters...")
+                    activate EA
+                    EA-->>User: Show error
+                    deactivate EA
+                else
+                    HC->>PDAO: getNetByName(newName)
+                    activate PDAO
+                    PDAO-->>HC: Existing PetriNet or null
+                    deactivate PDAO
+                    
+                    alt Net already exists
+                        HC->>EA: showError("This net Already exist", "You must provide a different name...")
+                        activate EA
+                        EA-->>User: Show error
+                        deactivate EA
+                    else
+                        Note over HC: Valid name found, exit loop
+                    end
+                end
+            end
+        end
+    end
+    
+    HC->>VN: safeNavigate(() -> ViewNavigator.toNetCreation(netName))
+    activate VN
+    
+    VN->>MC: setNavBar(null)
+    activate MC
+    MC-->>VN: Confirm navbar removal
+    deactivate MC
+    
+    VN->>VN: loadView("NetCreationView.fxml")
+    VN->>NCC: Create controller instance
+    activate NCC
+    
+    VN->>MC: setContent(view)
+    activate MC
+    MC-->>VN: Content set
+    deactivate MC
+    
+    VN->>NCC: Platform.runLater(() -> initData(netName))
+    VN-->>HC: Navigation completed
+    deactivate VN
+    deactivate HC
+    
+    NCC->>NCC: validateInitialization(netName)
+    NCC->>NCC: initializeComponents()
+    
+    par Parallel Initialization
+        NCC->>Canvas: new PetriNetEditorPane(netName)
+        activate Canvas
+        Canvas-->>NCC: Canvas created
+        deactivate Canvas
+        NCC->>NCC: configureCanvas()
+        NCC->>NCC: canvasContainer.add(canvas)
+    and
+        NCC->>TB: new EditorToolBar(this)
+        activate TB
+        TB-->>NCC: Toolbar created
+        deactivate TB
+        NCC->>NCC: toolbarContainer.add(toolbar)
+    and
+        NCC->>NCC: setupFinishButton()
+    end
+    
+    NCC->>Canvas: Platform.runLater(() -> canvas.init())
+    activate Canvas
+    Canvas->>Canvas: init()
+    deactivate Canvas
+    Canvas-->>NCC: Canvas initialized
+    
+    NCC->>NCC: isInitialized = true
+    NCC-->>User: Display editing interface
+    deactivate NCC
+    
+    Note over User: Complete interface:<br/>- Editing canvas<br/>- Toolbar<br/>- Finish button
