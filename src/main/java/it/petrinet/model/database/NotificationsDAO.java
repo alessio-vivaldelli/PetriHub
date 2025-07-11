@@ -15,6 +15,7 @@ public class NotificationsDAO implements DataAccessObject {
 
     public static void main(String args[]) {
         NotificationsDAO not = new NotificationsDAO();
+        not.deleteTable();
         not.createTable();
     }
 
