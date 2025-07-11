@@ -80,6 +80,10 @@ public class NetVisualController {
   // PUBLIC ACTIONS
   // =================================================================================
 
+  public PetriNetViewerPane getBoard() {
+    return board;
+  }
+
   public void startAction() {
     long timestamp = System.currentTimeMillis() / 1000;
     Map<String, Integer> startMarking = Map.of(board.getStartPlaceName(), 1);
@@ -196,7 +200,7 @@ public class NetVisualController {
   }
 
   private void setupToolbar() {
-    toolbar = new ViewToolBar(board, this);
+    toolbar = new ViewToolBar(this);
     toolbarContainer.getChildren().add(toolbar);
   }
 

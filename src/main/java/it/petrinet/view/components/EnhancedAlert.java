@@ -169,7 +169,7 @@ public class EnhancedAlert {
         try {
             if (getClass().getResource(CSS_PATH) != null) {
                 popupStage.getScene().getStylesheets().add(
-                        getClass().getResource(CSS_PATH).toExternalForm()
+                        Objects.requireNonNull(getClass().getResource(CSS_PATH)).toExternalForm()
                 );
             } else {
                 System.err.println("Warning: " + CSS_PATH + " not found.");
@@ -303,9 +303,8 @@ public class EnhancedAlert {
         });
 
         textField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ENTER) {
-                okButton.fire();
-            }
+            if (e.getCode() == KeyCode.ENTER) okButton.fire();
+            if (e.getCode() == KeyCode.ESCAPE) cancelButton.fire();
         });
 
         HBox buttonBox = new HBox(BUTTON_SPACING, okButton, cancelButton);

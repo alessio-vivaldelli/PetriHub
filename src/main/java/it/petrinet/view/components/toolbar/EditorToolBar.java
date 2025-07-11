@@ -1,5 +1,6 @@
 package it.petrinet.view.components.toolbar;
 
+import it.petrinet.controller.NetCreationController;
 import it.petrinet.petrinet.view.PetriNetEditorPane;
 import it.petrinet.utils.IconUtils;
 import javafx.scene.control.ToggleButton;
@@ -10,9 +11,9 @@ public class EditorToolBar extends ToolBar {
     private PetriNetEditorPane canvas;
     private ToggleGroup toolToggleGroup;
 
-    public EditorToolBar(PetriNetEditorPane canvas) {
+    public EditorToolBar(NetCreationController controller) {
         super();
-        this.canvas = canvas;
+        this.canvas = controller.getCanvas();
         setupCreationButtons();
     }
 

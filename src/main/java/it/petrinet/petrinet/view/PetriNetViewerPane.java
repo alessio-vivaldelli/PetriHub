@@ -29,7 +29,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   /**
    * Represents an operation that accepts three input arguments and returns no
    * result.
-   * 
+   *
    * @param <T> the type of the first argument
    * @param <U> the type of the second argument
    * @param <V> the type of the third argument
@@ -73,8 +73,8 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
     this.enableInteraction(computation != null);
 
     Map<String, Integer> initialMarking = (computation != null && !computation.getSteps().isEmpty())
-        ? computation.getSteps().getLast().getMarkingState()
-        : Map.of();
+            ? computation.getSteps().getLast().getMarkingState()
+            : Map.of();
 
     petriNetModel.getNodes().forEach(node -> {
       if (node instanceof Place p) {
@@ -90,12 +90,12 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
    * Call this method to update tokens status. For example it can ben called after
    * first subscription to the net to refresh "last computation step" in the
    * computation
-   * 
+   *
    */
   public void updateComputation() {
     Map<String, Integer> initialMarking = (computation != null && !computation.getSteps().isEmpty())
-        ? computation.getSteps().getLast().getMarkingState()
-        : Map.of();
+            ? computation.getSteps().getLast().getMarkingState()
+            : Map.of();
 
     petriNetModel.getNodes().forEach(node -> {
       if (node instanceof Place p) {
@@ -137,8 +137,8 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
     this.petriNetModel = new PNMLParser().parse(petriNetPNML);
 
     Map<String, Integer> initialMarking = (computation != null && !computation.getSteps().isEmpty())
-        ? computation.getSteps().getLast().getMarkingState()
-        : Map.of();
+            ? computation.getSteps().getLast().getMarkingState()
+            : Map.of();
 
     petriNetModel.getNodes().forEach(node -> {
       if (node instanceof Place p) {
@@ -148,7 +148,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
     });
 
     petriNetModel.getConnections()
-        .forEach((from, toNodes) -> toNodes.forEach(to -> addArcToGraph(from.getName(), to.getName())));
+            .forEach((from, toNodes) -> toNodes.forEach(to -> addArcToGraph(from.getName(), to.getName())));
   }
 
   @Override
@@ -181,39 +181,39 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
 
   private Map<String, Integer> consumeTokensAndGetCurrentMarking(Vertex<Node> transitionVertex) {
     Map<String, Integer> currentMarking = getGraphVertices().stream()
-        .filter(v -> v.element() instanceof Place)
-        .map(v -> (Place) v.element())
-        .filter(p -> p.getPlaceTokens() > 0)
-        .collect(Collectors.toMap(Place::getName, Place::getPlaceTokens));
+            .filter(v -> v.element() instanceof Place)
+            .map(v -> (Place) v.element())
+            .filter(p -> p.getPlaceTokens() > 0)
+            .collect(Collectors.toMap(Place::getName, Place::getPlaceTokens));
 
     incidentEdges(transitionVertex).stream()
-        .map(edge -> getOppositeVertex(edge, transitionVertex))
-        .forEach(placeVertex -> {
-          if (placeVertex.element() instanceof Place p) {
-            p.setPlaceTokens(0); // Assumes weight of 1 and consuming all tokens
-            currentMarking.remove(p.getName());
-          } else {
-            throw new IllegalStateException("Transition input must be a Place.");
-          }
-        });
+            .map(edge -> getOppositeVertex(edge, transitionVertex))
+            .forEach(placeVertex -> {
+              if (placeVertex.element() instanceof Place p) {
+                p.setPlaceTokens(0); // Assumes weight of 1 and consuming all tokens
+                currentMarking.remove(p.getName());
+              } else {
+                throw new IllegalStateException("Transition input must be a Place.");
+              }
+            });
     return currentMarking;
   }
 
   private void produceTokens(Vertex<Node> transitionVertex, Map<String, Integer> marking) {
     outboundEdges(transitionVertex).stream()
-        .map(edge -> getOppositeVertex(edge, transitionVertex))
-        .forEach(placeVertex -> {
-          if (placeVertex.element() instanceof Place p) {
-            p.incrementPlaceTokens();
-            marking.put(p.getName(), p.getPlaceTokens());
-            if (p.getType() == PLACE_TYPE.END && onPetriNetFinished != null) {
-              onPetriNetFinished.run();
-              disableInteraction();
-            }
-          } else {
-            throw new IllegalStateException("Transition output must be a Place.");
-          }
-        });
+            .map(edge -> getOppositeVertex(edge, transitionVertex))
+            .forEach(placeVertex -> {
+              if (placeVertex.element() instanceof Place p) {
+                p.incrementPlaceTokens();
+                marking.put(p.getName(), p.getPlaceTokens());
+                if (p.getType() == PLACE_TYPE.END && onPetriNetFinished != null) {
+                  onPetriNetFinished.run();
+                  disableInteraction();
+                }
+              } else {
+                throw new IllegalStateException("Transition output must be a Place.");
+              }
+            });
   }
 
   public TRANSITION_TYPE getTypeByTransitionName(String transition) {
@@ -236,8 +236,8 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
       if (vertex.element() instanceof Transition t) {
         setNodeStyle(vertex, (t.getType().equals(TRANSITION_TYPE.USER) ? USER_TRANSITION_STYLE : ADMIN_TRANSITION_STYLE));
         boolean isEnabled = incidentEdges(vertex).stream()
-            .map(edge -> getOppositeVertex(edge, vertex))
-            .allMatch(node -> ((Place) node.element()).getPlaceTokens() > 0);
+                .map(edge -> getOppositeVertex(edge, vertex))
+                .allMatch(node -> ((Place) node.element()).getPlaceTokens() > 0);
 
         if (isEnabled){
           firableTransitions.add(t);
@@ -275,7 +275,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
 
   /**
    * Sets a callback for when a transition is fired.
-   * 
+   *
    * @param onTransitionFired A TriConsumer that accepts the fired transition's
    *                          name,
    *                          the new marking state, and a list of newly firable
@@ -287,7 +287,7 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
 
   /**
    * Sets a callback for when the Petri Net reaches a finish place.
-   * 
+   *
    * @param onPetriNetFinished A Runnable to be executed.
    */
   public void setOnPetriNetFinished(Runnable onPetriNetFinished) {

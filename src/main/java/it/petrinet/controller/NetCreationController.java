@@ -151,7 +151,7 @@ public class NetCreationController {
      */
     private void setupToolbar() {
         try {
-            toolbar = new EditorToolBar(canvas);
+            toolbar = new EditorToolBar(this);
             toolbarContainer.getChildren().add(toolbar);
             LOGGER.fine("Toolbar setup completed");
         } catch (Exception e) {

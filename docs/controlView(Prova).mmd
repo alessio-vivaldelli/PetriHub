@@ -1,17 +1,17 @@
+---
+config:
+  layout: elk
+---
 classDiagram
     direction TB
-
-%% Componenti Principali
     class MainController
     class ViewNavigator
     class Navbar
     class Table
-
     class LoginView
     class LoginController
     class RegisterView
     class RegisterController
-
     class HomeView
     class HomeController
     class NetCreationView
@@ -22,14 +22,22 @@ classDiagram
     class ComputationListController
     class NetVisualView
     class NetVisualController
+    class NotificationService
+    class SessionContext
+    class PetriNetVisualPane
+    class PetriNetCreationPane
+    class Notification
+    class User
+    class PetriNet
+    class EnchantedAlert
+    class NotificationFactory
+    class ToolBar
+    class EditorToolBar
+    class ViewToolBar
+    class AbstractPetriNetPane
 
-%% Relazioni
-
-%% Flusso Principale
     MainController --> ViewNavigator : gestisce navigazione
     MainController --> Navbar : imposta
-
-%% Navigazione (ViewNavigator è il perno)
     ViewNavigator --> LoginView : naviga a
     ViewNavigator --> HomeView : naviga a
     ViewNavigator --> RegisterView : naviga a
@@ -38,32 +46,56 @@ classDiagram
     ViewNavigator --> ComputationListView : naviga a
     ViewNavigator --> NetVisualView : naviga a
 
-%% Autenticazione
     LoginView ..> LoginController : genera
     LoginController ..> ViewNavigator : richiede navigazione
-
     RegisterView ..> RegisterController : genera
     RegisterController ..> ViewNavigator : richiede navigazione
-
-%% Navigazione Home
     HomeView ..> HomeController : genera
     HomeController ..> ViewNavigator : richiede navigazione
-
-%% Creazione Contenuti
     NetCreationView ..> NetCreationController : genera
     NetCreationController ..> ViewNavigator : richiede navigazione
-
     ShowAllView ..> ShowAllController : genera
     ShowAllController ..> ViewNavigator : richiede navigazione
-
     ComputationListView ..> ComputationListController : genera
     ComputationListController ..> ViewNavigator : richiede navigazione
+    NetVisualView ..> NetVisualController : genera
+    NetVisualController ..> ViewNavigator : richiede navigazione
 
-%% Utilizzo di Componenti Generici (Table)
     ShowAllController --> Table : usa
     ComputationListController --> Table : usa
     HomeController --> Table : usa
+    NetVisualController --> PetriNetVisualPane
+    NetCreationController --> PetriNetCreationPane
 
-%% Visualizzazione
-    NetVisualView ..> NetVisualController : genera
-    NetVisualController ..> ViewNavigator : richiede navigazione
+    LoginController ..> NotificationService : inizializza
+    LoginController ..> SessionContext : imposta
+    Navbar ..> NotificationService : Logout -> cancella
+    Navbar ..> SessionContext : Logout -> cancella
+    HomeController --> SessionContext : usa
+    HomeController --> NotificationService : usa
+    NetCreationController --> PetriNet : usa
+    NetVisualController --> PetriNet : usa
+    HomeController --> NotificationFactory : serializza
+    SessionContext --> User : usa
+    HomeController --> EnchantedAlert
+    NetCreationController --> EnchantedAlert
+    NetVisualController --> EnchantedAlert
+
+    ToolBar <|-- EditorToolBar
+    ToolBar <|-- ViewToolBar
+
+%% -- NET CREATION CONTROLLER RELATIONS --
+    NetCreationController --> EditorToolBar : crea/usa
+    EditorToolBar --> NetCreationController : callback
+    NetCreationController --> PetriNetCreationPane : crea/usa
+    EditorToolBar --> PetriNetCreationPane : interagisce
+
+%% -- NET VISUAL CONTROLLER RELATIONS --
+    NetVisualController --> ViewToolBar : crea/usa
+    ViewToolBar --> NetVisualController : callback
+    NetVisualController --> PetriNetVisualPane : crea/usa
+    ViewToolBar --> PetriNetVisualPane : interagisce
+
+    NotificationService --> Notification : usa
+    AbstractPetriNetPane <|-- PetriNetCreationPane
+    AbstractPetriNetPane <|-- PetriNetVisualPane

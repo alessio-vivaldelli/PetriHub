@@ -19,10 +19,10 @@ public class ViewToolBar extends ToolBar {
     private final PetriNetViewerPane board;
     private final NetVisualController controller;
 
-    public ViewToolBar(PetriNetViewerPane board, NetVisualController controller) {
+    public ViewToolBar(NetVisualController controller) {
         super();
         // REFACTOR: Le dipendenze vengono impostate come final per garantire che non cambino dopo la costruzione.
-        this.board = board;
+        this.board = controller.getBoard();
         this.controller = controller;
     }
 

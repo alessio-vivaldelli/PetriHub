@@ -396,7 +396,7 @@ public class HomeController implements Initializable {
     }
 
     @FXML
-    public void handleNewNetClick(ActionEvent event)  {
+    public void handleNewNetClick()  {
         String netName = getValidNetName();
         if(netName != null) safeNavigate(() -> ViewNavigator.toNetCreation(netName));
     }
