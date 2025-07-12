@@ -1,8 +1,8 @@
 sequenceDiagram
     participant Caller
-    participant Parser as PNMLParser
-    participant Document as org.w3c.dom.Document
-    participant Builder as PetriNetBuilder
+    participant Parser as parser : PNMLParser
+    participant Document as doc : org.w3c.dom.Document
+    participant Builder as builder : PetriNetBuilder
     Caller ->>+ Parser: parse(filePath)
     Parser ->>+ Document: parse(file)
     alt parsing fallito

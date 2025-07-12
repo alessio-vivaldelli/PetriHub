@@ -1,13 +1,10 @@
 sequenceDiagram
     actor Admin as :Admin
-    participant EditorPane as PetriNetEditorPane
-    participant Popup as PopupMenu
-    participant Builder as PetriNetBuilder
-    participant GraphView as SmartGraphPanel
-    participant EditorPane as PetriNetEditorPane
-    participant Builder as PetriNetBuilder
+    participant Popup as alert : EnhancedAlert
+    participant GraphView as graph : SmartGraphPanel
+    participant EditorPane as editorPane : PetriNetEditorPane
+    participant Builder as builder : PetriNetBuilder
 
-    participant GraphView as SmartGraphPanel
 
     Admin->>EditorPane: onCanvasSingleClickAction(point)
     activate EditorPane

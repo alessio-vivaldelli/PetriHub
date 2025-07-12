@@ -1,9 +1,9 @@
 sequenceDiagram
     actor Persona as :Perona
-    participant Controller as NetVisualController
+    participant Controller as controller : NetVisualController
 
-     participant Pane as PetriNetViewerPane
-     participant Model as PetriNetModel
+     participant Pane as viewerPane : PetriNetViewerPane
+     participant Model as model : PetriNetModel
 
 
     Persona ->>+ Pane: click Transition

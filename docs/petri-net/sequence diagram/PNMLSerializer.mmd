@@ -1,8 +1,8 @@
 sequenceDiagram
-    participant Caller as PetriNetEditorPanec
-    participant Serializer as PNMLSerializer
-    participant Model as PetriNetModel
-    participant Document as org.w3c.dom.Document
+    participant Caller as editorPane : PetriNetEditorPanec
+    participant Serializer as serializer : PNMLSerializer
+    participant Model as model : PetriNetModel
+    participant Document as doc : org.w3c.dom.Document
     participant Transformer
     Caller ->>+ Serializer: serialize(petriNetModel)
     activate Serializer

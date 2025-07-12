@@ -1,14 +1,32 @@
 sequenceDiagram
-    actor Admin as :Admin
-    participant EditorPane as PetriNetEditorPane
-    participant Popup as PopupMenu
-    participant Builder as PetriNetBuilder
-    participant GraphView as SmartGraphPanel
-    participant EditorPane as PetriNetEditorPane
-    participant Builder as PetriNetBuilder
+    actor User as :User
+    participant EditorPane as editorPane : PetriNetEditorPane
+    participant Builder as builder : PetriNetBuilder
+    participant GraphView as graph : SmartGraphPanel
 
-    participant GraphView as SmartGraphPanel
+    User->>+EditorPane: onVertexSingleClickAction(vertex1)
+    Note right of EditorPane: L'utente clicca sul primo nodo
+    EditorPane->>EditorPane: firstVertex = vertex1
+    deactivate EditorPane
 
-    Admin->>EditorPane: onSingleSingleClickAction(point)
+    User->>+EditorPane: onVertexSingleClickAction(vertex2)
+    Note right of EditorPane: L'utente clicca sul secondo nodo
+
+alt Connessione tra Place a Transition o viceversa
+
+EditorPane->>+Builder: addArc(firstVertex.name, vertex2.name)
+Builder-->>-EditorPane: PetriNetBuilder
+
+EditorPane->>+GraphView: insertEdge(firstVertex, vertex2, "label")
+GraphView-->>-EditorPane:<br>
+
+EditorPane->>GraphView: update()
 
 
+else La connessione NON è valida
+EditorPane->>User: showMessage(AlertType.ERROR, "Incompatible Nodes", ...)
+end
+
+EditorPane->>EditorPane: firstSelectedVertex = null
+
+deactivate EditorPane

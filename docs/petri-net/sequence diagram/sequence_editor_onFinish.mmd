@@ -1,12 +1,12 @@
 sequenceDiagram
     actor Admin as :Admin
-    participant Controller as NetCreationController
+    participant Controller as controller : NetCreationController
 
-    participant EditorPane as PetriNetEditorPane
-    participant Builder as PetriNetBuilder
-    participant GraphView as SmartGraphPanel
-    participant EditorPane as PetriNetEditorPane
-    participant Builder as PetriNetBuilder
+    participant EditorPane as editorPane : PetriNetEditorPane
+    participant Builder as builder : PetriNetBuilder
+    participant GraphView as graph : SmartGraphPanel
+    participant EditorPane as editorPane : PetriNetEditorPane
+    participant Builder as builder : PetriNetBuilder
 
     Admin->>EditorPane: Salva rete
     activate EditorPane
@@ -16,13 +16,13 @@ sequenceDiagram
 
 
     alt La rete è valida
-        create participant Model as PetriNetModel
+        create participant Model as model : PetriNetModel
 
         Builder->>+Model: new(name, nodes, arcs, ...)
         Model-->>-Builder: PetriNetModel
         Builder-->>EditorPane: petriNetModel
 
-        create participant Serializer as PNMLSerializer
+        create participant Serializer as serializer : PNMLSerializer
         EditorPane->>Serializer: serialize(petriNetModel)
         activate Serializer
         Note right of Serializer: Scrive il modello su un file PNML.
