@@ -26,7 +26,7 @@ public class NotificationService {
                     NotificationsDAO.getNotificationsByReceiver(user):
                     NotificationsDAO.extractNotificationsByReceiver(user);
             //Todo: Delete bugfix mode
-            notifications.reversed(); //Todo: notifications shows in reverse order...
+            //notifications.reversed(); //Todo: notifications shows in reverse order...
         } else {
             notifications = new TreeSet<>();
         }
