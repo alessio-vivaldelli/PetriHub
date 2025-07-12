@@ -225,19 +225,23 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
   }
 
   private List<Transition> computeAndApplyFirableTransitions() {
-    if (computation != null) {
-      if(computation.isFinished()){
-        disableInteraction();
-        return new ArrayList<>();
-      }
-    }
+
     List<Transition> firableTransitions = new ArrayList<>();
     getGraphVertices().forEach(vertex -> {
       if (vertex.element() instanceof Transition t) {
         setNodeStyle(vertex, (t.getType().equals(TRANSITION_TYPE.USER) ? USER_TRANSITION_STYLE : ADMIN_TRANSITION_STYLE));
+
+        if(computation != null) {
+          if (computation.isFinished()) {
+            disableInteraction();
+            t.setIsFirable(false);
+            return;
+          }
+        }
+
         boolean isEnabled = incidentEdges(vertex).stream()
                 .map(edge -> getOppositeVertex(edge, vertex))
-                .allMatch(node -> ((Place) node.element()).getPlaceTokens() > 0);
+                .allMatch(node -> (((Place) node.element()).getPlaceTokens() > 0) );
 
         if (isEnabled){
           firableTransitions.add(t);
