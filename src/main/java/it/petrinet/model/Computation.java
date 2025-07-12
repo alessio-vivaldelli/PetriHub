@@ -34,7 +34,7 @@ import java.util.*;
  * @version 1.0
  * @since 1.0
  */
-public class Computation {
+public class Computation implements Comparable<Computation> {
 
   public enum NEXT_STEP_TYPE {
     NONE,
@@ -502,6 +502,11 @@ public class Computation {
     if (value == null || value.trim().isEmpty()) {
       throw new IllegalArgumentException(fieldName + " cannot be null or empty");
     }
+  }
+
+  @Override
+  public int compareTo(Computation o) {
+    return Long.compare(startTimestamp, o.startTimestamp);
   }
 
 }

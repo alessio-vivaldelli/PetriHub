@@ -4,10 +4,11 @@ import it.petrinet.model.Notification;
 import it.petrinet.model.database.NotificationsDAO;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 
 public class NotificationService {
     private static NotificationService instance;
-    private List<Notification> notifications = Collections.emptyList();
+    private TreeSet<Notification> notifications = new TreeSet<>();
     private final static boolean bugfixMode = false; // Todo: Delete bugfix mode
 
     private NotificationService() { }
@@ -25,13 +26,13 @@ public class NotificationService {
                     NotificationsDAO.getNotificationsByReceiver(user):
                     NotificationsDAO.extractNotificationsByReceiver(user);
             //Todo: Delete bugfix mode
-
+            notifications.reversed(); //Todo: notifications shows in reverse order...
         } else {
-            notifications = Collections.emptyList();
+            notifications = new TreeSet<>();
         }
     }
 
-    public List<Notification> getNotifications() {
+    public TreeSet<Notification> getNotifications() {
         return notifications;
     }
 
@@ -40,6 +41,6 @@ public class NotificationService {
     }
 
     public void clear() {
-        notifications = Collections.emptyList();
+        notifications = new TreeSet<>();
     }
 }

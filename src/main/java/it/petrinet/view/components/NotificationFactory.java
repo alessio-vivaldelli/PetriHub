@@ -233,7 +233,7 @@ public final class NotificationFactory {
 
     private static String formatTimestamp(long timestamp) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
-        return Instant.ofEpochMilli(timestamp)
+        return Instant.ofEpochSecond(timestamp)
                 .atZone(ZoneId.systemDefault())
                 .format(formatter);
     }

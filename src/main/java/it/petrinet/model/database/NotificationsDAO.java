@@ -1,5 +1,6 @@
 package it.petrinet.model.database;
 
+import com.sun.source.tree.Tree;
 import it.petrinet.model.Notification;
 import it.petrinet.model.PetriNet;
 import it.petrinet.model.User;
@@ -7,6 +8,7 @@ import it.petrinet.model.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Data Access Object for handling operations related to notifications in the database.
@@ -134,8 +136,8 @@ public class NotificationsDAO implements DataAccessObject {
      * @param receiver the user who received the notifications
      * @return list of notifications received
      */
-    public static List<Notification> getNotificationsByReceiver(User receiver) {
-        List<Notification> filteredNotifications = new ArrayList<>();
+    public static TreeSet<Notification> getNotificationsByReceiver(User receiver) {
+        TreeSet<Notification> filteredNotifications = new TreeSet<>();
         String command = "SELECT * FROM notifications WHERE receiver = ?";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
@@ -228,8 +230,8 @@ public class NotificationsDAO implements DataAccessObject {
      * @param receiver the notification receiver
      * @return the removed notification or null
      */
-    public static List<Notification> extractNotificationsByReceiver(User receiver) {
-        List<Notification> myNots = new ArrayList<Notification>();
+    public static TreeSet<Notification> extractNotificationsByReceiver(User receiver) {
+        TreeSet<Notification> myNots = new TreeSet<>();
         String command = "SELECT * FROM notifications WHERE receiver = ?";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);

@@ -72,7 +72,7 @@ public class HomeController implements Initializable {
     private boolean isThisInstanceInitialized = false;
     private User currentUser;
 
-    private final List<Notification> notifications = NotificationService.getInstance().getNotifications();
+    private final TreeSet<Notification> notifications = NotificationService.getInstance().getNotifications();
 
     @FXML private VBox activityFeedContainer;
     @FXML private ScrollPane activityScrollPane;
