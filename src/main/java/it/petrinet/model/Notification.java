@@ -1,6 +1,6 @@
 package it.petrinet.model;
 
-public class Notification {
+public class Notification implements Comparable<Notification> {
 
     private String sender;
     private String receiver;
@@ -42,5 +42,10 @@ public class Notification {
 
   public long getTimestamp(){
         return timestamp;
+    }
+
+    @Override
+    public int compareTo(Notification o) {
+        return Long.compare(this.timestamp, o.timestamp);
     }
 }
