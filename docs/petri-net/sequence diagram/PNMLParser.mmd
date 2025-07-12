@@ -1,0 +1,42 @@
+sequenceDiagram
+    participant Caller
+    participant Parser as PNMLParser
+    participant Document as org.w3c.dom.Document
+    participant Builder as PetriNetBuilder
+    Caller ->>+ Parser: parse(filePath)
+    Parser ->>+ Document: parse(file)
+    alt parsing fallito
+        Document ->> Caller: IOException
+    end
+    Document -->>- Parser: doc
+    Parser ->>+ Document: getElementsByTagNameNS("place")
+    Document -->>- Parser: nodeList of Places
+
+    loop Per ogni 'placeElement' nel nodeList
+        Note right of Parser: Estrae id, tipo, posizione.
+        Parser ->>+ Builder: newPlace(id).withType(...).withPosition(...)
+        Builder -->>- Parser: PetriNetBuilder
+    end
+
+    Parser ->>+ Document: getElementsByTagNameNS("transition")
+    Document -->>- Parser: nodeList of Transitions
+    loop Per ogni 'transitionElement' nel nodeList
+        Note right of Parser: Estrae id, tipo, posizione.
+        Parser ->>+ Builder: newTransition(id).withType(...)
+        Builder -->>- Parser: PetriNetBuilder
+    end
+
+    Parser ->>+ Document: getElementsByTagNameNS("arc")
+    Document -->>- Parser: nodeList of Arcs
+    loop Per ogni 'arcElement' nel nodeList
+        Note right of Parser: Estrae sorgente e destinazione.
+        Parser ->>+ Builder: addArc(source, target)
+        Builder -->>- Parser: PetriNetBuilder
+    end
+
+    Parser ->>+ Builder: build()
+    alt parsing fallito
+        Builder ->> Caller: IllegalConnectionException
+    end
+    Builder -->>- Parser: petriNetModel
+    Parser -->>- Caller: petriNetModel

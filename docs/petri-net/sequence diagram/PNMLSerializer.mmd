@@ -1,0 +1,39 @@
+sequenceDiagram
+    participant Caller as PetriNetEditorPanec
+    participant Serializer as PNMLSerializer
+    participant Model as PetriNetModel
+    participant Document as org.w3c.dom.Document
+    participant Transformer
+    Caller ->>+ Serializer: serialize(petriNetModel)
+    activate Serializer
+    Serializer ->>+ Document: new()
+    alt creazione fallita
+        Document ->> Caller: IOException
+    end
+    Document -->>- Serializer: doc
+    Serializer ->>+ Model: getNodes()
+    Model -->>- Serializer: list of Nodes
+
+    loop Per ogni Nodo nel Modello
+        Serializer ->> Serializer: serializeNode(doc, node)
+        Note right of Serializer: Aggiunge l'elemento al 'pageElement' del documento,<br>dopo aver trasformato il nodo in un oggetto XML
+    end
+
+    Serializer ->>+ Model: getConnections()
+    Model -->>- Serializer: map of Connections
+
+    loop Per ogni Connessione nel Modello
+        Serializer ->> Serializer: serializeArc(from, to)
+        Note right of Serializer: Crea un 'arcElement' e lo aggiunge al 'pageElement'.
+    end
+
+    Serializer ->>+ Transformer: newTransformer()
+    Transformer -->>- Serializer: transformer
+    Serializer ->>+ Transformer: transform(doc, result)
+    Note right of Transformer: Scrive il contenuto del documento in un file XML.
+    alt salvataggio fallito
+        Transformer ->> Caller: IOException
+    end
+    Transformer -->>- Serializer: risultato
+    Serializer ->> Caller: risultato
+    deactivate Serializer
