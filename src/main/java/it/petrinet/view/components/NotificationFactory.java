@@ -50,6 +50,8 @@ public final class NotificationFactory {
         END_COMPUTATION,
         /** An unsubscribe computation event */
         UNSUBSCRIBE,
+        /** When user can fire transition */
+        AVAILABLE_TRANSITION,
     }
 
     /**
@@ -217,6 +219,7 @@ public final class NotificationFactory {
             case RESTART -> String.format("%s has restarted the computation on %s", sender, netName);
             case END_COMPUTATION -> String.format("%s's computation on %s has ended", sender, netName);
             case UNSUBSCRIBE -> String.format("%s unsubscribed from %s", sender, netName);
+            case AVAILABLE_TRANSITION -> String.format("You can fire a transition on %s", netName);
         };
     }
 
@@ -228,6 +231,7 @@ public final class NotificationFactory {
             case RESTART -> "#fab387";
             case END_COMPUTATION -> "#f38ba8";
             case UNSUBSCRIBE -> "#f38ba8"; //cambialo se vuoi <3
+            case AVAILABLE_TRANSITION -> "#a6e3a1";
         };
     }
 

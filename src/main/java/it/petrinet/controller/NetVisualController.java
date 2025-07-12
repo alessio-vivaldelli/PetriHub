@@ -472,39 +472,23 @@ public class NetVisualController {
     Notification caseNotification = null;
     caseNotification = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
                 System.currentTimeMillis() / 1000);
-        NotificationsDAO.insertNotification(caseNotification);
+    NotificationsDAO.insertNotification(caseNotification);
 
-//    switch (type) {
-//      case NotificationFactory.MessageType.UNSUBSCRIBE, NotificationFactory.MessageType.END_COMPUTATION,
-//           NotificationFactory.MessageType.SUBSCRIPTION, NotificationFactory.MessageType.RESTART -> {
-//        caseNotification = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
-//                System.currentTimeMillis() / 1000);
-//        NotificationsDAO.insertNotification(caseNotification);
-//      }
-//      case NotificationFactory.MessageType.STARTED_COMPUTATION, NotificationFactory.MessageType.FIRED_TRANSITION -> {
-//
-//        if(transitions.isEmpty() || type.equals(NotificationFactory.MessageType.STARTED_COMPUTATION)) {
-//          caseNotification = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
-//                  System.currentTimeMillis() / 1000);
-//          NotificationsDAO.insertNotification(caseNotification);
-//        }
-//
-//        transitions.forEach(t -> {
-//          Notification tmp = null;
-//
-//          if (t.getType().equals(TRANSITION_TYPE.ADMIN) && !username.equals(computation.getCreatorId())) {
-//            tmp = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
-//                    System.currentTimeMillis() / 1000);
-//          } else if (t.getType().equals(TRANSITION_TYPE.USER) && username.equals(computation.getCreatorId())) {
-//            tmp = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
-//                    System.currentTimeMillis() / 1000);
-//          }
-//          if (tmp != null) {
-//            NotificationsDAO.insertNotification(tmp);
-//          }
-//        });
-//      }
-//    }
+   transitions.forEach(t -> {
+      Notification tmp = null;
+
+      if (t.getType().equals(TRANSITION_TYPE.ADMIN) && !username.equals(computation.getCreatorId())) {
+        tmp = new Notification(username, computation.getCreatorId(), netModel.getNetName(), NotificationFactory.MessageType.AVAILABLE_TRANSITION.ordinal(),
+                System.currentTimeMillis() / 1000);
+      } else if (t.getType().equals(TRANSITION_TYPE.USER) && username.equals(computation.getCreatorId())) {
+        tmp = new Notification(username, computation.getUserId(), netModel.getNetName(), NotificationFactory.MessageType.AVAILABLE_TRANSITION.ordinal(),
+                System.currentTimeMillis() / 1000);
+      }
+      if (tmp != null) {
+        NotificationsDAO.insertNotification(tmp);
+      }
+    });
+
   }
 
   private int computeNextStepType(List<Transition> transitions) {
