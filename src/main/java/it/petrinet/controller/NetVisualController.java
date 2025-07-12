@@ -117,8 +117,8 @@ public class NetVisualController {
           computation.clearSteps();
           computation.setEndDate(0);
           computation.setStartDate(0);
-
           processNextStepAndNotifications( NotificationFactory.MessageType.RESTART);
+          board.setComputation(computation);
           updateUiForState(VisualState.NOT_STARTED);
 
           updateHistoryIfVisible();
@@ -467,40 +467,44 @@ public class NetVisualController {
     ComputationsDAO.setNextStepType(computation, nextStep);
 
     String username = SessionContext.getInstance().getUser().getUsername();
+    String receiver = (username.equals(computation.getCreatorId())) ? computation.getUserId() : computation.getCreatorId();
 
     Notification caseNotification = null;
-
-    switch (type) {
-      case NotificationFactory.MessageType.UNSUBSCRIBE, NotificationFactory.MessageType.END_COMPUTATION,
-           NotificationFactory.MessageType.SUBSCRIPTION, NotificationFactory.MessageType.RESTART -> {
-        caseNotification = new Notification(username, computation.getCreatorId(), netModel.getNetName(), type.ordinal(),
+    caseNotification = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
                 System.currentTimeMillis() / 1000);
         NotificationsDAO.insertNotification(caseNotification);
-      }
-      case NotificationFactory.MessageType.STARTED_COMPUTATION, NotificationFactory.MessageType.FIRED_TRANSITION -> {
 
-        if(transitions.isEmpty()) {
-          caseNotification = new Notification(username, computation.getCreatorId(), netModel.getNetName(), type.ordinal(),
-                  System.currentTimeMillis() / 1000);
-          NotificationsDAO.insertNotification(caseNotification);
-        }
-
-        transitions.forEach(t -> {
-          Notification tmp = null;
-
-          if (t.getType().equals(TRANSITION_TYPE.ADMIN) && !username.equals(computation.getCreatorId())) {
-            tmp = new Notification(username, computation.getCreatorId(), netModel.getNetName(), type.ordinal(),
-                    System.currentTimeMillis() / 1000);
-          } else if (t.getType().equals(TRANSITION_TYPE.USER) && username.equals(computation.getCreatorId())) {
-            tmp = new Notification(username, computation.getUserId(), netModel.getNetName(), type.ordinal(),
-                    System.currentTimeMillis() / 1000);
-          }
-          if (tmp != null) {
-            NotificationsDAO.insertNotification(tmp);
-          }
-        });
-      }
-    }
+//    switch (type) {
+//      case NotificationFactory.MessageType.UNSUBSCRIBE, NotificationFactory.MessageType.END_COMPUTATION,
+//           NotificationFactory.MessageType.SUBSCRIPTION, NotificationFactory.MessageType.RESTART -> {
+//        caseNotification = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
+//                System.currentTimeMillis() / 1000);
+//        NotificationsDAO.insertNotification(caseNotification);
+//      }
+//      case NotificationFactory.MessageType.STARTED_COMPUTATION, NotificationFactory.MessageType.FIRED_TRANSITION -> {
+//
+//        if(transitions.isEmpty() || type.equals(NotificationFactory.MessageType.STARTED_COMPUTATION)) {
+//          caseNotification = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
+//                  System.currentTimeMillis() / 1000);
+//          NotificationsDAO.insertNotification(caseNotification);
+//        }
+//
+//        transitions.forEach(t -> {
+//          Notification tmp = null;
+//
+//          if (t.getType().equals(TRANSITION_TYPE.ADMIN) && !username.equals(computation.getCreatorId())) {
+//            tmp = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
+//                    System.currentTimeMillis() / 1000);
+//          } else if (t.getType().equals(TRANSITION_TYPE.USER) && username.equals(computation.getCreatorId())) {
+//            tmp = new Notification(username, receiver, netModel.getNetName(), type.ordinal(),
+//                    System.currentTimeMillis() / 1000);
+//          }
+//          if (tmp != null) {
+//            NotificationsDAO.insertNotification(tmp);
+//          }
+//        });
+//      }
+//    }
   }
 
   private int computeNextStepType(List<Transition> transitions) {
