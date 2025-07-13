@@ -255,4 +255,25 @@ public class NotificationsDAO implements DataAccessObject {
         }
         return myNots;
     }
+
+    public static boolean isNotificationPresentType6(Notification notification){
+        String command = "SELECT * FROM notifications WHERE type = 6, netId = ?, sender = ?, receiver = ?";
+        try (Connection connection = DatabaseManager.getDBConnection();
+             PreparedStatement p_statement = connection.prepareStatement(command);
+             Statement statement = connection.createStatement()) {
+
+            DatabaseManager.enableForeignKeys(statement);
+
+            p_statement.setString(1, notification.getNetId());
+            p_statement.setString(2, notification.getSender());
+            p_statement.setString(3, notification.getReceiver());
+            ResultSet result = p_statement.executeQuery();
+            if (result.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            DatabaseManager.handleSQLException("getNotificationsByTimestamp", e);
+        }
+        return false;
+    }
 }
