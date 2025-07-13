@@ -1,0 +1,74 @@
+stateDiagram
+
+    [*] --> InserisciNome
+
+    state if_state <<choice>> 
+    InserisciNome --> if_state : Controllo\nvalidità
+    if_state --> InserisciNome : False
+    if_state --> InterfacciaCreazione : True
+
+    state is_valid <<choice>>
+    InterfacciaCreazione -->  addPlace
+    state placeName <<choice>>
+    state placeOption <<fork>>
+
+    state addPlace {
+        [*] --> inserisciNomePlace
+
+        inserisciNomePlace --> placeName : In\nuso?
+        placeName -->  inserisciNomePlace : Sì
+        placeName --> placeOption : No
+
+        placeOption --> impostaStart
+        placeOption --> impostaFinish
+        placeOption--> [*]
+
+        impostaStart --> [*]
+        impostaFinish --> [*]
+    }
+    addPlace --> InterfacciaCreazione
+
+    InterfacciaCreazione --> addTransition
+    state transitionName <<choice>>
+    state transitionOption <<fork>>
+    state addTransition {
+        [*] --> inserisciNomeTransition
+        inserisciNomeTransition --> transitionName : In\nuso?
+        transitionName --> inserisciNomeTransition : Sì
+        transitionName --> nuovaUserTransition : No
+
+        nuovaUserTransition --> transitionOption
+        transitionOption --> impostaAdminTransition
+        transitionOption --> [*]
+
+        impostaAdminTransition --> [*]
+    }
+    addTransition --> InterfacciaCreazione
+
+    InterfacciaCreazione --> addConnection
+    state connectionOption <<fork>>
+    state connectionNodes <<choice>>
+    state connectionJoin <<join>>
+    state addConnection{
+        [*] --> connectionOption
+        connectionOption --> nodo1
+        connectionOption --> nodo2
+        nodo1 --> connectionJoin
+        nodo2 --> connectionJoin
+
+        connectionJoin --> connectionNodes : Collegamento valido?
+
+        connectionNodes --> [*] : Sì
+        connectionNodes --> MostraErrore : No
+        MostraErrore --> [*]
+    }
+
+    addConnection --> InterfacciaCreazione
+
+    InterfacciaCreazione --> Fine
+    Fine --> is_valid : Controllo\nvalidità
+
+    is_valid --> InterfacciaCreazione : False
+    is_valid --> Salvataggio : True
+
+    Salvataggio --> [*]
