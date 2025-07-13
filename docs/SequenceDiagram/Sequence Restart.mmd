@@ -1,0 +1,33 @@
+sequenceDiagram
+    actor User as :User
+    participant controller as :NetVisualController
+    participant alert as :EnchantedAlert
+    participant dao1 as :ComputationsDAO
+    participant dao2 as :ComputationStepDAO
+    participant comp as computation:Computation
+
+    User->>controller: restartAction()
+    activate controller
+
+    controller->>+ alert: showConfirmation(...)
+    activate alert
+    alert->>User: showAlert(...)
+    User->>alert: scelta
+    alert->>controller: risultato
+    deactivate alert
+
+    alt Rifiuta
+        controller -->> User: azione annullata
+    else Accetta
+        controller ->> dao2: restartComputation(computation)
+        controller ->> comp: restart()
+        participant board as board:PetriNetViewerPane
+        controller ->> board:updateComputation()
+        controller ->> controller: processNextStepAndNotifications()
+        controller ->> controller: updateUiForState(NOT_STARTED)
+        controller ->> controller: updateHistory()
+        controller -->> User: mostra la rete riavviata
+    end
+
+
+    deactivate controller

@@ -1,0 +1,21 @@
+stateDiagram-v2
+    [*] --> Discover
+
+    Discover --> SelezionaRete
+
+    SelezionaRete --> InterfacciaVisualizzazioneRete
+
+    InterfacciaVisualizzazioneRete --> Sottoscrizione : Subscribe
+    InterfacciaVisualizzazioneRete --> Home : Torna alla home
+
+    Sottoscrizione --> Start : Inizia computazione
+    Sottoscrizione --> Home : Torna alla home
+
+    Start --> EseguiStep
+    Start --> Home : Torna alla home
+
+    EseguiStep --> Home : Torna alla home
+
+    Home --> [*]
+
+

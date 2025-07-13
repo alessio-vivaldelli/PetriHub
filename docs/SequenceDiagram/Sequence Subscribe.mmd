@@ -1,0 +1,21 @@
+sequenceDiagram
+  actor User as :User
+  participant controller as :NetVisualController
+
+  User ->> controller: handleSubscribe()
+  activate controller
+  create participant comp as computation:Computation
+  controller ->>+ comp: new Computation()
+  Note over comp: startTimestamp e endTimestamp = null
+  comp -->>- controller: return
+
+  participant dao as :ComputationDAO
+  controller ->> dao: insertComputation()
+  participant board as board:PetriNetVisualPane
+  controller ->> controller: processNextStepAndNotifications()
+  controller ->> board: setComputation(computation)
+  controller ->> controller: updateUiForState(NOT_STARTED)
+  controller -->> User: mostra schermata
+
+  deactivate controller
+

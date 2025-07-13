@@ -112,15 +112,11 @@ public class NetVisualController {
         "Are you sure you want to restart? This will reset the current computation.",
         () -> {
           ComputationStepDAO.removeAllStepsByComputation(computation);
-          ComputationsDAO.setAsStarted(computation, 0);
-          ComputationsDAO.setAsCompleted(computation, 0);
-          computation.clearSteps();
-          computation.setEndDate(0);
-          computation.setStartDate(0);
-          processNextStepAndNotifications( NotificationFactory.MessageType.RESTART);
+          ComputationsDAO.restartComputation(computation);
+          computation.restart();
+          processNextStepAndNotifications(NotificationFactory.MessageType.RESTART);
           board.setComputation(computation);
           updateUiForState(VisualState.NOT_STARTED);
-
           updateHistoryIfVisible();
         });
   }
