@@ -83,7 +83,7 @@ public class ComputationStep implements Comparable<ComputationStep> {
 
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, Integer> entry : markingState.entrySet()) {
-      if (sb.length() > 0) {
+      if (!sb.isEmpty()) {
         sb.append(",");
       }
       sb.append(entry.getKey()).append(":").append(entry.getValue());
