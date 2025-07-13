@@ -252,7 +252,7 @@ public class NotificationsDAO implements DataAccessObject {
 
             removeNotificationsByReceiver(receiver);
         } catch (SQLException e) {
-            DatabaseManager.handleSQLException("extractNotificationById", e);
+            DatabaseManager.handleSQLException("extractNotificationByReceiver", e);
         }
         return myNots;
     }
@@ -273,7 +273,7 @@ public class NotificationsDAO implements DataAccessObject {
                 return true;
             }
         } catch (SQLException e) {
-            DatabaseManager.handleSQLException("getNotificationsByTimestamp", e);
+            DatabaseManager.handleSQLException("isNotificationPresentType6", e);
         }
         return false;
     }
