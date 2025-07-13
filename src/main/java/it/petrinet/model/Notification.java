@@ -1,5 +1,7 @@
 package it.petrinet.model;
 
+import java.util.Random;
+
 public class Notification implements Comparable<Notification> {
 
     private String sender;
@@ -8,8 +10,9 @@ public class Notification implements Comparable<Notification> {
     private int type;
     private long timestamp;
 
+
     public Notification() {
-        this.sender= "unknown sender";
+        this.sender = "unknown sender";
         this.receiver = "unknown receiver";
         this.netId = "id";
         this.type = 0;
@@ -17,35 +20,39 @@ public class Notification implements Comparable<Notification> {
     }
 
     public Notification(String sender, String receiver, String netId, int type, long timestamp) {
-        this.sender= sender;
+        this.sender = sender;
         this.receiver = receiver;
         this.netId = netId;
         this.type = type;
         this.timestamp = timestamp;
     }
 
-  public String getSender() {
-    return sender;
-  }
+    public String getSender() {
+        return sender;
+    }
 
-  public String getReceiver(){
+    public String getReceiver() {
         return receiver;
     }
 
-  public String getNetId() {
-    return netId;
-  }
+    public String getNetId() {
+        return netId;
+    }
 
-  public int getType() {
-    return type;
-  }
+    public int getType() {
+        return type;
+    }
 
-  public long getTimestamp(){
+    public long getTimestamp() {
         return timestamp;
     }
 
     @Override
     public int compareTo(Notification o) {
-        return Long.compare(this.timestamp, o.timestamp);
+        int d = Long.compare(this.timestamp, o.timestamp);
+        if (d == 0) {
+            return 1;
+        }
+        return d;
     }
 }

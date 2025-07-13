@@ -476,7 +476,6 @@ public class NetVisualController {
 
    transitions.forEach(t -> {
       Notification tmp = null;
-
       if (t.getType().equals(TRANSITION_TYPE.ADMIN) && !username.equals(computation.getCreatorId())) {
         tmp = new Notification(username, computation.getCreatorId(), netModel.getNetName(), NotificationFactory.MessageType.AVAILABLE_TRANSITION.ordinal(),
                 System.currentTimeMillis() / 1000);
