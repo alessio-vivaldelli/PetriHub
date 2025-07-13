@@ -1,0 +1,26 @@
+sequenceDiagram
+  actor User as :User
+  participant controller as :NetVisualController
+  participant a as computation:Computation
+
+
+  User ->> controller: startAction()
+  activate controller
+  create participant step as :ComputationStep
+  controller ->>+ step: new ComputationStep()
+  step -->>- controller: return
+  participant dao1 as ComputationStepDAO
+  participant dao2 as ComputationsDAO
+  controller ->> a: addStep(step)
+  controller ->> dao1: insertStep(step)
+  controller ->> dao2: setAsStarted(computation)
+  participant board as board:PetriNetViewerPane
+  controller ->> board:updateComputation()
+  controller ->> controller: processNextStepAndNotifications()
+  controller ->> controller: updateUiForState(Started)
+  controller ->> controller: updateHistory()
+
+  controller -->> User: Mostra rete iniziata 
+
+  deactivate controller
+
