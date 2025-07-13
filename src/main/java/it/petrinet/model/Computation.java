@@ -505,8 +505,16 @@ public class Computation implements Comparable<Computation> {
   }
 
   @Override
-  public int compareTo(Computation o) {
-    return Long.compare(startTimestamp, o.startTimestamp);
+  public int compareTo(Computation other) {
+    return Comparator.comparingLong(Computation::getStartTimestamp)
+                     .thenComparing(Computation::getNetId)
+                     .compare(this, other);
+  }
+
+  public void restart() {
+    setEndDate(0);
+    setStartDate(0);
+    clearSteps();
   }
 
 }

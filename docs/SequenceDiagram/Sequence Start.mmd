@@ -17,7 +17,7 @@ sequenceDiagram
   participant board as board:PetriNetViewerPane
   controller ->> board:updateComputation()
   controller ->> controller: processNextStepAndNotifications()
-  controller ->> controller: updateUiForState(Started)
+  controller ->> controller: updateUiForState(STARTED)
   controller ->> controller: updateHistory()
 
   controller -->> User: Mostra rete iniziata 

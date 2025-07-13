@@ -1,0 +1,34 @@
+sequenceDiagram
+    actor User as :User
+    participant controller as :NetVisualController
+    participant alert as :EnchantedAlert
+    participant dao1 as :ComputationsDAO
+    participant dao2 as :ComputationStepDAO
+
+    User->>controller: restartAction()
+    activate controller
+
+    controller->>+ alert: showConfirmation(...)
+    activate alert
+    alert->>User: showAlert(...)
+    User->>alert: scelta
+    alert->>controller: risultato
+    deactivate alert
+
+
+    alt Rifiuta
+        controller -->> User: azione annullata
+    else Accetta
+        controller ->>+ dao1: removeAllStepsByComputation(computation)
+        controller ->> dao2: removeComputation(computation)
+        participant board as board:PetriNetViewerPane
+        controller ->> board:setComputation(null)
+        controller ->> controller: processNextStepAndNotifications(UNSUBSCRIBE)
+        controller ->> controller: updateUiForState(SUBSCRIBABLE)
+        controller ->> controller: updateHistory()
+        controller -->> User: mostra la rete sottoscrivibile
+    end
+
+
+
+    deactivate controller

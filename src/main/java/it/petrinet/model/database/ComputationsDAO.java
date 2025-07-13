@@ -537,4 +537,9 @@ public class ComputationsDAO implements DataAccessObject{
         return nets;
     }
 
+    public static void restartComputation(Computation computation) {
+        setAsStarted(computation, 0);
+        setAsCompleted(computation, 0);
+    }
+
 }
