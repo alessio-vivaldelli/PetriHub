@@ -61,11 +61,11 @@ public class NotificationsDAO implements DataAccessObject {
         }
     }
 
-    /**
-     * Inserts a new notification into the database.
-     *
-     * @param notification the notification to insert
-     */
+        /**
+         * Inserts a new notification into the database.
+         *
+         * @param notification the notification to insert
+         */
     public static void insertNotification(Notification notification) {
         String command = "INSERT INTO notifications(sender, receiver, netId, type, timestamp) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseManager.getDBConnection();
@@ -147,13 +147,14 @@ public class NotificationsDAO implements DataAccessObject {
             p_statement.setString(1, receiver.getUsername());
             ResultSet result = p_statement.executeQuery();
             while (result.next()) {
-                filteredNotifications.add(new Notification(
+                boolean res = filteredNotifications.add(new Notification(
                         result.getString("sender"),
                         result.getString("receiver"),
                         result.getString("netId"),
                         result.getInt("type"),
                         result.getLong("timestamp")));
             }
+
         } catch (SQLException e) {
             DatabaseManager.handleSQLException("getNotificationsByReceiver", e);
         }

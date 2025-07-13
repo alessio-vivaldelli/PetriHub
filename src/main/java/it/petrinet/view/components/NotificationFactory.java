@@ -124,7 +124,8 @@ public final class NotificationFactory {
 
             HBox item = new HBox(12);
             item.setPadding(new Insets(12));
-            Background baseBackground = new Background(new BackgroundFill(Color.web("#45475a"), new CornerRadii(8), Insets.EMPTY));
+            // Color.web("#45475a")
+            Background baseBackground = new Background(new BackgroundFill(Color.web(colorHex, 0.13), new CornerRadii(8), Insets.EMPTY));
             item.setBackground(baseBackground);
 
             Region colorRegion = new Region();

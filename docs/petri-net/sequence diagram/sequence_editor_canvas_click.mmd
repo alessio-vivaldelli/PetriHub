@@ -9,7 +9,7 @@ sequenceDiagram
     Admin->>EditorPane: onCanvasSingleClickAction(point)
     activate EditorPane
     loop nome non valido
-        EditorPane->>+Popup: newPopupMenu()
+        EditorPane->>+Popup: new EnhancedAlert()
         Popup-->>-EditorPane: nodeLabel
         break nome valido
             EditorPane->>EditorPane: nodeLabel
