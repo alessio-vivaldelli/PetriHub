@@ -258,7 +258,7 @@ public class NotificationsDAO implements DataAccessObject {
     }
 
     public static boolean isNotificationPresentType6(Notification notification){
-        String command = "SELECT * FROM notifications WHERE type = 6, netId = ?, sender = ?, receiver = ?";
+        String command = "SELECT * FROM notifications WHERE type = 6 AND netId = ? AND sender = ? AND receiver = ?";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
              Statement statement = connection.createStatement()) {

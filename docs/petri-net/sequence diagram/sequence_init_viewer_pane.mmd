@@ -10,9 +10,10 @@ sequenceDiagram
     create participant Parser as parser : PNMLParser
     Pane->>+Parser: parse(netName)
     create participant Model as model : PetriNetModel
-    Parser->>Model: create
+    Parser->>+Model: create
+    Model->>-Parser:petriNetModel
 
-    Parser-->>-Pane: PetriNetModel
+    Parser-->>-Pane: petriNetModel
     Pane->>Pane: addNodes()
     Pane->>Pane: addConnections()
 

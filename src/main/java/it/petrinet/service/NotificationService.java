@@ -9,7 +9,7 @@ import java.util.TreeSet;
 public class NotificationService {
     private static NotificationService instance;
     private TreeSet<Notification> notifications = new TreeSet<>();
-    private final static boolean bugfixMode = true; // Todo: Delete bugfix mode
+    private final static boolean bugfixMode = false; // Todo: Delete bugfix mode
 
     private NotificationService() { }
     public static synchronized NotificationService getInstance() {
@@ -26,7 +26,6 @@ public class NotificationService {
                     NotificationsDAO.getNotificationsByReceiver(user):
                     NotificationsDAO.extractNotificationsByReceiver(user);
             //Todo: Delete bugfix mode
-            //notifications.reversed(); //Todo: notifications shows in reverse order...
         } else {
             notifications = new TreeSet<>();
         }

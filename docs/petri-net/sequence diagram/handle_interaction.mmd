@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant board as board:PetriNetViewerPane
+
+    Note over controller, board: Callback<br>Vengono forniti le nuove transizioni <br>che sono cliccabili<br> e le nuove posizioni dei marker
+
+
+    board ->>+ controller: onTransitionFired<br>(transitionName, new Firaable Transitions,<br> markingsState)
+    create participant computationStep as :ComputationStep
+    controller ->>+ computationStep: new ComputationStep(markingsState)
+    computationStep ->>- controller: step
+    controller ->> computation: addStep(step)
+    controller ->> dao: insertStep(step)
+    controller ->> controller: processNextStepAndNotifications()
+    controller ->> controller: updateUiForState(Started)
+    controller ->> controller: updateHistory()
+    participant controller as :NetVisualController
+    participant computation as computation:Computation
+    participant dao as :ComputationStepsDAO

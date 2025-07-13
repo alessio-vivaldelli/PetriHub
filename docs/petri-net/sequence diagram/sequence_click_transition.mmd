@@ -1,9 +1,9 @@
 sequenceDiagram
     actor Persona as :Perona
-    participant Controller as controller : NetVisualController
+    participant Controller as controller:NetVisualController
 
-     participant Pane as viewerPane : PetriNetViewerPane
-     participant Model as model : PetriNetModel
+     participant Pane as board:PetriNetViewerPane
+     participant Model as model:PetriNetModel
 
 
     Persona ->>+ Pane: click Transition
@@ -28,10 +28,9 @@ sequenceDiagram
     Note over Controller,Pane: Callback<br>Vengono forniti le nuove transizioni che sono cliccabili<br> e le nuove posizioni dei marker
     Pane ->>+ Controller: onTransitionFired<br>(transitionName, new Firaable Transitions,<br> markingsState)
     deactivate Pane
-    Controller ->> Controller: newComputationStep()
-    alt ci sono Transizioni cliccabili per la Persona opposta
-        Controller ->> Controller: aggiungi notificaa sul Databse
-    end
-
+    Controller ->> Controller: insertStep()
+    Controller ->> Controller: processNextStepAndNotifications()
+    Controller ->> Controller: updateHistory()
     deactivate Controller
-    participant Transition as Transition
+    participant Transition as :Transition
+    participant Place as :Place

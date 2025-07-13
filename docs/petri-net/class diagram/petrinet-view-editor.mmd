@@ -42,6 +42,28 @@ classDiagram
         #onVertexSingleClickAction(SmartGraphVertex) void
     }
 
+    class Computation {
+        -NEXT_STEP_TYPE nextStepType
+        -String netId
+        -String creatorId
+        -String userId
+        -long startTimestamp
+        -long endTimestamp
+        -SortedSet~ComputationSteps~ steps
+        +addStep(ComputationStep) boolean
+        +removeStep(ComputationStep) boolean
+        +clearSteps() void
+        +getSteps() SortedSet~ComputationSteps~
+        +getLastStep() ComputationStep
+    }
+
+    class ComputationStep {
+        -long id
+        -String markingState
+        -String transitionName
+        -long timestamp
+    }
+
     class TriConsumer~T, U, V~ {
 <<functional interface>>
 +accept(t: T, u: U, v: V)
@@ -60,6 +82,13 @@ PLACE
 TRANSITION
 }
 
+class NEXT_STEP_TYPE {
+<<enumeration>>
+NONE
+USER
+ADMIN
+BOTH
+}
 AbstractPetriNetPane --|> Pane
 
 PetriNetViewerPane ..> TriConsumer : uses
@@ -74,4 +103,10 @@ PetriNetViewerPane -- MODE
 PetriNetViewerPane -- NODE_TYPE
 
 PetriNetViewerPane ..> PNMLParser : uses
-PetriNetViewerPane ..> PetriNetModel : manages
+PetriNetEditorPane ..> PNMLSerializer : uses
+
+PetriNetViewerPane "1" o-- "1" PetriNetModel
+PetriNetViewerPane "1" o-- "1" Computation
+ComputationStep "1..*" *-- "1" Computation
+Computation -- NEXT_STEP_TYPE
+

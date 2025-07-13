@@ -484,7 +484,9 @@ public class NetVisualController {
                 System.currentTimeMillis() / 1000);
       }
       if (tmp != null) {
-        NotificationsDAO.insertNotification(tmp);
+        if(!NotificationsDAO.isNotificationPresentType6(tmp)){
+          NotificationsDAO.insertNotification(tmp);
+        }
       }
     });
 
