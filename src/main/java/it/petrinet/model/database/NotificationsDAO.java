@@ -7,6 +7,7 @@ import it.petrinet.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -16,14 +17,12 @@ import java.util.TreeSet;
 public class NotificationsDAO implements DataAccessObject {
 
     public static void main(String args[]) {
-        NotificationsDAO not = new NotificationsDAO();
-        not.deleteTable();
-        not.createTable();
+        System.out.println(getNotificationsByReceiver(new User("ale", "ale", true)));
     }
 
     /**
      * Creates the notifications table if it does not already exist.
-     * Includes foreign key constraints to users and Petri nets.
+     * Includes foreign key constraints to useresult and Petri nets.
      */
     public void createTable() {
         String table = "CREATE TABLE IF NOT EXISTS notifications (" +
@@ -33,8 +32,8 @@ public class NotificationsDAO implements DataAccessObject {
                 "netId TEXT NOT NULL, " +
                 "type INTEGER NOT NULL, " +
                 "timestamp LONG NOT NULL, " +
-                "FOREIGN KEY(sender) REFERENCES users(username), " +
-                "FOREIGN KEY(receiver) REFERENCES users(username), " +
+                "FOREIGN KEY(sender) REFERENCES useresult(username), " +
+                "FOREIGN KEY(receiver) REFERENCES useresult(username), " +
                 "FOREIGN KEY(netId) REFERENCES petri_nets(netName) ON DELETE CASCADE" +
                 ")";
         try (Connection conn = DatabaseManager.getDBConnection();
@@ -231,7 +230,7 @@ public class NotificationsDAO implements DataAccessObject {
      * @return the removed notification or null
      */
     public static TreeSet<Notification> extractNotificationsByReceiver(User receiver) {
-        TreeSet<Notification> myNots = new TreeSet<>();
+        TreeSet<Notification> myNots = new TreeSet<>(Comparator.reverseOrder());
         String command = "SELECT * FROM notifications WHERE receiver = ?";
         try (Connection connection = DatabaseManager.getDBConnection();
              PreparedStatement p_statement = connection.prepareStatement(command);
