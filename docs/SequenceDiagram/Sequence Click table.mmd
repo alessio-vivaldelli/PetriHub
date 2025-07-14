@@ -1,0 +1,19 @@
+sequenceDiagram
+    actor User as :User
+    participant ShowAll as :ShowAllController
+    participant DAO as :ComputationsDAO
+
+    User->>ShowAll: clicca sulla riga
+
+    alt categoria == POSSEDUTE
+        ShowAll->>ShowAll: handleClickOwnedNet(riga)
+        ShowAll->>User: naviga verso lista delle computazioni
+
+    else categoria == SOTTOSCRITTE or SCOPRI
+        ShowAll->>ShowAll: gestisciClickAltraRete(riga)
+        ShowAll->>DAO: getNetByName(nomeRete)
+        DAO-->>ShowAll: Info Rete
+        ShowAll->>NavigatorHelper: configura navigazione verso Visual della rete
+        NavigatorHelper-->>ShowAll: configurazione navigazione completata
+        ShowAll->> User: naviga verso VisualeRete
+    end

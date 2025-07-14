@@ -24,7 +24,7 @@ classDiagram
     class NetVisualController
     class NotificationService
     class SessionContext
-    class PetriNetVisualPane
+    class PetriNetViewerPane
     class PetriNetCreationPane
     class Notification
     class User
@@ -64,7 +64,7 @@ classDiagram
     ShowAllController --> Table : usa
     ComputationListController --> Table : usa
     HomeController --> Table : usa
-    NetVisualController --> PetriNetVisualPane
+    NetVisualController --> PetriNetViewerPane
     NetCreationController --> PetriNetCreationPane
 
     LoginController ..> NotificationService : inizializza
@@ -93,9 +93,9 @@ classDiagram
 %% -- NET VISUAL CONTROLLER RELATIONS --
     NetVisualController --> ViewToolBar : crea/usa
     ViewToolBar --> NetVisualController : callback
-    NetVisualController --> PetriNetVisualPane : crea/usa
-    ViewToolBar --> PetriNetVisualPane : interagisce
+    NetVisualController --> PetriNetViewerPane : crea/usa
+    ViewToolBar --> PetriNetViewerPane : interagisce
 
     NotificationService --> Notification : usa
     AbstractPetriNetPane <|-- PetriNetCreationPane
-    AbstractPetriNetPane <|-- PetriNetVisualPane
+    AbstractPetriNetPane <|-- PetriNetViewerPane

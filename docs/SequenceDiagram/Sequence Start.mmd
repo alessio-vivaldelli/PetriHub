@@ -9,8 +9,8 @@ sequenceDiagram
   create participant step as :ComputationStep
   controller ->>+ step: new ComputationStep()
   step -->>- controller: return
-  participant dao1 as ComputationStepDAO
-  participant dao2 as ComputationsDAO
+  participant dao1 as :ComputationStepDAO
+  participant dao2 as :ComputationsDAO
   controller ->> a: addStep(step)
   controller ->> dao1: insertStep(step)
   controller ->> dao2: setAsStarted(computation)

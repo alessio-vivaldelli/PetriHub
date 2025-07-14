@@ -3,7 +3,7 @@ sequenceDiagram
     participant Serializer as serializer : PNMLSerializer
     participant Model as model : PetriNetModel
     participant Document as doc : org.w3c.dom.Document
-    participant Transformer
+    participant Transformer as transformer : Transformer
     Caller ->>+ Serializer: serialize(petriNetModel)
     activate Serializer
     Serializer ->>+ Document: new()
