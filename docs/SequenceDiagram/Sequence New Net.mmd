@@ -1,21 +1,15 @@
 sequenceDiagram
-    actor User
-    participant HC as HomeController
-    participant EA as EnhancedAlert
-    participant V as Validation
-    participant PDAO as PetriNetsDAO
-    participant VN as ViewNavigator
-    participant MC as MainController
-    participant NCC as NetCreationController
-    participant Canvas as PetriNetEditorPane
-    participant TB as EditorToolBar
+    actor User as :User
+    participant HC as :HomeController
+    participant EA as :EnhancedAlert
+    participant VN as :ViewNavigator
     
-    User->>HC: Click "New Net" (handleNewNetClick)
+    User->>HC: Clicca "New Net" (handleNewNetClick)
     activate HC
     
     HC->>HC: getValidNetName()
     
-    loop Name Validation
+    loop Validazione del nome
         HC->>EA: showTextInput("Petri net creation", "Insert a name...", "New Petri net")
         activate EA
         EA-->>User: Show input dialog
@@ -23,70 +17,46 @@ sequenceDiagram
         EA-->>HC: Optional<AlertResult>
         deactivate EA
         
-        alt User presses Cancel
-            Note over HC: Operation cancelled
-        else
+        alt Cancella
+            Note over HC: Annulla l'operazione
+        else Conferma
             HC->>HC: newName = result.get().getTextInput()
             
-            else Empty or null name
+            alt Vuoto, nullo o non valido
                 HC->>EA: showError("Invalid Input", "You must provide a valid name...")
                 activate EA
-                EA-->>User: Show error
+                EA-->>User: Mostra errore
                 deactivate EA
-            else
-                HC->>V: isValidFileName(newName)
-                activate V
-                V-->>HC: true if INVALID
-                deactivate V
-                
-                else Name contains invalid characters
-                    HC->>EA: showError("Invalid Name", "The name contains invalid characters...")
+                else Il nome è già in uso
+                    HC->>EA: showError("This net Already exist", "You must provide a different name...")
                     activate EA
-                    EA-->>User: Show error
+                    EA-->>User: Mostra errore
                     deactivate EA
-                else
-                    HC->>PDAO: getNetByName(newName)
-                    activate PDAO
-                    PDAO-->>HC: Existing PetriNet or null
-                    deactivate PDAO
-                    
-                    else Net already exists
-                        HC->>EA: showError("This net Already exist", "You must provide a different name...")
-                        activate EA
-                        EA-->>User: Show error
-                        deactivate EA
-                    else
-                        Note over HC: Valid name found, exit loop
-
-    end
+                else Nome valido
+                break
+                    Note over HC: uscita del loop
+                end
+            end
+        end
     end
     
     HC->>VN: safeNavigate(() -> ViewNavigator.toNetCreation(netName))
+    deactivate HC
+
     activate VN
-    
-    VN->>MC: setNavBar(null)
-    activate MC
-    MC-->>VN: Confirm navbar removal
-    deactivate MC
-    
     VN->>VN: loadView("NetCreationView.fxml")
+    create participant NCC as :NetCreationController
     VN->>NCC: Create controller instance
     activate NCC
-    
-    VN->>MC: setContent(view)
-    activate MC
-    MC-->>VN: Content set
-    deactivate MC
-    
-    VN->>NCC: Platform.runLater(() -> initData(netName))
-    VN-->>HC: Navigation completed
+
     deactivate VN
-    deactivate HC
-    
-    NCC->>NCC: validateInitialization(netName)
-    NCC->>NCC: initializeComponents()
-    
+
+
+
+
+
     par Parallel Initialization
+        create participant Canvas as :PetriNetEditorPane
         NCC->>Canvas: new PetriNetEditorPane(netName)
         activate Canvas
         Canvas-->>NCC: Canvas created
@@ -94,23 +64,9 @@ sequenceDiagram
         NCC->>NCC: configureCanvas()
         NCC->>NCC: canvasContainer.add(canvas)
     and
-        NCC->>TB: new EditorToolBar(this)
-        activate TB
-        TB-->>NCC: Toolbar created
-        deactivate TB
-        NCC->>NCC: toolbarContainer.add(toolbar)
-    and
+        NCC->>NCC: setToolbar()
         NCC->>NCC: setupFinishButton()
     end
-    
-    NCC->>Canvas: Platform.runLater(() -> canvas.init())
-    activate Canvas
-    Canvas->>Canvas: init()
-    deactivate Canvas
-    Canvas-->>NCC: Canvas initialized
-    
-    NCC->>NCC: isInitialized = true
-    NCC-->>User: Display editing interface
+
+    NCC-->>User: Mostra frame di creazione rete
     deactivate NCC
-    
-    Note over User: Complete interface:<br/>- Editing canvas<br/>- Toolbar<br/>- Finish button
