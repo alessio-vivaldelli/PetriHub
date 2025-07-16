@@ -11,6 +11,7 @@ import it.petrinet.petrinet.model.TRANSITION_TYPE;
 import it.petrinet.petrinet.model.Transition;
 import it.petrinet.petrinet.view.PetriNetViewerPane;
 import it.petrinet.service.SessionContext;
+import it.petrinet.utils.DataModifier;
 import it.petrinet.utils.IconUtils;
 import it.petrinet.view.components.EnhancedAlert;
 import it.petrinet.view.components.NotificationFactory;
@@ -444,7 +445,7 @@ public class NetVisualController {
             netModel.getNetName(),
             transitionName,
             newMarkingState,
-            System.currentTimeMillis() / 1000);
+            System.currentTimeMillis() / 1000 + DataModifier.GTM());
 
     ComputationStepDAO.insertStep(newComputationStep);
 

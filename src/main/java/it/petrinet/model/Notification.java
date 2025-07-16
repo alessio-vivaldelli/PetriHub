@@ -4,6 +4,7 @@ import java.util.Random;
 
 public class Notification implements Comparable<Notification> {
 
+    private long id;
     private String sender;
     private String receiver;
     private String netId;
@@ -20,6 +21,11 @@ public class Notification implements Comparable<Notification> {
     }
 
     public Notification(String sender, String receiver, String netId, int type, long timestamp) {
+        this(new Random().nextLong(), sender, receiver, netId, type, timestamp);
+    }
+
+    public Notification(long id, String sender, String receiver, String netId, int type, long timestamp) {
+        this.id = id;
         this.sender = sender;
         this.receiver = receiver;
         this.netId = netId;

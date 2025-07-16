@@ -78,6 +78,7 @@ public class NotificationsDAO implements DataAccessObject {
             }
 
             DatabaseManager.enableForeignKeys(statement);
+
             p_statement.setString(1, notification.getSender());
             p_statement.setString(2, notification.getReceiver());
             p_statement.setString(3, notification.getNetId());
@@ -148,6 +149,7 @@ public class NotificationsDAO implements DataAccessObject {
             ResultSet result = p_statement.executeQuery();
             while (result.next()) {
                 boolean res = filteredNotifications.add(new Notification(
+                        result.getLong("id"),
                         result.getString("sender"),
                         result.getString("receiver"),
                         result.getString("netId"),
@@ -180,6 +182,7 @@ public class NotificationsDAO implements DataAccessObject {
             ResultSet result = p_statement.executeQuery();
             while (result.next()) {
                 filteredNotifications.add(new Notification(
+                        result.getLong("id"),
                         result.getString("sender"),
                         result.getString("receiver"),
                         result.getString("netId"),
@@ -211,6 +214,7 @@ public class NotificationsDAO implements DataAccessObject {
             ResultSet result = p_statement.executeQuery();
             while (result.next()) {
                 filteredNotifications.add(new Notification(
+                        result.getLong("id"),
                         result.getString("sender"),
                         result.getString("receiver"),
                         result.getString("netId"),
@@ -243,6 +247,7 @@ public class NotificationsDAO implements DataAccessObject {
             ResultSet result = p_statement.executeQuery();
             while (result.next()) {
                 myNots.add(new Notification(
+                        result.getLong("id"),
                         result.getString("sender"),
                         result.getString("receiver"),
                         result.getString("netId"),
