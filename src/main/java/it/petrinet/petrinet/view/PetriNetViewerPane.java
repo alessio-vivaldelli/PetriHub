@@ -190,8 +190,12 @@ public class PetriNetViewerPane extends AbstractPetriNetPane {
             .map(edge -> getOppositeVertex(edge, transitionVertex))
             .forEach(placeVertex -> {
               if (placeVertex.element() instanceof Place p) {
-                p.setPlaceTokens(0); // Assumes weight of 1 and consuming all tokens
-                currentMarking.remove(p.getName());
+                p.decrementPlaceTokens(); // Assumes weight of 1 and consuming all tokens
+                if(p.getPlaceTokens() == 0){
+                  currentMarking.remove(p.getName());
+                }else {
+                  currentMarking.put(p.getName(), p.getPlaceTokens());
+                }
               } else {
                 throw new IllegalStateException("Transition input must be a Place.");
               }
