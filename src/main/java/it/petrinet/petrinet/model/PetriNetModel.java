@@ -202,7 +202,7 @@ public class PetriNetModel {
     try {
       n = adjacencyList.keySet().stream().filter(e -> e.getName().equals(name)).findFirst().get();
     } catch (Exception e) {
-      throw new IllegalArgumentException("Node with name " + name + " is not a valid Place or Transition.");
+      throw new IllegalArgumentException("Node with name " + name + " is not a valid Place or Transition or is not present in the model.");
     }
 
     if (n == null) {

@@ -102,6 +102,16 @@ public class Place extends Node {
   }
 
   /**
+   * Decrements tocken
+   *
+   */
+  public void decrementPlaceTokens() {
+    if(this.tokens == 0){return;}
+    this.tokens = tokens - 1;
+  }
+
+
+  /**
    * Sets the number of tokens in this place.
    *
    */
