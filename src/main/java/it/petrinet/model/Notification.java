@@ -55,10 +55,7 @@ public class Notification implements Comparable<Notification> {
 
     @Override
     public int compareTo(Notification o) {
-        int d = Long.compare(this.timestamp, o.timestamp);
-        if (d == 0) {
-            return 1;
-        }
-        return d;
+        int comparison = Long.compare(this.timestamp, o.timestamp);
+        return (comparison == 0) ? Long.compare(this.id, o.id) : comparison;
     }
 }
