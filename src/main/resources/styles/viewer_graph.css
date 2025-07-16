@@ -13,10 +13,10 @@
 }
 
 .vertex:hover {
+  -fx-cursor: default;
   -fx-fill: -fx-catppuccin-mocha-base;
   -fx-stroke: -fx-catppuccin-mocha-subtext1;
   -fx-stroke-width: 2;
-  -fx-cursor: hand;
 }
 
 .vertex-label {
@@ -26,18 +26,22 @@
 }
 
 .firableTransition {
-  -fx-fill: -fx-catppuccin-mocha-blue;
-  -fx-stroke: red;
-  -fx-stroke-dash-array: 4 4;
-  -fx-stroke-width: 2;
+  -fx-fill: -fx-catppuccin-mocha-blue;              /* Rosewater - soft & readable */
+  -fx-stroke: -fx-catppuccin-mocha-mauve;            /* Yellow - good base contrast */
+  -fx-stroke-dash-array: 6 4;
+  -fx-stroke-width: 3;
+  -fx-opacity: 1;
 }
+
 .firableTransition:hover {
   -fx-cursor: hand;
-  -fx-fill: -fx-catppuccin-mocha-blue;
-  -fx-stroke: red;
-  -fx-stroke-dash-array: 4 4;
-  -fx-stroke-width: 2;
+  -fx-stroke: -fx-catppuccin-mocha-lavender;            /* Red - vibrant on hover */
+  -fx-stroke-width: 3.1;
+  -fx-opacity: 1.0;
+  -fx-scale-x: 1.1;
+  -fx-scale-y: 1.1;
 }
+
 
 .edge {
   -fx-stroke-width: 2.5;
@@ -82,9 +86,9 @@
 }
 
 .userTransition:hover {
+  -fx-cursor: default;
   -fx-fill: #a6e3a1;
   -fx-opacity: 1.3;
-  -fx-cursor: hand;
 }
 
 .adminTransition {
@@ -93,9 +97,9 @@
 }
 
 .adminTransition:hover {
+  -fx-cursor: default;
   -fx-fill: #f38ba8;
   -fx-opacity: 1.3;
-  -fx-cursor: hand;
 }
 
 .startVertex {

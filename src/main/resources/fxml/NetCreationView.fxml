@@ -17,7 +17,7 @@
                   alignment="TOP_CENTER"
                   pickOnBounds="false"
                   prefHeight="40" maxHeight="40" minHeight="40"
-                  style="-fx-padding: 10;" />
+                  style="-fx-padding: 30;" />
 
             <!-- finish button -->
             <Button fx:id="finishButton"

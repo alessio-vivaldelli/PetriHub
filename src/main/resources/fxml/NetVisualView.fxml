@@ -17,7 +17,7 @@
                   StackPane.alignment="TOP_CENTER"
                   alignment="TOP_CENTER"
                   pickOnBounds="false"
-                  style="-fx-padding: 10;" />
+                  style="-fx-padding: 30;" />
 
         </StackPane>
     </center>

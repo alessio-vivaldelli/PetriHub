@@ -172,6 +172,22 @@ public final class IconUtils {
             );
         }
 
+
+
+
+
+
+
+    public static void removeColorEffect(Labeled node) {
+       Objects.requireNonNull(node, "Node cannot be null");
+
+       if (node.getGraphic() instanceof ImageView imageView)
+           removeColorEffect(imageView);
+       else
+           LOGGER.warning("Node does not contain an ImageView graphic");
+
+    }
+
     /**
      * Changes the color of an icon in a Labeled control.
      *
@@ -181,12 +197,13 @@ public final class IconUtils {
      */
     public static void changeIconColor(Labeled node, Color color) {
         Objects.requireNonNull(node, "Node cannot be null");
-        Objects.requireNonNull(color, "Color cannot be null");
 
         if (node.getGraphic() instanceof ImageView imageView) {
             double width = imageView.getFitWidth();
             double height = imageView.getFitHeight();
-            applyColorEffect(imageView, width, height, color);
+            if ((color == null)) removeColorEffect(imageView);
+            else applyColorEffect(imageView, width, height, color);
+
         } else {
             LOGGER.warning("Node does not contain an ImageView graphic");
         }
@@ -315,6 +332,16 @@ public final class IconUtils {
         ColorInput colorInput = new ColorInput(0, 0, width, height, color);
         Blend blendEffect = new Blend(BlendMode.SRC_ATOP, null, colorInput);
         iconView.setEffect(blendEffect);
+    }
+
+    /**
+     * Removes any color effect from the ImageView.
+     * This is useful when you want to reset the icon to its original state.
+     *
+     * @param iconView The ImageView to remove the effect from
+     */
+    private static void removeColorEffect(ImageView iconView) {
+        iconView.setEffect(null);
     }
 
     /**

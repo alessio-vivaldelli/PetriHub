@@ -10,13 +10,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,7 +46,6 @@ public class NetCreationController {
 
     // State flags
     private boolean isInitialized = false;
-    private boolean isSaving = false;
 
     @FXML
     public void initialize() {
@@ -178,11 +175,6 @@ public class NetCreationController {
             return;
         }
 
-        if (isSaving) {
-            LOGGER.info("Save operation already in progress");
-            return;
-        }
-
         try {
             initiateNetSave();
         } catch (Exception e) {
@@ -195,16 +187,11 @@ public class NetCreationController {
      * Initiates the net save operation.
      */
     private void initiateNetSave() {
-        isSaving = true;
-        finishButton.setDisable(true);
-
         try {
             canvas.saveNetAction();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to save net", e);
             showErrorDialog("Save Error", "Failed to save the Petri net. Please try again.");
-            isSaving = false;
-            finishButton.setDisable(false);
         }
     }
 
@@ -219,9 +206,6 @@ public class NetCreationController {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error after net save", e);
             showErrorDialog("Database Error", "The net was saved but there was an error updating the database.");
-        } finally {
-            isSaving = false;
-            finishButton.setDisable(false);
         }
     }
 
@@ -341,11 +325,4 @@ public class NetCreationController {
         return isInitialized;
     }
 
-    /**
-     * Checks if a save operation is in progress.
-     * @return true if saving, false otherwise
-     */
-    public boolean isSaving() {
-        return isSaving;
-    }
 }

@@ -9,6 +9,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * REFACTOR: Questa classe rappresenta la toolbar della vista, il cui contenuto
  * cambia in base allo stato della computazione. Implementa lo State Pattern,
@@ -19,23 +22,57 @@ public class ViewToolBar extends ToolBar {
     private final PetriNetViewerPane board;
     private final NetVisualController controller;
 
+    // Cache per i pulsanti per evitare ricreazioni inutili
+    private final Map<ButtonType, Button> buttonCache = new HashMap<>();
+
+    // Enum per identificare i tipi di pulsante
+    private enum ButtonType {
+        PLAY("play.png", "Start Petri Net"),
+        UNSUBSCRIBE("unsubscribe.png", "Unsubscribe from Petri Net"),
+        RESTART("restart.png", "Restart Petri Net"),
+        INFO("history.png", "Show/Hide History");
+
+        private final String iconName;
+        private final String tooltipText;
+
+        ButtonType(String iconName, String tooltipText) {
+            this.iconName = iconName;
+            this.tooltipText = tooltipText;
+        }
+
+        public String getIconName() { return iconName; }
+        public String getTooltipText() { return tooltipText; }
+    }
+
     public ViewToolBar(NetVisualController controller) {
         super();
-        // REFACTOR: Le dipendenze vengono impostate come final per garantire che non cambino dopo la costruzione.
         this.board = controller.getBoard();
         this.controller = controller;
+        initializeButtonCache();
+    }
+
+    /**
+     * Inizializza la cache dei pulsanti per evitare ricreazioni multiple
+     */
+    private void initializeButtonCache() {
+        buttonCache.put(ButtonType.PLAY, createCachedButton(ButtonType.PLAY, e -> controller.startAction()));
+        buttonCache.put(ButtonType.UNSUBSCRIBE, createCachedButton(ButtonType.UNSUBSCRIBE, e -> controller.unsubscribeAction()));
+        buttonCache.put(ButtonType.RESTART, createCachedButton(ButtonType.RESTART, e -> controller.restartAction()));
+        buttonCache.put(ButtonType.INFO, createCachedButton(ButtonType.INFO, e -> controller.toggleHistory()));
     }
 
     /**
      * Configura la toolbar per lo stato SUBSCRIBABLE (l'utente non è iscritto).
      */
     public void configureForSubscribable() {
-        Button playButton = createPlayButton();
-        IconUtils.changeIconColor(playButton, Color.GRAY); // L'icona viene resa grigia
-        playButton.setDisable(true); // Il pulsante è disabilitato
+        Button playButton = getButton(ButtonType.PLAY);
+        Button unSubscribeButton = getButton(ButtonType.UNSUBSCRIBE);
+
+        configureDisabledButton(playButton);
+        configureDisabledButton(unSubscribeButton);
 
         updateToolbar(
-                createGap(),
+                unSubscribeButton,
                 playButton,
                 createGap(3)
         );
@@ -45,13 +82,20 @@ public class ViewToolBar extends ToolBar {
      * Configura la toolbar per lo stato NOT_STARTED (l'utente è iscritto ma non ha avviato la rete).
      */
     public void configureForStartable() {
-        Button play = createPlayButton();
-        play.setDisable(controller.isCreator());
+        Button playButton = getButton(ButtonType.PLAY);
+        Button unSubscribeButton = getButton(ButtonType.UNSUBSCRIBE);
+        Button infoButton = getButton(ButtonType.INFO);
+
+        boolean isCreator = controller.isCreator();
+        configureButtonState(playButton, isCreator);
+        configureButtonState(unSubscribeButton, isCreator);
+        configureButtonState(infoButton, false); // Info button is always enabled
+
         updateToolbar(
-                createGap(),
-                play,
+                unSubscribeButton,
+                playButton,
                 createGap(3),
-                createInfoButton()
+                infoButton
         );
     }
 
@@ -59,48 +103,67 @@ public class ViewToolBar extends ToolBar {
      * Configura la toolbar per lo stato STARTED (la rete è in esecuzione).
      */
     public void configureForStarted() {
-        Button subscribe = createUnsubscribeButton();
-        subscribe.setDisable(controller.isCreator());
+        Button unSubscribeButton = getButton(ButtonType.UNSUBSCRIBE);
+        Button restartButton = getButton(ButtonType.RESTART);
+        Button infoButton = getButton(ButtonType.INFO);
+
+        boolean isCreator = controller.isCreator();
+        configureButtonState(unSubscribeButton, isCreator);
+        configureButtonState(restartButton, false); // Restart is always enabled when started
+        configureButtonState(infoButton, false); // Info button is always enabled
+
         updateToolbar(
-                subscribe,
-                createRestartButton(),
+                unSubscribeButton,
+                restartButton,
                 createGap(3),
-                createInfoButton()
+                infoButton
         );
     }
 
     /**
-     * REFACTOR: Metodo factory generico e riutilizzabile per la creazione di qualsiasi pulsante della toolbar.
-     * Centralizza la logica di configurazione comune (azione, icona, tooltip).
-     *
-     * @param iconName Il nome del file dell'icona (es. "play.png").
-     * @param tooltipText Il testo da mostrare al passaggio del mouse.
-     * @param action L'azione da eseguire al click.
-     * @return Un'istanza di Button configurata.
+     * Ottiene un pulsante dalla cache, ripristinando il suo stato predefinito
      */
-    private Button createToolbarButton(String iconName, String tooltipText, EventHandler<ActionEvent> action) {
-        Button button = new Button();
-        button.setOnAction(action);
-        configureButton(button, iconName, tooltipText); // Metodo ereditato da ToolBar
+    private Button getButton(ButtonType type) {
+        Button button = buttonCache.get(type);
+        resetButtonToDefaultState(button);
         return button;
     }
 
-    // REFACTOR: I metodi di creazione specifici ora usano la factory generica, riducendo la duplicazione.
-    private Button createRestartButton() {
-        return createToolbarButton("restart.png", "Restart Petri Net", e -> controller.restartAction());
+    /**
+     * Ripristina un pulsante al suo stato predefinito (abilitato, colore normale)
+     */
+    private void resetButtonToDefaultState(Button button) {
+        button.setDisable(false);
+        // Ripristina il colore dell'icona al colore predefinito
+        IconUtils.removeColorEffect(button);
     }
 
-    private Button createUnsubscribeButton() {
-        return createToolbarButton("unsubscribe.png", "Unsubscribe from Petri Net", e -> controller.unsubscribeAction());
+    /**
+     * Configura un pulsante come disabilitato con icona grigia
+     */
+    private void configureDisabledButton(Button button) {
+        button.setDisable(true);
+        IconUtils.changeIconColor(button, Color.GRAY);
     }
 
-    private Button createPlayButton() {
-        return createToolbarButton("play.png", "Start Petri Net", e -> controller.startAction());
+    /**
+     * Configura lo stato di un pulsante basandosi sulla condizione di disabilitazione
+     */
+    private void configureButtonState(Button button, boolean shouldDisable) {
+        if (shouldDisable) {
+            configureDisabledButton(button);
+        }
+        // Se non deve essere disabilitato, mantiene lo stato predefinito già impostato da resetButtonToDefaultState
     }
 
-    private Button createInfoButton() {
-        // REFACTOR: Aggiornata la chiamata al metodo corretto del controller refattorizzato.
-        return createToolbarButton("history.png", "Show/Hide History", e -> controller.toggleHistory());
+    /**
+     * Crea un pulsante per la cache con configurazione completa
+     */
+    private Button createCachedButton(ButtonType type, EventHandler<ActionEvent> action) {
+        Button button = new Button();
+        button.setOnAction(action);
+        configureButton(button, type.getIconName(), type.getTooltipText());
+        return button;
     }
 
     /**
@@ -112,7 +175,4 @@ public class ViewToolBar extends ToolBar {
         this.getChildren().addAll(nodes);
         addStaticButtons(board); // Aggiunge pulsanti statici definiti nella classe padre ToolBar
     }
-
-
-
 }
