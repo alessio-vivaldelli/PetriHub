@@ -9,6 +9,7 @@ import it.petrinet.petrinet.builder.PetriNetBuilder;
 import it.petrinet.petrinet.model.*;
 import it.petrinet.petrinet.persistance.pnml.PNMLSerializer;
 import it.petrinet.utils.IconUtils;
+import it.petrinet.utils.Validation;
 import it.petrinet.view.components.EnhancedAlert;
 import javafx.geometry.Point2D;
 import javafx.scene.control.*;
@@ -231,6 +232,11 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
                 "Invalid Input",
                 "You must provide a label for the new " + currentNodeType.toString() + ".");
             continue;
+          }else if(Validation.isValidFileName(newName)){
+            EnhancedAlert.showError( // Changed
+                    "Invalid Input",
+                    "The label cannot contains special characters.");
+            continue;
           }
 
           nodeLabel = newName.trim();
@@ -274,7 +280,10 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
       Runnable applyLabelChange = () -> {
         String newLabel = labelField.getText().trim();
         Node n = petriNetBuilder.getNodeByName(element.element().getName());
-        if (!setNodeLabel(n, element, newLabel)) {
+        if(Validation.isValidFileName(newLabel)){
+          EnhancedAlert.showError("Invalid Label", "The label cannot contains special characters."); // Changed
+        }
+        else if (!setNodeLabel(n, element, newLabel)) {
           // If the label is not unique or empty, show an error message
           EnhancedAlert.showError("Invalid Label", "The label must be unique and cannot be empty."); // Changed
         }
@@ -443,8 +452,8 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
 
   @Override
   protected void removeNodeFromGraph(Vertex<Node> node) {
-    super.removeNodeFromGraph(node);
     petriNetBuilder.removeNode(node.element().getName());
+    super.removeNodeFromGraph(node);
   }
 
   @Override
@@ -517,5 +526,15 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
     } else
       return node1 instanceof Transition && node2 instanceof Place; // Transition can connect to Place
     // Other combinations are not allowed
+  }
+
+  @Override
+  protected boolean setNodeLabel(Node n, Vertex<Node> node, String newLabel) {
+    String oldName = n.getName();
+    if(super.setNodeLabel(n, node, newLabel)){
+      petriNetBuilder.renameNode(oldName, newLabel);
+      return true;
+    }
+    return false;
   }
 }

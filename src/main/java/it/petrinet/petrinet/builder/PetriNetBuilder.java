@@ -53,8 +53,10 @@ public class PetriNetBuilder {
     return this;
   }
 
+
   public PetriNetBuilder removeNode(String name) {
     Node node = getNodeByName(name);
+    arcs.removeIf( arc -> (arc.getTo().equals(name) || arc.getFrom().equals(name)));
     if (node instanceof Place place) {
       return removePlace(place);
     } else if (node instanceof Transition transition) {
@@ -77,6 +79,16 @@ public class PetriNetBuilder {
   private PetriNetBuilder removeTransition(Transition transition) {
     System.out.println("Removing transition: " + transitions.remove(transition));
     return this;
+  }
+
+  public void renameNode(String oldName, String newName){
+    arcs.forEach(arc -> {
+      if (arc.getFrom().equals(oldName)){
+        arc.setFrom(newName);
+      }else if(arc.getTo().equals(oldName)){
+        arc.setTo(newName);
+      }
+    });
   }
 
   public PetriNetBuilder removeArc(String from, String to) {
