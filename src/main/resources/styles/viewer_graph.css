@@ -26,18 +26,18 @@
 }
 
 .firableTransition {
-  -fx-fill: -fx-catppuccin-mocha-blue;              /* Rosewater - soft & readable */
-  -fx-stroke: -fx-catppuccin-mocha-mauve;            /* Yellow - good base contrast */
-  -fx-stroke-dash-array: 6 4;
-  -fx-stroke-width: 3;
-  -fx-opacity: 1;
+  -fx-fill: -fx-catppuccin-mocha-yellow;              /* Rosewater - soft & readable */
+  -fx-stroke: -fx-catppuccin-mocha-peach;            /* Yellow - good base contrast */
+  -fx-stroke-dash-array: 4 4;
+  -fx-stroke-width: 2;
+  -fx-opacity: 50;
 }
 
 .firableTransition:hover {
   -fx-cursor: hand;
-  -fx-stroke: -fx-catppuccin-mocha-lavender;            /* Red - vibrant on hover */
-  -fx-stroke-width: 3.1;
-  -fx-opacity: 1.0;
+  -fx-stroke: -fx-catppuccin-mocha-peach;            /* Red - vibrant on hover */
+  -fx-stroke-width: 2.5;
+  -fx-opacity: 50;
   -fx-scale-x: 1.1;
   -fx-scale-y: 1.1;
 }

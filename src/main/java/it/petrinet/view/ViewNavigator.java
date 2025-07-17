@@ -37,7 +37,7 @@ public final class ViewNavigator {
 
     public static void homeScene(boolean resize) {
         mainController.setNavBar(new NavBar());
-        if(resize) resizeStage(0, 0, "PH - Home");
+        if(resize) resizeStage(0, 0, "PH - Petri Nets Hub");
         loadView("HomeView.fxml");
     }
 

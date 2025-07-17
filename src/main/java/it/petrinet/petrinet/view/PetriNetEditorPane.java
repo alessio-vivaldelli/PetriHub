@@ -372,10 +372,15 @@ public class PetriNetEditorPane extends AbstractPetriNetPane {
 
       MenuItem infoItem = new MenuItem("Show Info");
       infoItem.setOnAction(_ -> {
+        String res = "";
+        if(element.element() instanceof Place p){
+          res = "\nPlace type: " + p.getType();
+        }else if(element.element() instanceof Transition t){
+          res = "\nTransition type: " + t.getType();
+        }
         EnhancedAlert.showInformation("Node Information", // Changed
             "Name: " + element.element().getName() +
-                "\nType: " + element.element().getShapeType() +
-                "\nVertex ID: " + element.toString());
+                "\nType: " + element.element().getShapeType() + res);
       });
 
       if (userTypeItem != null) {
