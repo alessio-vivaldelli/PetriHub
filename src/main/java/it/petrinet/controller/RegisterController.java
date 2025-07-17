@@ -40,7 +40,7 @@ public class RegisterController {
 
         // Validation
         if (!isValidInput(username, password)) {
-            showError("Please fill out all fields");
+            showError("Please fill out all fields with valid input");
             return;
         }
 
@@ -61,8 +61,8 @@ public class RegisterController {
 
         // Navigate to login with success message
         safeNavigate(() -> {
-            ViewNavigator.toLogin();
             SessionContext.getInstance().setPendingMessage("Registration successful! Please log in.");
+            ViewNavigator.toLogin();
         });
     }
 
