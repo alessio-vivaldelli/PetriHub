@@ -1,5 +1,5 @@
 # PetriNet Hub
-> Final project Software Engineering course @ UniVR &mdash; A.Y. 2024/2025. The complete documentation, including class and sequence diagram, (written in Italian) can be found [here](https://github.com/alessio-vivaldelli/PetriHub/Relazione-PetriHub.pdf).
+> Final project of Software Engineering course @ UniVR &mdash; A.Y. 2024/2025. The complete documentation, including class and sequence diagram, (written in Italian) can be found [here](https://github.com/alessio-vivaldelli/PetriHub/Relazione-PetriHub.pdf).
 ## Description
 
 **PetriNet Hub** is a comprehensive desktop application developed in Java for the design, visualization, and simulation of Petri nets, following the formalisms of the **ISO/IEC 15909-2** standard to save and load them.
